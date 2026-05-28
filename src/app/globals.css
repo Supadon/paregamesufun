@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+:root {
+  --bg0: #04071A;
+  --bg1: #070D28;
+  --bg2: #0C1340;
+  --bg3: #111A52;
+  --blue: #2B5FFF;
+  --blue2: #4A7FFF;
+  --blue3: #6FA0FF;
+  --blue-dim: rgba(43, 95, 255, 0.14);
+  --blue-glow: rgba(43, 95, 255, 0.07);
+  --star: #A8C4FF;
+  --star2: #D4E4FF;
+  --white: #F0F6FF;
+  --text1: #EEF4FF;
+  --text2: #8BA8D8;
+  --text3: #4A6499;
+  --border: rgba(100, 150, 255, 0.12);
+  --border2: rgba(100, 150, 255, 0.07);
+}
+
+@theme inline {
+  --color-bg0: var(--bg0);
+  --color-bg1: var(--bg1);
+  --color-bg2: var(--bg2);
+  --color-bg3: var(--bg3);
+  --color-blue: var(--blue);
+  --color-blue2: var(--blue2);
+  --color-blue3: var(--blue3);
+  --color-blue-dim: var(--blue-dim);
+  --color-blue-glow: var(--blue-glow);
+  --color-star: var(--star);
+  --color-star2: var(--star2);
+  --color-text1: var(--text1);
+  --color-text2: var(--text2);
+  --color-text3: var(--text3);
+  --color-border-c: var(--border);
+  --color-border2: var(--border2);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+
+  --font-sans: 'Sarabun', 'Noto Sans Thai', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sarabun), var(--font-noto-thai), 'Sarabun', 'Noto Sans Thai', sans-serif;
+  background: var(--bg0);
+  color: var(--text1);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Star twinkle animation */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.7; }
+}
+
+/* Hero floating icons animation */
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg0);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--blue);
+}

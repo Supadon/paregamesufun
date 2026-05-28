@@ -1,0 +1,333 @@
+[
+  {
+    "id": 1,
+    "slug": "the-operator",
+    "title": "The Operator",
+    "genre": "Simulation / Narrative / Puzzle",
+    "emoji": "📟",
+    "status": "done",
+    "progress": {
+      "translate": 100,
+      "proofread": 100,
+      "test": 100,
+      "isMultiModule": false
+    },
+    "version": "v1.0.3",
+    "client": "Steam",
+    "translationVersion": "1.0",
+    "shortDescription": "แปลภาษาไทยเต็มรูปแบบระบบคดี FDI และบทสนทนา 100%",
+    "description": "ม็อดภาษาไทยสำหรับเกม The Operator แปลภาษาไทยครบถ้วนสมบูรณ์ 100% ทั้งระบบอินเตอร์เฟสคอมพิวเตอร์ FDI คดีฆาตกรรม การวิเคราะห์หลักฐาน และบทสนทนาทั้งหมดในเกม ร่วมไขคดีความลับระดับชาติแบบไร้กำแพงภาษา",
+    "overview": "The Operator คือเกมแนวสืบสวนระทึกขวัญเชิงบรรยาย คุณจะได้สวมบทบาทเป็นเจ้าหน้าที่สืบสวนคดีหน้าใหม่ของหน่วยงานข้อมูลกลาง (FDI) ทำหน้าที่วิเคราะห์หลักฐาน ค้นหาฐานข้อมูล และช่วยเหลือเจ้าหน้าที่ภาคสนามผ่านหน้าจอมอนิเตอร์อัจฉริยะ เพื่อเปิดโปงทฤษฎีสมคบคิดระดับโลก",
+    "translationScope": [
+      "อินเตอร์เฟสระบบ FDI",
+      "เอกสารและไฟล์คดีทั้งหมด",
+      "วิดีโอหลักฐานและเสียงบันทึก",
+      "บทสนทนาระหว่างคู่สาย"
+    ],
+    "videoUrl": "",
+    "coverImage": "",
+    "posterImage": "",
+    "fileSize": "10 MB",
+    "updatedAt": "2026-05-28",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "ผู้แปลหลัก"
+      }
+    ],
+    "downloads": [
+      {
+        "label": "เร็ว ๆ นี้",
+        "url": "#",
+        "type": "secondary"
+      }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 2,
+    "slug": "911-operator",
+    "title": "911 Operator",
+    "genre": "Simulation / Strategy",
+    "emoji": "📞",
+    "status": "done",
+    "progress": {
+      "translate": 100,
+      "proofread": 100,
+      "test": 100,
+      "isMultiModule": false
+    },
+    "version": "v1.36",
+    "client": "Steam",
+    "translationVersion": "1.0",
+    "shortDescription": "แปลภาษาไทยบทพูดสายโทรศัพท์รับแจ้งเหตุฉุกเฉินและคำแนะนำการช่วยชีวิต 100%",
+    "description": "ม็อดภาษาไทยสำหรับเกม 911 Operator แปลภาษาไทยสมบูรณ์แบบ 100% ครอบคลุมทั้งอินเตอร์เฟส รายงานเหตุการณ์จำลอง บทสนทนารับสายของประชาชนกว่า 50 บทสนทนา และขั้นตอนการปฐมพยาบาลเบื้องต้นอย่างถูกต้อง",
+    "overview": "911 Operator คือเกมจำลองการทำงานของเจ้าหน้าที่รับสายฉุกเฉิน 911 คุณมีหน้าที่ตอบคำถามสายเรียกเข้า สั่งการหน่วยแพทย์ ตำรวจ และหน่วยดับเพลิงไปแก้สถานการณ์ในแผนที่ของเมืองใดก็ได้ในโลก พร้อมทั้งประเมินความฉุกเฉินและให้คำแนะนำช่วยเหลือชีวิตผู้ประสบภัย",
+    "translationScope": [
+      "อินเตอร์เฟสและ UI ทั้งหมด",
+      "บทสนทนาสายเรียกเข้าฉุกเฉิน",
+      "คู่มือคำแนะนำช่วยชีวิตเบื้องต้น",
+      "ภารกิจแคมเปญเมืองหลวง"
+    ],
+    "videoUrl": "",
+    "coverImage": "",
+    "posterImage": "",
+    "fileSize": "15 MB",
+    "updatedAt": "2026-05-28",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "ผู้แปลหลัก"
+      }
+    ],
+    "downloads": [
+      {
+        "label": "เข้าสู่หน้าดาวน์โหลด",
+        "url": "https://www.nexusmods.com",
+        "type": "primary"
+      }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 3,
+    "slug": "the-sims-4",
+    "title": "The Sims 4",
+    "genre": "Simulation / Life",
+    "emoji": "💎",
+    "status": "done",
+    "progress": {
+      "translate": 100,
+      "proofread": 100,
+      "test": 100,
+      "isMultiModule": false
+    },
+    "version": "v1.107",
+    "client": "EA App, Steam",
+    "translationVersion": "1.0",
+    "shortDescription": "แปลภาษาไทยสำหรับภาคหลักและส่วนเสริม (DLC) ครบสมบูรณ์ 100%",
+    "description": "ม็อดภาษาไทยสมบูรณ์แบบสำหรับเกม The Sims 4 ครอบคลุมเมนู, ปฏิสัมพันธ์, อารมณ์, ปณิธาน, สังคม และคำอธิบายไอเท็มต่าง ๆ ทั้งในตัวเกมหลักและ DLC ทุกตัวอย่างสมบูรณ์แบบพร้อมให้ดาวน์โหลดเล่น",
+    "overview": "The Sims 4 คือเกมแนวจำลองชีวิตยอดนิยมระดับโลกที่เปิดโอกาสให้คุณสร้างและควบคุมผู้คน (Sims) ในโลกเสมือนจริงได้อย่างอิสระเต็มที่ ตั้งแต่รูปร่างหน้าตา ลักษณะนิสัย ความสัมพันธ์ หน้าที่การงาน ไปจนถึงการสร้างบ้านในฝันและผจญภัยในส่วนเสริมหลากหลายรูปแบบ",
+    "translationScope": [
+      "เมนูและ UI หลัก",
+      "ความปรารถนาและปณิธาน",
+      "ปฏิสัมพันธ์ระหว่างซิมส์",
+      "คำอธิบายไอเท็มสร้างบ้าน",
+      "ส่วนเสริม Expansion Packs ทั้งหมด"
+    ],
+    "videoUrl": "https://www.youtube.com/embed/z00mK3Pxc8w",
+    "coverImage": "/uploads/sims_cover_art.png",
+    "posterImage": "/uploads/sims_poster_art.png",
+    "fileSize": "32 MB",
+    "updatedAt": "2026-05-28",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "ผู้แปลหลัก"
+      },
+      {
+        "name": "SimmerTH",
+        "role": "เรียบเรียงภาษา"
+      }
+    ],
+    "downloads": [
+      {
+        "label": "เข้าสู่หน้าดาวน์โหลด",
+        "url": "https://www.nexusmods.com",
+        "type": "primary"
+      }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 4,
+    "slug": "inzoi",
+    "title": "inZOI",
+    "genre": "Simulation / Life",
+    "emoji": "🐱",
+    "status": "done",
+    "progress": {
+      "translate": 100,
+      "proofread": 100,
+      "test": 100,
+      "isMultiModule": false
+    },
+    "version": "Early Access",
+    "client": "Steam",
+    "translationVersion": "1.0",
+    "shortDescription": "แปลภาษาไทยสำหรับ Zoi นิสัย และระบบแต่งตัวสร้างเมืองสมจริง UE5 100%",
+    "description": "ม็อดภาษาไทยสมบูรณ์แบบสำหรับเกม inZOI เกมจำลองชีวิตภาพสวยสมจริงแห่งยุค แปลภาษาไทยครบทุกเมนูนิสัย บุคลิกภาพ ความต้องการ ระบบแผงงาน และปฏิสัมพันธ์ระหว่าง Zoi 100%",
+    "overview": "inZOI คือเกมจำลองชีวิตสไตล์แซนด์บ็อกซ์เจเนอเรชันใหม่ที่ขับเคลื่อนด้วย Unreal Engine 5 คุณจะสวมบทบาทเป็นผู้สร้างที่คอยบริหารเมือง ควบคุมสิ่งแวดล้อม และสัมผัสเรื่องราวชีวิตอันหลากหลายของ Zois ผู้มีจิตใจและทางเลือกเป็นของตัวเอง",
+    "translationScope": [
+      "เมนู Zois และนิสัย",
+      "ระบบควบคุมเมืองและความต้องการ",
+      "ระบบสร้างตัวละครและแอป Canvas",
+      "ระบบแต่งบ้านและสร้างวัตถุ"
+    ],
+    "videoUrl": "",
+    "coverImage": "",
+    "posterImage": "",
+    "fileSize": "20 MB",
+    "updatedAt": "2026-05-28",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "ผู้แปลหลัก"
+      }
+    ],
+    "downloads": [
+      {
+        "label": "Nexus Mods",
+        "url": "https://www.nexusmods.com",
+        "type": "primary"
+      },
+      {
+        "label": "Patreon",
+        "url": "https://www.patreon.com",
+        "type": "secondary"
+      }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 5,
+    "slug": "a-quiet-place-the-road-ahead",
+    "title": "ดินแดนไร้เสียง เควสทางมรณะ",
+    "genre": "Adventure / Horror",
+    "emoji": "🤫",
+    "status": "done",
+    "progress": {
+      "translate": 100,
+      "proofread": 100,
+      "test": 100,
+      "isMultiModule": false
+    },
+    "version": "v1.01",
+    "client": "Steam",
+    "translationVersion": "1.0",
+    "shortDescription": "แปลไทยบทสนทนา เมนู และระบบวัดระดับเสียงไมโครโฟน 100%",
+    "description": "ม็อดภาษาไทยสมบูรณ์แบบ 100% สำหรับเกม A Quiet Place: The Road Ahead ครอบคลุมบทบรรยายภาษาไทย บทสนทนา เมนูการตั้งค่า การเดินทาง และรายละเอียดการจัดการโรคหอบหืดของตัวเอกเพื่อให้สัมผัสบรรยากาศภาพยนตร์สุดระทึกอย่างชัดเจน",
+    "overview": "ดินแดนไร้เสียง เควสทางมรณะ (A Quiet Place: The Road Ahead) เป็นเกมผจญภัยสยองขวัญมุมมองบุคคลที่หนึ่งอ้างอิงจากแฟรนไชส์ภาพยนตร์ดัง ดำเนินเรื่องโดยหญิงสาวที่ต้องฝ่าฟันวันสิ้นโลกท่ามกลางอสูรกายต่างดาวที่ออกล่าตามเสียงเท่านั้น ตัวเกมมีระบบใช้เสียงไมโครโฟนจริงของผู้เล่นเพื่อเพิ่มความสมจริง",
+    "translationScope": [
+      "เมนูและการตั้งค่าระบบ",
+      "บทบรรยายเนื้อเรื่องหลัก",
+      "อินเตอร์เฟสวัดระดับความดังเสียง",
+      "บันทึกส่วนตัวและจดหมายในแผนที่"
+    ],
+    "videoUrl": "",
+    "coverImage": "",
+    "posterImage": "",
+    "fileSize": "18 MB",
+    "updatedAt": "2026-05-28",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "ผู้แปลหลัก"
+      }
+    ],
+    "downloads": [
+      {
+        "label": "Nexus Mods",
+        "url": "https://www.nexusmods.com",
+        "type": "primary"
+      }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 6,
+    "slug": "until-dawn",
+    "title": "Until Dawn",
+    "genre": "Horror / Interactive Story",
+    "emoji": "❄️",
+    "status": "done",
+    "progress": {
+      "translate": 100,
+      "proofread": 100,
+      "test": 100,
+      "isMultiModule": false
+    },
+    "version": "2024 Remake",
+    "client": "Steam, Epic",
+    "translationVersion": "1.0",
+    "shortDescription": "แปลภาษาไทยเมนูและซับไตเติลทางเลือกชะตากรรมของวัยรุ่นทั้ง 8 คน 100%",
+    "description": "ม็อดภาษาไทยสมบูรณ์แบบ 100% สำหรับเกม Until Dawn (2024 Remake) แปลเมนู, บันทึกประวัติ, ท็อตเทม และซับไตเติลทางเลือกทั้งหมดในเกม ร่วมกำหนดชะตาชีวิตตัวละครหลักให้อยู่รอดพ้นคืนฤดูหนาวอันหฤโหดเป็นภาษาไทย",
+    "overview": "Until Dawn คือเกมแนวภาพยนตร์ปฏิสัมพันธ์สยองขวัญชื่อดังที่ถูกสร้างขึ้นใหม่บน Unreal Engine 5 ดำเนินเรื่องรอบวัยรุ่น 8 คนที่กลับมารวมตัวกันที่บ้านพักตากอากาศบนภูเขาที่แยกตัวโดดเดี่ยว และถูกคุกคามโดยสิ่งมีชีวิตลึกลับ ทางเลือกทุกข้อของคุณจะส่งผลต่อความอยู่รอดของพวกเขา",
+    "translationScope": [
+      "บทสนทนาและคำอธิบายทางเลือก",
+      "เมนูหลักและการตั้งค่าภาษาไทย",
+      "บันทึกประวัติและเบาะแสตัวละคร",
+      "คำอธิบายระบบ Totems ลึกลับ"
+    ],
+    "videoUrl": "",
+    "coverImage": "",
+    "posterImage": "",
+    "fileSize": "25 MB",
+    "updatedAt": "2026-05-28",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "ผู้แปลหลัก"
+      }
+    ],
+    "downloads": [
+      {
+        "label": "Nexus Mods",
+        "url": "https://www.nexusmods.com",
+        "type": "primary"
+      }
+    ],
+    "instructions": []
+  },
+  {
+    "id": 7,
+    "slug": "detroit-become-human",
+    "title": "Detroit: Become Human",
+    "genre": "แอคชั่น",
+    "emoji": "🎮",
+    "status": "done",
+    "progress": {
+      "translate": 100,
+      "proofread": 100,
+      "test": 100,
+      "isMultiModule": false
+    },
+    "version": "Steam, Epic",
+    "client": "Steam, Epic",
+    "translationVersion": "2",
+    "shortDescription": "ผลงานแปลไทยเกม Detroit: Become Human ชะตากรรมของแอนดรอยด์ 3 ตัวเลือก 100%",
+    "description": "ผลงานแรกของทางเพจ แปลภาษาไทยสมบูรณ์แบบ 100% ครอบคลุมบทสนทนา ตัวเลือกการตัดสินใจ เมนู และระบบ Flowchart ชะตากรรมทั้งหมดของแอนดรอยด์ทั้ง 3 ตัวละครหลัก",
+    "overview": "Detroit: Become Human คือเกมแนวผจญภัยสวมบทบาทเชิงภาพยนตร์ปฏิสัมพันธ์ในโลกอนาคตปี 2038 ที่มีเทคโนโลยีแอนดรอยด์เข้ามามีบทบาทในชีวิตมนุษย์ คุณจะได้ตัดสินใจเลือกการเดินเรื่องผ่านตัวละครแอนดรอยด์ 3 ตัว ซึ่งการกระทำทุกอย่างจะส่งผลต่อความอยู่รอดของพวกมันและทิศทางของประวัติศาสตร์มนุษยชาติ",
+    "translationScope": [
+      "บทพูดและบทสนทนาเนื้อเรื่อง",
+      "เมนูและคู่มือการตั้งค่า",
+      "ผังโครงสร้างการตัดสินใจ Flowchart",
+      "คำบรรยายข่าวสารและนิตยสารในเกม"
+    ],
+    "videoUrl": "",
+    "coverImage": "https://flvgoyaloxrvxrovtapf.supabase.co/storage/v1/object/public/game-assets/1779715242087-qtayqoi.jpg",
+    "posterImage": "https://flvgoyaloxrvxrovtapf.supabase.co/storage/v1/object/public/game-assets/1779715239421-qnzqblr.jpg",
+    "fileSize": "16.6 MB",
+    "updatedAt": "2026-05-25",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "แปลภาษาทั้งหมด",
+        "avatar": "https://flvgoyaloxrvxrovtapf.supabase.co/storage/v1/object/public/game-assets/1779715288723-az8rruz.jpg"
+      },
+      {
+        "name": "NoØnetranslator",
+        "role": "จัดการไฟล์ม็อด",
+        "avatar": ""
+      }
+    ],
+    "downloads": [
+      {
+        "label": "Nexus Mods",
+        "url": "https://www.nexusmods.com/detroitbecomehuman/mods/62",
+        "type": "primary"
+      }
+    ],
+    "instructions": []
+  }
+]
