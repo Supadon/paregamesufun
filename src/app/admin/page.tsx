@@ -39,6 +39,7 @@ export default function AdminPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingGame, setEditingGame] = useState<Game | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [showCustomGenre, setShowCustomGenre] = useState(false)
   
   // Toast State
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
@@ -262,6 +263,7 @@ export default function AdminPage() {
     setTitle('')
     setSlug('')
     setGenre('')
+    setShowCustomGenre(false)
     setEmoji('')
     setStatus('wip')
     setTranslateProgress(0)
@@ -292,6 +294,12 @@ export default function AdminPage() {
     setTitle(game.title)
     setSlug(game.slug)
     setGenre(game.genre)
+    const uniqueGenres = Array.from(new Set(games.map(g => g.genre))).filter(Boolean)
+    if (game.genre && !uniqueGenres.includes(game.genre)) {
+      setShowCustomGenre(true)
+    } else {
+      setShowCustomGenre(false)
+    }
     setEmoji(game.emoji)
     setStatus(game.status)
     setTranslateProgress(game.progress.translate)
@@ -967,14 +975,43 @@ export default function AdminPage() {
                 {/* 3. Genre */}
                 <div>
                   <label className="block text-[11px] font-bold text-text3 uppercase mb-1.5">หมวดหมู่ / แนวเกม <span className="text-rose-500">*</span></label>
-                  <input 
-                    type="text" 
-                    value={genre}
-                    onChange={(e) => setGenre(e.target.value)}
-                    required
-                    placeholder="ตัวอย่าง RPG / Open World"
-                    className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-blue2/40 focus:outline-none text-xs text-text1 transition-colors"
-                  />
+                  <div className="space-y-2">
+                    <select
+                      value={showCustomGenre ? '__new__' : genre}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        if (val === '__new__') {
+                          setShowCustomGenre(true)
+                          setGenre('')
+                        } else {
+                          setShowCustomGenre(false)
+                          setGenre(val)
+                        }
+                      }}
+                      className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-blue2/40 focus:outline-none text-xs text-text1 transition-colors"
+                    >
+                      <option value="" className="bg-bg1">-- เลือกหมวดหมู่ที่มีอยู่ --</option>
+                      {Array.from(new Set(games.map((g) => g.genre))).filter(Boolean).map((gGenre) => (
+                        <option key={gGenre} value={gGenre} className="bg-bg1">
+                          {gGenre}
+                        </option>
+                      ))}
+                      <option value="__new__" className="bg-bg1 text-blue3 font-bold">
+                        ➕ เพิ่มหมวดหมู่ใหม่ (พิมพ์เอง)...
+                      </option>
+                    </select>
+
+                    {showCustomGenre && (
+                      <input 
+                        type="text" 
+                        value={genre}
+                        onChange={(e) => setGenre(e.target.value)}
+                        required
+                        placeholder="ระบุหมวดหมู่ใหม่ (เช่น RPG, Action, Simulation)"
+                        className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-blue2/40 focus:outline-none text-xs text-text1 transition-colors animate-in slide-in-from-top-2 duration-200"
+                      />
+                    )}
+                  </div>
                 </div>
 
                 {/* 4. Emoji Icon */}
