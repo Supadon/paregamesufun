@@ -222,3 +222,29 @@ CREATE POLICY "Allow public manage" ON storage.objects
 -- MIGRATION: Run this to update your existing database table if it already exists
 ALTER TABLE public.games ADD COLUMN IF NOT EXISTS instructions jsonb NOT NULL DEFAULT '[]'::jsonb;
 
+
+-- 6. Create the 'team_members' table for global team pool
+CREATE TABLE IF NOT EXISTS public.team_members (
+    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name text UNIQUE NOT NULL,
+    avatar text NOT NULL DEFAULT '',
+    created_at timestamp with time zone default timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable RLS
+ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
+
+-- Policies
+CREATE POLICY "Allow public select" ON public.team_members
+    FOR SELECT USING (true);
+
+CREATE POLICY "Allow public write" ON public.team_members
+    FOR ALL USING (true) WITH CHECK (true);
+
+-- Seed some initial team members
+INSERT INTO public.team_members (name, avatar) VALUES 
+('แปลเกมสู่ฝัน', 'https://flvgoyaloxrvxrovtapf.supabase.co/storage/v1/object/public/game-assets/1779715288723-az8rruz.jpg'),
+('SimmerTH', ''),
+('NoØnetranslator', '')
+ON CONFLICT (name) DO NOTHING;
+

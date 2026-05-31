@@ -350,3 +350,130 @@ export async function uploadLocalFile(formData: FormData): Promise<{ success: bo
     return { success: false, error: err.message || 'Failed to save file locally' }
   }
 }
+
+const TEAM_POOL_PATH = path.join(process.cwd(), 'src/lib/team-pool.json')
+
+interface TeamPoolMember {
+  name: string
+  avatar: string
+}
+
+// Helper: Read local team members pool
+function getLocalTeamPool(): TeamPoolMember[] {
+  try {
+    if (!fs.existsSync(TEAM_POOL_PATH)) {
+      const initialPool = [
+        {
+          name: 'แปลเกมสู่ฝัน',
+          avatar: 'https://flvgoyaloxrvxrovtapf.supabase.co/storage/v1/object/public/game-assets/1779715288723-az8rruz.jpg'
+        },
+        {
+          name: 'SimmerTH',
+          avatar: ''
+        },
+        {
+          name: 'NoØnetranslator',
+          avatar: ''
+        }
+      ]
+      fs.mkdirSync(path.dirname(TEAM_POOL_PATH), { recursive: true })
+      fs.writeFileSync(TEAM_POOL_PATH, JSON.stringify(initialPool, null, 2), 'utf-8')
+      return initialPool
+    }
+    const data = fs.readFileSync(TEAM_POOL_PATH, 'utf-8')
+    return JSON.parse(data)
+  } catch (error) {
+    console.error('Error reading team pool:', error)
+    return []
+  }
+}
+
+// Helper: Write local team members pool
+function writeLocalTeamPool(pool: TeamPoolMember[]) {
+  try {
+    fs.writeFileSync(TEAM_POOL_PATH, JSON.stringify(pool, null, 2), 'utf-8')
+  } catch (error) {
+    console.error('Error writing team pool:', error)
+  }
+}
+
+// Action: Fetch all team pool members
+export async function getTeamPool(): Promise<TeamPoolMember[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from('team_members')
+        .select('name, avatar')
+        .order('name', { ascending: true })
+
+      if (error) throw error
+      return data || []
+    } catch (err) {
+      console.error('Supabase getTeamPool error, falling back to local:', err)
+      return getLocalTeamPool()
+    }
+  }
+  return getLocalTeamPool()
+}
+
+// Action: Add a team member to the pool
+export async function addTeamMemberToPool(member: TeamPoolMember): Promise<{ success: boolean; data?: TeamPoolMember; error?: string }> {
+  await verifyAuthOrThrow()
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from('team_members')
+        .upsert({ name: member.name, avatar: member.avatar }, { onConflict: 'name' })
+        .select()
+        .single()
+
+      if (error) throw error
+      return { success: true, data: { name: data.name, avatar: data.avatar } }
+    } catch (err: any) {
+      console.error('Supabase addTeamMemberToPool error:', err)
+    }
+  }
+
+  try {
+    const pool = getLocalTeamPool()
+    const idx = pool.findIndex((m) => m.name.toLowerCase() === member.name.toLowerCase())
+    if (idx !== -1) {
+      pool[idx].avatar = member.avatar
+    } else {
+      pool.push(member)
+    }
+    writeLocalTeamPool(pool)
+    return { success: true, data: member }
+  } catch (err: any) {
+    console.error('Local addTeamMemberToPool error:', err)
+    return { success: false, error: err.message || 'Failed to save to local team pool' }
+  }
+}
+
+// Action: Delete a team member from the pool
+export async function deleteTeamMemberFromPool(name: string): Promise<{ success: boolean; error?: string }> {
+  await verifyAuthOrThrow()
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase
+        .from('team_members')
+        .delete()
+        .eq('name', name)
+
+      if (error) throw error
+      return { success: true }
+    } catch (err: any) {
+      console.error('Supabase deleteTeamMemberFromPool error:', err)
+    }
+  }
+
+  try {
+    const pool = getLocalTeamPool()
+    const filtered = pool.filter((m) => m.name.toLowerCase() !== name.toLowerCase())
+    writeLocalTeamPool(filtered)
+    return { success: true }
+  } catch (err: any) {
+    console.error('Local deleteTeamMemberFromPool error:', err)
+    return { success: false, error: err.message || 'Failed to delete from local team pool' }
+  }
+}

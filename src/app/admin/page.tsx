@@ -5,12 +5,14 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, Plus, Edit2, Trash2, Check, X, 
-  Loader2, Sparkles, Database, FileCode, CheckCircle, Info 
+  Loader2, Sparkles, Database, FileCode, CheckCircle, Info,
+  Users, UserPlus, Trash
 } from 'lucide-react'
 import { Game, GameStatus, TeamMember, DownloadLink, GameModule, InstructionStep } from '@/lib/types'
 import { 
   getGames, createGame, updateGame, deleteGame, uploadLocalFile,
-  checkAdminSession, verifyAdminPassword, logoutAdmin 
+  checkAdminSession, verifyAdminPassword, logoutAdmin,
+  getTeamPool, addTeamMemberToPool, deleteTeamMemberFromPool
 } from '@/app/actions/games'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
@@ -26,6 +28,13 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState('')
   const [verifying, setVerifying] = useState(false)
   
+  // Team pool state
+  const [teamPool, setTeamPool] = useState<{ name: string; avatar: string }[]>([])
+  const [isPoolModalOpen, setIsPoolModalOpen] = useState(false)
+  const [newMemberName, setNewMemberName] = useState('')
+  const [newMemberAvatar, setNewMemberAvatar] = useState('')
+  const [savingMember, setSavingMember] = useState(false)
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingGame, setEditingGame] = useState<Game | null>(null)
@@ -77,6 +86,10 @@ export default function AdminPage() {
           setGames(data)
           const configured = isSupabaseConfigured()
           setDbMode(configured ? 'supabase' : 'local')
+          
+          // Load team pool
+          const poolData = await getTeamPool()
+          setTeamPool(poolData)
         }
       } catch (err) {
         console.error('Failed to load initial data:', err)
@@ -107,6 +120,10 @@ export default function AdminPage() {
         setGames(data)
         const configured = isSupabaseConfigured()
         setDbMode(configured ? 'supabase' : 'local')
+        
+        // Load team pool
+        const poolData = await getTeamPool()
+        setTeamPool(poolData)
       } else {
         setAuthError(res.error || 'รหัสผ่านไม่ถูกต้อง')
       }
@@ -126,6 +143,105 @@ export default function AdminPage() {
       showToast('ออกจากระบบเรียบร้อย', 'success')
     } catch (err) {
       showToast('ไม่สามารถออกจากระบบได้', 'error')
+    }
+  }
+
+  const handleAddMemberToPool = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newMemberName.trim()) {
+      showToast('กรุณากรอกชื่อผู้จัดทำ', 'error')
+      return
+    }
+    setSavingMember(true)
+    try {
+      const res = await addTeamMemberToPool({
+        name: newMemberName.trim(),
+        avatar: newMemberAvatar.trim()
+      })
+      if (res.success && res.data) {
+        // Update pool list
+        const existsIdx = teamPool.findIndex(m => m.name.toLowerCase() === res.data!.name.toLowerCase())
+        if (existsIdx !== -1) {
+          const updated = [...teamPool]
+          updated[existsIdx] = res.data!
+          setTeamPool(updated)
+        } else {
+          setTeamPool([...teamPool, res.data!])
+        }
+        setNewMemberName('')
+        setNewMemberAvatar('')
+        showToast('บันทึกข้อมูลสมาชิกเข้าคลังเรียบร้อย', 'success')
+      } else {
+        throw new Error(res.error || 'เกิดข้อผิดพลาดในการบันทึก')
+      }
+    } catch (err: any) {
+      showToast(err.message || 'บันทึกไม่สำเร็จ', 'error')
+    } finally {
+      setSavingMember(false)
+    }
+  }
+
+  const handleDeleteMemberFromPool = async (name: string) => {
+    if (!confirm(`คุณแน่ใจว่าต้องการลบ "${name}" ออกจากคลังรายชื่อทีมงาน?`)) return
+    try {
+      const res = await deleteTeamMemberFromPool(name)
+      if (res.success) {
+        setTeamPool(teamPool.filter(m => m.name !== name))
+        showToast('ลบสมาชิกออกจากคลังเรียบร้อย', 'success')
+      } else {
+        throw new Error(res.error)
+      }
+    } catch (err: any) {
+      showToast(err.message || 'ลบไม่สำเร็จ', 'error')
+    }
+  }
+
+  const handleMemberAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      showToast('กำลังอัปโหลดรูปโปรไฟล์...', 'success')
+      
+      let imageUrl = ''
+      if (dbMode === 'supabase') {
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
+        const filePath = `${fileName}`
+
+        const { data, error } = await supabase.storage
+          .from('game-assets')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          })
+
+        if (error) {
+          throw new Error(error.message)
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('game-assets')
+          .getPublicUrl(filePath)
+
+        imageUrl = urlData.publicUrl
+      } else {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const res = await uploadLocalFile(formData)
+        if (res.success && res.url) {
+          imageUrl = res.url
+        } else {
+          throw new Error(res.error || 'ไม่สามารถบันทึกไฟล์บนเครื่องได้')
+        }
+      }
+
+      setNewMemberAvatar(imageUrl)
+      showToast('อัปโหลดสำเร็จ!', 'success')
+    } catch (err: any) {
+      console.error(err)
+      showToast(err.message || 'เกิดข้อผิดพลาดในการอัปโหลด', 'error')
     }
   }
 
@@ -678,6 +794,14 @@ export default function AdminPage() {
           </button>
 
           <button 
+            onClick={() => setIsPoolModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-text2 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue2/40 transition-all"
+          >
+            <Users size={14} className="text-blue3" />
+            จัดการคลังทีมงาน
+          </button>
+
+          <button 
             onClick={handleLogout}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-text2 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
           >
@@ -1211,13 +1335,37 @@ export default function AdminPage() {
 
                       {/* Name & Role Inputs */}
                       <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <input 
-                          type="text" 
-                          placeholder="ชื่อสมาชิก"
+                        <select
                           value={member.name}
-                          onChange={(e) => handleTeamMemberChange(idx, 'name', e.target.value)}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            const poolMem = teamPool.find(m => m.name === val)
+                            if (poolMem) {
+                              const newTeam = [...team]
+                              newTeam[idx].name = poolMem.name
+                              newTeam[idx].avatar = poolMem.avatar
+                              setTeam(newTeam)
+                            } else {
+                              const newTeam = [...team]
+                              newTeam[idx].name = val
+                              newTeam[idx].avatar = ''
+                              setTeam(newTeam)
+                            }
+                          }}
                           className="w-full px-3 py-2 rounded-lg bg-bg2/40 border border-white/5 focus:outline-none text-xs text-text1"
-                        />
+                        >
+                          <option value="" className="bg-bg1">-- เลือกรายชื่อทีมงาน --</option>
+                          {teamPool.map((poolMem, poolIdx) => (
+                            <option key={poolIdx} value={poolMem.name} className="bg-bg1">
+                              {poolMem.name}
+                            </option>
+                          ))}
+                          {member.name && !teamPool.some(m => m.name === member.name) && (
+                            <option value={member.name} className="bg-bg1">
+                              {member.name} (ไม่มีในคลัง)
+                            </option>
+                          )}
+                        </select>
                         <input 
                           type="text" 
                           placeholder="หน้าที่รับผิดชอบ"
@@ -1394,6 +1542,140 @@ export default function AdminPage() {
               </div>
 
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Team Pool Management Modal */}
+      {isPoolModalOpen && (
+        <div className="fixed inset-0 z-[260] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-bg1 border border-border2 rounded-3xl w-full max-w-[550px] max-h-[85vh] overflow-hidden shadow-2xl relative flex flex-col animate-in zoom-in-95 duration-200">
+            
+            {/* Header */}
+            <div className="p-6 border-b border-white/5 flex justify-between items-center shrink-0">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Users size={18} className="text-blue3" /> คลังรายชื่อผู้จัดทำและทีมงาน
+                </h3>
+                <p className="text-[11px] text-text3 mt-0.5">เพิ่ม ลบ หรือแก้ไขข้อมูลทีมงานทั้งหมดที่จะนำไปใส่ในการ์ดเกม</p>
+              </div>
+              <button 
+                onClick={() => setIsPoolModalOpen(false)}
+                className="p-1.5 rounded-full hover:bg-white/5 text-text3 hover:text-white transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Scrollable list & Add form */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              
+              {/* Add New Member Form */}
+              <div className="bg-bg2/30 border border-white/5 rounded-2xl p-4.5 space-y-4">
+                <div className="text-xs font-bold text-[#00D2FF] tracking-[0.5px] flex items-center gap-1.5">
+                  <UserPlus size={14} /> เพิ่มรายชื่อใหม่เข้าคลัง
+                </div>
+                <form onSubmit={handleAddMemberToPool} className="space-y-3.5">
+                  <div className="flex flex-col sm:flex-row gap-3 items-center w-full">
+                    {/* Avatar circle & upload */}
+                    <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
+                      <div className="w-10 h-10 rounded-full bg-blue-dim border border-border2 flex items-center justify-center overflow-hidden shrink-0">
+                        {newMemberAvatar ? (
+                          <img src={newMemberAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-[10px] text-text3 font-bold">{newMemberName ? newMemberName.slice(0, 2) : 'รูป'}</span>
+                        )}
+                      </div>
+                      <label className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-[11px] font-semibold cursor-pointer text-text2 hover:text-white transition-all shrink-0">
+                        เลือกรูปโปรไฟล์
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleMemberAvatarUpload}
+                          className="hidden" 
+                        />
+                      </label>
+                    </div>
+
+                    {/* Name input */}
+                    <input 
+                      type="text" 
+                      placeholder="ระบุชื่อทีมงาน (เช่น แปลเกมสู่ฝัน, Miku)"
+                      value={newMemberName}
+                      onChange={(e) => setNewMemberName(e.target.value)}
+                      required
+                      className="flex-1 w-full px-3 py-2 rounded-xl bg-bg2/50 border border-white/5 focus:outline-none text-xs text-text1"
+                    />
+                  </div>
+
+                  {newMemberAvatar && (
+                    <div className="text-[10px] text-text3 font-mono truncate bg-bg2/40 px-2.5 py-1 rounded w-full">
+                      ลิงก์รูป: {newMemberAvatar}
+                    </div>
+                  )}
+
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="submit"
+                      disabled={savingMember}
+                      className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs font-bold text-white bg-blue hover:scale-[1.02] shadow-md transition-all disabled:opacity-50"
+                    >
+                      {savingMember ? 'กำลังบันทึก...' : 'บันทึกเข้าคลัง'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Pool list */}
+              <div className="space-y-3">
+                <div className="text-xs font-bold text-text3 uppercase tracking-[0.5px]">รายชื่อในคลังปัจจุบัน ({teamPool.length} คน)</div>
+                {teamPool.length === 0 ? (
+                  <div className="text-xs text-text3 text-center py-6 border border-dashed border-white/5 rounded-xl">
+                    ไม่มีรายชื่อในคลังในขณะนี้
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-2">
+                    {teamPool.map((member, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-bg2/10 border border-white/5 p-3 rounded-xl hover:border-white/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-blue-dim border border-border2 flex items-center justify-center overflow-hidden shrink-0">
+                            {member.avatar ? (
+                              <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-[10px] text-text3 font-bold">{member.name.slice(0, 2)}</span>
+                            )}
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-text1">{member.name}</div>
+                            <div className="text-[9px] text-text3">{member.avatar ? 'มีรูปโปรไฟล์' : 'ไม่มีรูปโปรไฟล์'}</div>
+                          </div>
+                        </div>
+
+                        <button 
+                          type="button"
+                          onClick={() => handleDeleteMemberFromPool(member.name)}
+                          className="p-1.5 rounded-lg hover:bg-white/5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 transition-colors"
+                          title="ลบออกจากคลัง"
+                        >
+                          <Trash size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Footer */}
+            <div className="p-4 bg-bg2/40 border-t border-white/5 flex justify-end shrink-0">
+              <button 
+                type="button"
+                onClick={() => setIsPoolModalOpen(false)}
+                className="px-4.5 py-2 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 text-text2 hover:text-white transition-all"
+              >
+                ปิดหน้าต่าง
+              </button>
+            </div>
           </div>
         </div>
       )}
