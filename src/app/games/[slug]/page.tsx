@@ -325,16 +325,6 @@ export default async function GameDetailPage({ params }: PageProps) {
                   </span>
                   <span className="text-[12px] font-extrabold text-blue3 tracking-[1.5px] uppercase">ความคืบหน้าการแปลภาษาไทย</span>
                 </div>
-                {isGoogleSheetSync ? (
-                  <span className="inline-flex items-center gap-1.5 text-[9px] bg-blue/10 border border-blue2/20 text-blue3 px-3 py-1 rounded-full font-bold shadow-[0_0_15px_rgba(43,95,255,0.1)]">
-                    <RefreshCw size={10} className="animate-spin text-blue3" />
-                    LIVE SYNCED FROM GOOGLE SHEET
-                  </span>
-                ) : (
-                  <span className="text-[9px] bg-white/5 border border-white/10 text-text2 px-3 py-1 rounded-full font-bold">
-                    MANUAL TELEMETRY STATUS
-                  </span>
-                )}
               </div>
 
               {/* Layout Content */}
