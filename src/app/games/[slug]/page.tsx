@@ -23,8 +23,27 @@ function getGoogleSheetCsvUrl(url: string): string | null {
   return null
 }
 
-// Fetch cell C1 (Row 0, Col 2) from Google Sheet CSV
-async function fetchGoogleSheetPercentage(url: string): Promise<number | null> {
+// Convert cell address like "C2" or "D10" to 0-based row and column indices
+function parseCellAddress(cell: string): { row: number; col: number } | null {
+  const match = cell.trim().toUpperCase().match(/^([A-Z]+)([0-9]+)$/)
+  if (!match) return null
+
+  const colStr = match[1]
+  const rowStr = match[2]
+
+  let colIndex = 0
+  for (let i = 0; i < colStr.length; i++) {
+    colIndex = colIndex * 26 + (colStr.charCodeAt(i) - 64)
+  }
+  colIndex = colIndex - 1 // 0-based
+
+  const rowIndex = parseInt(rowStr, 10) - 1 // 0-based
+
+  return { row: rowIndex, col: colIndex }
+}
+
+// Fetch specific cell (default C1) from Google Sheet CSV
+async function fetchGoogleSheetPercentage(url: string, cell?: string): Promise<number | null> {
   const csvUrl = getGoogleSheetCsvUrl(url)
   if (!csvUrl) return null
 
@@ -35,14 +54,18 @@ async function fetchGoogleSheetPercentage(url: string): Promise<number | null> {
     if (!res.ok) return null
     const csvText = await res.text()
     
-    // Parse cell C1 (Row 0, Col 2)
+    // Parse rows
     const lines = csvText.split('\n')
     if (lines.length === 0) return null
     
-    const columns = lines[0].split(',')
-    if (columns.length < 3) return null
+    // Parse target coordinates (fallback to C1 -> row 0, col 2)
+    const target = cell ? (parseCellAddress(cell) || { row: 0, col: 2 }) : { row: 0, col: 2 }
+    if (lines.length <= target.row) return null
     
-    const cellValue = columns[2]?.replace(/["'\r\n]/g, '').trim()
+    const columns = lines[target.row].split(',')
+    if (columns.length <= target.col) return null
+    
+    const cellValue = columns[target.col]?.replace(/["'\r\n]/g, '').trim()
     if (!cellValue) return null
     
     let parsed = parseFloat(cellValue)
@@ -94,7 +117,7 @@ export default async function GameDetailPage({ params }: PageProps) {
   let liveProgress = { ...game.progress }
   let isGoogleSheetSync = false
   if (game.progress.sheetUrl) {
-    const sheetPercent = await fetchGoogleSheetPercentage(game.progress.sheetUrl)
+    const sheetPercent = await fetchGoogleSheetPercentage(game.progress.sheetUrl, game.progress.sheetCell)
     if (sheetPercent !== null) {
       liveProgress.translate = sheetPercent
       isGoogleSheetSync = true
@@ -131,17 +154,17 @@ export default async function GameDetailPage({ params }: PageProps) {
         
         {/* Breadcrumbs / Back Link */}
         <div className="mb-6 flex items-center gap-2 text-text3 text-[12px] font-bold">
-          <Link href="/" className="hover:text-[#00D2FF] transition-colors flex items-center gap-1">
+          <Link href="/" className="hover:text-blue3 transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none rounded-md px-1">
             <ArrowLeft size={12} />
             หน้าแรก
           </Link>
           <span>/</span>
           {game.status === 'done' ? (
-            <Link href="/completed" className="hover:text-[#00D2FF] transition-colors text-text2">
+            <Link href="/completed" className="hover:text-blue3 transition-colors text-text2 focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none rounded-md px-1">
               เสร็จสมบูรณ์
             </Link>
           ) : (
-            <Link href="/in-progress" className="hover:text-[#00D2FF] transition-colors text-text2">
+            <Link href="/in-progress" className="hover:text-blue3 transition-colors text-text2 focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none rounded-md px-1">
               กำลังพัฒนา
             </Link>
           )}
@@ -155,17 +178,13 @@ export default async function GameDetailPage({ params }: PageProps) {
           <div className="lg:col-span-4 space-y-6 max-w-[320px] mx-auto lg:mx-0 w-full">
             
             {/* Poster Art Card */}
-            <div className="w-full aspect-[2/3] rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden bg-bg1/40 backdrop-blur-md flex items-center justify-center group transition-all duration-300 hover:border-blue2 hover:shadow-[0_12px_40px_rgba(43,95,255,0.3)]">
+            <div className="w-full aspect-[2/3] rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden bg-bg1/40 backdrop-blur-md flex items-center justify-center">
               {(game.posterImage || game.coverImage) ? (
-                <>
-                  <img
-                    src={game.posterImage || game.coverImage}
-                    alt={game.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {/* Glossy shine reflection sweep on hover */}
-                  <div className="absolute inset-0 w-[50%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-[150%] group-hover:translate-x-[250%] transition-transform duration-1000 ease-out pointer-events-none z-10" />
-                </>
+                <img
+                  src={game.posterImage || game.coverImage}
+                  alt={game.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               ) : (
                 <span className="text-[72px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
                   {game.emoji}
@@ -185,7 +204,7 @@ export default async function GameDetailPage({ params }: PageProps) {
             
             {/* Header info */}
             <div>
-              <h1 className="text-[32px] sm:text-[42px] font-black text-white leading-tight mb-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              <h1 className="font-display text-[clamp(2rem,5vw,2.75rem)] font-black text-white leading-[1.2] mb-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] tracking-[-0.015em]">
                 {game.title}
               </h1>
 
@@ -236,16 +255,16 @@ export default async function GameDetailPage({ params }: PageProps) {
 
             {/* Overview / เกี่ยวกับเกม */}
             <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-              <div className="text-[10px] font-bold text-[#00D2FF] tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
+              <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
                 เกี่ยวกับเกม (Overview)
               </div>
-              <p className="text-[14px] text-text2 leading-[1.8] font-normal">{game.overview}</p>
+              <p className="text-[14px] text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.overview}</p>
             </div>
 
             {/* Technical Specifications / ข้อมูลทางเทคนิค (4-column horizontal card grid like reference site) */}
             <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-              <div className="text-[10px] font-bold text-[#00D2FF] tracking-[1.5px] uppercase mb-4 flex items-center gap-1.5">
+              <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-4 flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
                 ข้อมูลทางเทคนิค (Specifications)
               </div>
@@ -299,7 +318,7 @@ export default async function GameDetailPage({ params }: PageProps) {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue3 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue"></span>
                   </span>
-                  <span className="text-[12px] font-extrabold text-[#00D2FF] tracking-[1.5px] uppercase">ความคืบหน้าการแปลภาษาไทย</span>
+                  <span className="text-[12px] font-extrabold text-blue3 tracking-[1.5px] uppercase">ความคืบหน้าการแปลภาษาไทย</span>
                 </div>
                 {isGoogleSheetSync ? (
                   <span className="inline-flex items-center gap-1.5 text-[9px] bg-blue/10 border border-blue2/20 text-blue3 px-3 py-1 rounded-full font-bold shadow-[0_0_15px_rgba(43,95,255,0.1)]">
@@ -412,7 +431,7 @@ export default async function GameDetailPage({ params }: PageProps) {
                           href={game.progress.sheetUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs text-blue3 font-bold bg-blue/10 border border-blue2/20 px-4 py-2 rounded-xl hover:bg-blue hover:text-white transition-all shadow-md group"
+                          className="inline-flex items-center gap-1.5 text-xs text-blue3 font-bold bg-blue/10 border border-blue2/20 px-4 py-2 rounded-xl hover:bg-blue hover:text-white transition-all shadow-md group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue2"
                         >
                           เปิดดู Google Sheet ตารางแปลภาษา
                           <ExternalLink size={12} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -543,7 +562,7 @@ export default async function GameDetailPage({ params }: PageProps) {
             {/* Video Section */}
             {game.videoUrl && (
               <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-                <div className="text-[10px] font-bold text-[#00D2FF] tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
+                <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
                   <svg className="w-3.5 h-3.5 text-blue3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                   </svg>
@@ -563,45 +582,24 @@ export default async function GameDetailPage({ params }: PageProps) {
 
             {/* Details of Translation / รายละเอียดการแปล */}
             <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-              <div className="text-[10px] font-bold text-[#00D2FF] tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
+              <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
                 รายละเอียดการแปล
               </div>
               {game.shortDescription && (
-                <p className="text-sm font-semibold text-blue3 leading-relaxed mb-2.5">
+                <p className="text-sm font-semibold text-blue3 leading-relaxed mb-2.5 max-w-[70ch]">
                   {game.shortDescription}
                 </p>
               )}
-              <p className="text-xs text-text2 leading-[1.8] font-normal">{game.description}</p>
+              <p className="text-xs text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.description}</p>
             </div>
 
-            {/* Translation Scope / ขอบเขตการแปลภาษาไทย */}
-            {game.translationScope && game.translationScope.length > 0 && (
-              <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-                <div className="text-[10px] font-bold text-[#00D2FF] tracking-[1.5px] uppercase mb-4 flex items-center gap-1.5">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
-                  ขอบเขตการแปลภาษาไทย (Scope)
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {game.translationScope.map((scope, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-bg2/40 border border-white/5 rounded-xl p-3.5 flex items-center gap-3 hover:border-blue2/20 transition-all duration-300"
-                    >
-                      <span className="shrink-0 w-5 h-5 rounded-full bg-blue-dim border border-blue2/20 flex items-center justify-center text-blue3">
-                        <Check size={11} strokeWidth={3} />
-                      </span>
-                      <span className="text-[12.5px] text-text2 font-bold leading-none">{scope}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+
 
             {/* Installation Guide / วิธีการลงม็อด */}
             {game.instructions && game.instructions.length > 0 && (
               <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-                <div className="text-[10px] font-bold text-[#00D2FF] tracking-[1.5px] uppercase mb-5 flex items-center gap-1.5">
+                <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-5 flex items-center gap-1.5">
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
                   วิธีการลงม็อด (Installation Guide)
                 </div>

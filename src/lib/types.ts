@@ -24,6 +24,7 @@ export interface GameProgress {
   isMultiModule?: boolean
   modules?: GameModule[]
   sheetUrl?: string
+  sheetCell?: string
 }
 
 export interface Game {

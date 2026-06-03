@@ -7,7 +7,7 @@ interface TeamSectionProps {
 export default function TeamSection({ team }: TeamSectionProps) {
   return (
     <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-5 mb-4 shadow-xl">
-      <div className="text-[10px] font-bold text-[#00D2FF] tracking-[1.5px] uppercase mb-2.5 flex items-center gap-1.5">
+      <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-2.5 flex items-center gap-1.5">
         <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
         ทีมงานผู้แปล (Credits)
       </div>

@@ -63,13 +63,13 @@ export default function AdminPage() {
   const [shortDescription, setShortDescription] = useState('')
   const [description, setDescription] = useState('')
   const [overview, setOverview] = useState('')
-  const [translationScope, setTranslationScope] = useState('')
   const [team, setTeam] = useState<TeamMember[]>([{ name: '', role: '', avatar: '' }])
   const [downloads, setDownloads] = useState<DownloadLink[]>([{ label: '', url: '', type: 'primary' }])
   const [isMultiModule, setIsMultiModule] = useState(false)
   const [modules, setModules] = useState<GameModule[]>([{ name: '', progress: 0 }])
   const [instructions, setInstructions] = useState<InstructionStep[]>([{ text: '', image: '' }])
   const [sheetUrl, setSheetUrl] = useState('')
+  const [sheetCell, setSheetCell] = useState('')
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type })
@@ -90,7 +90,39 @@ export default function AdminPage() {
           
           // Load team pool
           const poolData = await getTeamPool()
-          setTeamPool(poolData)
+          
+          // Merge poolData with unique members from games database
+          const mergedPoolMap = new Map<string, { name: string; avatar: string }>()
+          poolData.forEach((m) => {
+            if (m.name && m.name.trim()) {
+              mergedPoolMap.set(m.name.trim().toLowerCase(), {
+                name: m.name.trim(),
+                avatar: m.avatar || ''
+              })
+            }
+          })
+          
+          data.forEach((game) => {
+            if (game.team && Array.isArray(game.team)) {
+              game.team.forEach((member) => {
+                if (member.name && member.name.trim()) {
+                  const nameKey = member.name.trim().toLowerCase()
+                  const existing = mergedPoolMap.get(nameKey)
+                  if (!existing) {
+                    mergedPoolMap.set(nameKey, {
+                      name: member.name.trim(),
+                      avatar: member.avatar || ''
+                    })
+                  } else if (!existing.avatar && member.avatar) {
+                    existing.avatar = member.avatar
+                  }
+                }
+              })
+            }
+          })
+          
+          const finalPool = Array.from(mergedPoolMap.values()).sort((a, b) => a.name.localeCompare(b.name))
+          setTeamPool(finalPool)
         }
       } catch (err) {
         console.error('Failed to load initial data:', err)
@@ -124,7 +156,39 @@ export default function AdminPage() {
         
         // Load team pool
         const poolData = await getTeamPool()
-        setTeamPool(poolData)
+        
+        // Merge poolData with unique members from games database
+        const mergedPoolMap = new Map<string, { name: string; avatar: string }>()
+        poolData.forEach((m) => {
+          if (m.name && m.name.trim()) {
+            mergedPoolMap.set(m.name.trim().toLowerCase(), {
+              name: m.name.trim(),
+              avatar: m.avatar || ''
+            })
+          }
+        })
+        
+        data.forEach((game) => {
+          if (game.team && Array.isArray(game.team)) {
+            game.team.forEach((member) => {
+              if (member.name && member.name.trim()) {
+                const nameKey = member.name.trim().toLowerCase()
+                const existing = mergedPoolMap.get(nameKey)
+                if (!existing) {
+                  mergedPoolMap.set(nameKey, {
+                    name: member.name.trim(),
+                    avatar: member.avatar || ''
+                  })
+                } else if (!existing.avatar && member.avatar) {
+                  existing.avatar = member.avatar
+                }
+              }
+            })
+          }
+        })
+        
+        const finalPool = Array.from(mergedPoolMap.values()).sort((a, b) => a.name.localeCompare(b.name))
+        setTeamPool(finalPool)
       } else {
         setAuthError(res.error || 'รหัสผ่านไม่ถูกต้อง')
       }
@@ -279,13 +343,13 @@ export default function AdminPage() {
     setShortDescription('')
     setDescription('')
     setOverview('')
-    setTranslationScope('')
     setTeam([{ name: '', role: '', avatar: '' }])
     setDownloads([{ label: 'Download', url: '', type: 'primary' }])
     setIsMultiModule(false)
     setModules([{ name: '', progress: 0 }])
     setInstructions([{ text: '', image: '' }])
     setSheetUrl('')
+    setSheetCell('')
     setIsModalOpen(true)
   }
 
@@ -315,7 +379,6 @@ export default function AdminPage() {
     setShortDescription(game.shortDescription)
     setDescription(game.description)
     setOverview(game.overview)
-    setTranslationScope(game.translationScope.join(', '))
     setTeam(game.team.length > 0 ? game.team : [{ name: '', role: '', avatar: '' }])
     setDownloads(game.downloads.length > 0 ? game.downloads : [{ label: 'Download', url: '', type: 'primary' }])
     if (game.progress.isMultiModule && game.progress.modules) {
@@ -327,6 +390,7 @@ export default function AdminPage() {
     }
     setInstructions(game.instructions && game.instructions.length > 0 ? game.instructions : [{ text: '', image: '' }])
     setSheetUrl(game.progress.sheetUrl || '')
+    setSheetCell(game.progress.sheetCell || '')
     setIsModalOpen(true)
   }
 
@@ -574,11 +638,6 @@ export default function AdminPage() {
     // Clean dynamic inputs
     const cleanedTeam = team.filter((m) => m.name.trim() !== '')
     const cleanedDownloads = downloads.filter((d) => d.label.trim() !== '' && d.url.trim() !== '')
-    const parsedScope = translationScope
-      .split(',')
-      .map((s) => s.trim())
-      .filter((s) => s !== '')
-
     const cleanedModules = modules.filter((m) => m.name.trim() !== '')
     let overallAverage = 0
     if (isMultiModule && cleanedModules.length > 0) {
@@ -606,6 +665,7 @@ export default function AdminPage() {
             proofread: Number(proofreadProgress),
             test: Number(testProgress),
             sheetUrl: sheetUrl.trim() || undefined,
+            sheetCell: sheetCell.trim() || undefined,
           },
       version,
       client,
@@ -613,7 +673,7 @@ export default function AdminPage() {
       shortDescription,
       description,
       overview,
-      translationScope: parsedScope,
+      translationScope: [],
       videoUrl: videoUrl.trim(),
       coverImage: coverImage.trim(),
       posterImage: posterImage.trim(),
@@ -697,12 +757,12 @@ export default function AdminPage() {
             </Link>
           </div>
           
-          <div className="backdrop-blur-xl bg-bg1/40 border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center">
+          <div className="backdrop-blur-xl bg-bg1/40 border border-white/10 rounded-md p-8 shadow-2xl flex flex-col items-center text-center">
             <div className="w-14 h-14 rounded-2xl bg-blue/10 border border-blue2/20 flex items-center justify-center text-blue3 mb-5 shadow-[0_0_20px_rgba(43,95,255,0.15)]">
               <Database size={24} />
             </div>
             
-            <h2 className="text-2xl font-black text-white leading-tight">Admin Authentication</h2>
+            <h2 className="font-display text-2xl font-black text-white leading-tight">Admin Authentication</h2>
             <p className="text-[12px] text-text3 mt-2 leading-relaxed">
               พื้นที่นี้ได้รับการป้องกันไว้เฉพาะผู้ดูแลระบบเท่านั้น กรุณากรอกรหัสผ่านเพื่อเข้าใช้งานแดชบอร์ด
             </p>
@@ -718,7 +778,7 @@ export default function AdminPage() {
                   }}
                   required
                   placeholder="ป้อนรหัสผ่านผู้ดูแลระบบ"
-                  className="w-full px-5 py-3 rounded-2xl bg-bg2/40 border border-white/5 focus:border-blue2 focus:outline-none text-sm text-text1 transition-all text-center placeholder:text-text3/50"
+                  className="w-full px-5 py-3 rounded-2xl bg-bg2/40 border border-white/5 focus:border-blue2 focus:ring-2 focus:ring-blue-dim focus:outline-none text-sm text-text1 transition-all text-center placeholder:text-text3/50"
                   disabled={verifying}
                 />
               </div>
@@ -732,7 +792,7 @@ export default function AdminPage() {
               <button
                 type="submit"
                 disabled={verifying}
-                className="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-blue via-blue2 to-blue3 hover:scale-[1.01] shadow-[0_4px_15px_rgba(43,95,255,0.25)] hover:shadow-[0_6px_25px_rgba(43,95,255,0.45)] transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-blue via-blue2 to-blue3 hover:scale-[1.01] shadow-[0_4px_15px_rgba(43,95,255,0.25)] hover:shadow-[0_6px_25px_rgba(43,95,255,0.45)] transition-all focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none flex items-center justify-center gap-2"
               >
                 {verifying ? (
                   <>
@@ -776,13 +836,13 @@ export default function AdminPage() {
             <ArrowLeft size={12} />
             กลับหน้าหลัก
           </Link>
-          <h1 className="text-[28px] md:text-[34px] font-extrabold text-white flex items-center gap-2">
+          <h1 className="font-display text-[clamp(1.75rem,4.5vw,2.125rem)] font-extrabold text-white flex items-center gap-2">
             Admin Dashboard <Sparkles size={22} className="text-blue3" />
           </h1>
           <p className="text-xs text-text2 mt-1">จัดการ ลบ เพิ่ม และแก้ไขข้อมูลการ์ดแปลไทยทั้งหมดในระบบ</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Database indicator */}
           <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border ${
             dbMode === 'supabase' 
@@ -795,7 +855,7 @@ export default function AdminPage() {
 
           <button 
             onClick={openAddModal}
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue via-blue2 to-blue3 hover:scale-[1.02] shadow-[0_4px_15px_rgba(43,95,255,0.25)] hover:shadow-[0_6px_25px_rgba(43,95,255,0.45)] transition-all"
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue via-blue2 to-blue3 hover:scale-[1.02] shadow-[0_4px_15px_rgba(43,95,255,0.25)] hover:shadow-[0_6px_25px_rgba(43,95,255,0.45)] transition-all focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none"
           >
             <Plus size={14} />
             เพิ่มการ์ดเกมใหม่
@@ -803,7 +863,7 @@ export default function AdminPage() {
 
           <button 
             onClick={() => setIsPoolModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-text2 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue2/40 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-text2 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue2/40 transition-all focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none"
           >
             <Users size={14} className="text-blue3" />
             จัดการคลังทีมงาน
@@ -811,7 +871,7 @@ export default function AdminPage() {
 
           <button 
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-text2 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-text2 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none"
           >
             ออกจากระบบ
           </button>
@@ -890,29 +950,36 @@ export default function AdminPage() {
                           </span>
                         </div>
                       ) : (
-                        <div>
-                          <span className="text-blue3 font-bold">{game.progress.translate}%</span> / <span className="text-star font-bold">{game.progress.proofread}%</span> / <span className="text-text3 font-bold">{game.progress.test}%</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <div>
+                            <span className="text-blue3 font-bold">{game.progress.translate}%</span> / <span className="text-star font-bold">{game.progress.proofread}%</span> / <span className="text-text3 font-bold">{game.progress.test}%</span>
+                          </div>
+                          {game.progress.sheetUrl && (
+                            <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold shrink-0" title={`ดึงความคืบหน้าจากเซลล์ ${game.progress.sheetCell || 'C1'} ในตารางอัตโนมัติ`}>
+                              🟢 Sheet ({game.progress.sheetCell || 'C1'})
+                            </span>
+                          )}
                         </div>
                       )}
                     </td>
                     <td className="py-4 px-6 font-mono text-text3 font-bold">
-                      v{game.translationVersion} <span className="text-[9px] font-normal text-text3/70">(เกม: {game.version})</span>
+                      v{game.translationVersion} {game.version?.trim() && <span className="text-[9px] font-normal text-text3/70">(เกม: {game.version})</span>}
                     </td>
                     <td className="py-4 px-6 text-center">
                       <div className="inline-flex items-center gap-1">
                         <button 
                           onClick={() => openEditModal(game)}
-                          className="p-2 rounded-lg hover:bg-white/5 text-text2 hover:text-white transition-colors"
+                          className="p-3 rounded-lg hover:bg-white/5 text-text2 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:bg-white/5"
                           title="แก้ไขข้อมูล"
                         >
-                          <Edit2 size={13} />
+                          <Edit2 size={15} />
                         </button>
                         <button 
                           onClick={() => handleDelete(game.id)}
-                          className="p-2 rounded-lg hover:bg-white/5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 transition-colors"
+                          className="p-3 rounded-lg hover:bg-white/5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:bg-rose-500/5"
                           title="ลบเกม"
                         >
-                          <Trash2 size={13} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -927,18 +994,18 @@ export default function AdminPage() {
       {/* Form Dialog Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-bg1 border border-border2 rounded-3xl w-full max-w-[850px] max-h-[90vh] overflow-y-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
+          <div className="bg-bg1 border border-border2 rounded-md w-full max-w-[850px] max-h-[90vh] overflow-y-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
             
             <button 
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-white/5 text-text3 hover:text-white transition-colors"
+              className="absolute top-5 right-5 p-2.5 rounded-full hover:bg-white/5 text-text3 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue2"
             >
               <X size={18} />
             </button>
 
             <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
               <div>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="font-display text-lg font-bold text-white">
                   {editingGame ? '📝 แก้ไขการ์ดเกม' : '✨ เพิ่มการ์ดเกมใหม่'}
                 </h3>
                 <p className="text-xs text-text3 mt-0.5">ระบุรายละเอียดทั้งหมดเพื่อสร้างข้อมูลการ์ดแปลไทยลงสู่ระบบ</p>
@@ -1224,18 +1291,32 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      {/* Google Sheets URL */}
-                      <div className="pt-2 border-t border-white/5">
-                        <label className="block text-[10px] font-bold text-text3 uppercase mb-1">🔗 ลิงก์ Google Sheets สำหรับซิงก์ความคืบหน้า (อ่านจากช่อง C1 อัตโนมัติ)</label>
-                        <input 
-                          type="text" 
-                          value={sheetUrl}
-                          onChange={(e) => setSheetUrl(e.target.value)}
-                          placeholder="วางลิงก์ Google Sheets เช่น https://docs.google.com/spreadsheets/d/.../edit?usp=sharing"
-                          className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-blue2/40 focus:outline-none text-xs text-text1 transition-colors"
-                        />
-                        <p className="text-[10px] text-text3/80 mt-1">
-                          * ชีตต้องถูกแชร์แบบ "ทุกคนที่มีลิงก์มีสิทธิ์ดู" (Viewer) ตัวระบบจะซ่อนลิงก์ไม่แสดงให้ผู้ใช้อื่นเห็นทางหน้าเว็บเพื่อความปลอดภัย
+                      {/* Google Sheets URL & Cell */}
+                      <div className="pt-2 border-t border-white/5 space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div className="md:col-span-3">
+                            <label className="block text-[10px] font-bold text-text3 uppercase mb-1">🔗 ลิงก์ Google Sheets สำหรับซิงก์ความคืบหน้า</label>
+                            <input 
+                              type="text" 
+                              value={sheetUrl}
+                              onChange={(e) => setSheetUrl(e.target.value)}
+                              placeholder="วางลิงก์ Google Sheets เช่น https://docs.google.com/spreadsheets/d/.../edit?usp=sharing"
+                              className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-blue2/40 focus:outline-none text-xs text-text1 transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-text3 uppercase mb-1">🎯 ช่องเซลล์ข้อมูล</label>
+                            <input 
+                              type="text" 
+                              value={sheetCell}
+                              onChange={(e) => setSheetCell(e.target.value)}
+                              placeholder="ตัวอย่าง C1, C2"
+                              className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-blue2/40 focus:outline-none text-xs text-text1 transition-colors font-mono uppercase"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-[10px] text-text3/80">
+                          * ชีตต้องถูกแชร์แบบ "ทุกคนที่มีลิงก์มีสิทธิ์ดู" (Viewer) ระบบจะดึงค่าจากช่องเซลล์ที่ระบุ (หากเว้นว่างจะดึงจาก C1 อัตโนมัติ)
                         </p>
                       </div>
                     </div>
@@ -1321,18 +1402,6 @@ export default function AdminPage() {
                     onChange={(e) => setOverview(e.target.value)}
                     placeholder="เขียนสรุปเรื่องราวหรือรูปแบบการเล่นเกมเบื้องต้น..."
                     className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-blue2/40 focus:outline-none text-xs text-text1 transition-colors resize-y"
-                  />
-                </div>
-
-                {/* 10. Scope */}
-                <div className="md:col-span-2">
-                  <label className="block text-[11px] font-bold text-text3 uppercase mb-1.5">ขอบเขตเนื้อหาการแปล (คั่นด้วยเครื่องหมายจุลภาค `,` เพื่อแยกรายการ)</label>
-                  <input 
-                    type="text" 
-                    value={translationScope}
-                    onChange={(e) => setTranslationScope(e.target.value)}
-                    placeholder="ตัวอย่าง UI / เมนู, บทสนทนาทั้งหมด, เควสต์รอง"
-                    className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-blue2/40 focus:outline-none text-xs text-text1 transition-colors"
                   />
                 </div>
 
@@ -1586,19 +1655,19 @@ export default function AdminPage() {
       {/* Team Pool Management Modal */}
       {isPoolModalOpen && (
         <div className="fixed inset-0 z-[260] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-bg1 border border-border2 rounded-3xl w-full max-w-[550px] max-h-[85vh] overflow-hidden shadow-2xl relative flex flex-col animate-in zoom-in-95 duration-200">
+          <div className="bg-bg1 border border-border2 rounded-md w-full max-w-[550px] max-h-[85vh] overflow-hidden shadow-2xl relative flex flex-col animate-in zoom-in-95 duration-200">
             
             {/* Header */}
             <div className="p-6 border-b border-white/5 flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <h3 className="font-display text-base font-bold text-white flex items-center gap-2">
                   <Users size={18} className="text-blue3" /> คลังรายชื่อผู้จัดทำและทีมงาน
                 </h3>
                 <p className="text-[11px] text-text3 mt-0.5">เพิ่ม ลบ หรือแก้ไขข้อมูลทีมงานทั้งหมดที่จะนำไปใส่ในการ์ดเกม</p>
               </div>
               <button 
                 onClick={() => setIsPoolModalOpen(false)}
-                className="p-1.5 rounded-full hover:bg-white/5 text-text3 hover:text-white transition-colors"
+                className="p-2.5 rounded-full hover:bg-white/5 text-text3 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue2"
               >
                 <X size={18} />
               </button>
@@ -1609,7 +1678,7 @@ export default function AdminPage() {
               
               {/* Add New Member Form */}
               <div className="bg-bg2/30 border border-white/5 rounded-2xl p-4.5 space-y-4">
-                <div className="text-xs font-bold text-[#00D2FF] tracking-[0.5px] flex items-center gap-1.5">
+                <div className="text-xs font-bold text-blue3 tracking-[0.5px] flex items-center gap-1.5">
                   <UserPlus size={14} /> เพิ่มรายชื่อใหม่เข้าคลัง
                 </div>
                 <form onSubmit={handleAddMemberToPool} className="space-y-3.5">

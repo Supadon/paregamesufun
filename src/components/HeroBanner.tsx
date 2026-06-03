@@ -276,10 +276,8 @@ export default function HeroBanner() {
           </div>
         </div>
 
-        <h1 className="text-3xl sm:text-[42px] font-bold text-text1 mb-2 leading-normal">
-          <span className="inline-block px-1.5 py-2 text-transparent bg-clip-text bg-gradient-to-r from-blue2 to-star2">
-            แปลเกมสู่ฝัน
-          </span>
+        <h1 className="font-display text-[clamp(2.25rem,5.5vw,3.5rem)] font-bold text-white mb-2 leading-[1.2] tracking-[-0.02em]">
+          แปลเกมสู่ฝัน
         </h1>
 
         <p className="text-sm sm:text-base text-text2 leading-relaxed mb-2 max-w-[520px] mx-auto">
@@ -319,7 +317,7 @@ export default function HeroBanner() {
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-pulse">
         <span className="text-[11px] text-text3 font-medium">เลื่อนลง</span>
         <svg className="w-4 h-4 text-text3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />

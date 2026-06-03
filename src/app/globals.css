@@ -15,7 +15,7 @@
   --white: #F0F6FF;
   --text1: #EEF4FF;
   --text2: #8BA8D8;
-  --text3: #4A6499;
+  --text3: #6582BF;
   --border: rgba(100, 150, 255, 0.12);
   --border2: rgba(100, 150, 255, 0.07);
 }
@@ -44,6 +44,8 @@
   --radius-xl: 28px;
 
   --font-sans: 'Sarabun', 'Noto Sans Thai', sans-serif;
+  --font-display: var(--font-noto-thai), 'Noto Sans Thai', sans-serif;
+  --font-body: var(--font-sarabun), 'Sarabun', sans-serif;
 }
 
 * {
@@ -88,4 +90,17 @@ html {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--blue);
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
 }

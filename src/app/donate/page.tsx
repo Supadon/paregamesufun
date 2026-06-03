@@ -10,8 +10,8 @@ export default function DonatePage() {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-dim border border-[rgba(43,95,255,0.25)] text-blue3 mb-4 shadow-[0_0_20px_rgba(43,95,255,0.15)]">
           <Heart size={26} className="fill-current animate-pulse" />
         </div>
-        <h1 className="text-[28px] md:text-[34px] font-extrabold text-white mb-2.5 tracking-tight">
-          สนับสนุนผู้แปล <span className="bg-gradient-to-r from-blue2 via-blue3 to-star2 bg-clip-text text-transparent">แปลเกมสู่ฝัน</span>
+        <h1 className="font-display text-[clamp(1.75rem,4.5vw,2.125rem)] font-extrabold text-white mb-2.5 tracking-tight">
+          สนับสนุนผู้แปล <span className="text-blue3">แปลเกมสู่ฝัน</span>
         </h1>
         <p className="text-[14px] text-text2 max-w-[540px] mx-auto leading-[1.6]">
           ทุกการสนับสนุนของคุณจะเป็นทุนค่ากาแฟ ค่าไฟ
@@ -26,20 +26,20 @@ export default function DonatePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-[600px] mx-auto">
           
           {/* MAKE by KBank Card */}
-          <div className="w-full aspect-[2/3] rounded-4xl overflow-hidden bg-white p-2.5 shadow-[0_12px_45px_rgba(0,0,0,0.5)] hover:scale-[1.02] transition-transform duration-300">
+          <div className="w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_12px_45px_rgba(0,0,0,0.5)] hover:scale-[1.02] transition-transform duration-300">
             <img 
               src="/kbank-qr.jpg" 
               alt="MAKE by KBank QR Code" 
-              className="w-full h-full object-contain rounded-xl" 
+              className="w-full h-full object-cover" 
             />
           </div>
 
           {/* TrueMoney Wallet Card */}
-          <div className="w-full aspect-[2/3] rounded-4xl overflow-hidden bg-white p-2.5 shadow-[0_12px_45px_rgba(0,0,0,0.5)] hover:scale-[1.02] transition-transform duration-300">
+          <div className="w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_12px_45px_rgba(0,0,0,0.5)] hover:scale-[1.02] transition-transform duration-300">
             <img 
               src="/truemoney-qr.jpg" 
               alt="TrueMoney Wallet QR Code" 
-              className="w-full h-full object-contain rounded-xl" 
+              className="w-full h-full object-cover" 
             />
           </div>
 

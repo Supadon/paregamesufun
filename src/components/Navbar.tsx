@@ -18,7 +18,7 @@ export default function Navbar() {
     <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-32px)] max-w-[1052px]">
       <nav className="flex items-center justify-between h-[54px] sm:h-[66px] px-2.5 sm:px-4 sm:pl-5 bg-[rgba(8,14,40,0.65)] backdrop-blur-[30px] border border-[rgba(100,150,255,0.15)] rounded-full shadow-[0_10px_50px_rgba(0,0,0,0.5),0_0_0_1px_rgba(100,150,255,0.08),inset_0_1px_0_rgba(255,255,255,0.05)]">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-1.5 sm:gap-3 no-underline shrink-0">
+        <Link href="/" className="flex items-center gap-1.5 sm:gap-3 no-underline shrink-0 focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none rounded-full px-1 py-0.5">
           <Image
             src="/logo.jpg"
             alt="แปลเกมสู่ฝัน"
@@ -36,7 +36,7 @@ export default function Navbar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'px-2 sm:px-5 py-[6px] sm:py-[8px] rounded-full text-[11px] sm:text-[13px] md:text-[14px] font-semibold text-text2 transition-all duration-300 no-underline whitespace-nowrap',
+                'px-2 sm:px-5 py-[6px] sm:py-[8px] rounded-full text-[11px] sm:text-[13px] md:text-[14px] font-semibold text-text2 transition-all duration-300 no-underline whitespace-nowrap focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none',
                 'hover:text-star2',
                 pathname === item.href && 'text-star2 bg-[rgba(43,95,255,0.22)] shadow-[0_0_15px_rgba(43,95,255,0.2)]'
               )}
@@ -50,7 +50,7 @@ export default function Navbar() {
         <Link
           href="/donate"
           className={cn(
-            "px-2.5 sm:px-6 py-[7px] sm:py-[9px] rounded-full text-[11px] sm:text-[13px] md:text-[14px] font-bold text-white no-underline whitespace-nowrap bg-gradient-to-r from-blue to-[#4A7FFF] border transition-all duration-300 shrink-0",
+            "px-2.5 sm:px-6 py-[7px] sm:py-[9px] rounded-full text-[11px] sm:text-[13px] md:text-[14px] font-bold text-white no-underline whitespace-nowrap bg-gradient-to-r from-blue to-[#4A7FFF] border transition-all duration-300 shrink-0 focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none",
             pathname === '/donate'
               ? "border-star text-white shadow-[0_0_22px_rgba(43,95,255,0.75)] scale-[1.03]"
               : "border-[rgba(100,150,255,0.35)] shadow-[0_4px_15px_rgba(43,95,255,0.25)] hover:shadow-[0_6px_25px_rgba(43,95,255,0.45)] hover:scale-[1.03]"

@@ -15,10 +15,11 @@ export default function StarField() {
     for (let i = 0; i < 55; i++) {
       const star = document.createElement('div')
       const size = Math.random() * 1.8 + 0.6
+      const color = Math.random() > 0.5 ? 'var(--star)' : 'var(--star2)'
       star.style.cssText = `
         position: absolute;
         border-radius: 50%;
-        background: #fff;
+        background: ${color};
         width: ${size}px;
         height: ${size}px;
         top: ${Math.random() * 100}%;
