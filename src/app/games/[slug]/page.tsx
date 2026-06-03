@@ -126,7 +126,12 @@ export default async function GameDetailPage({ params }: PageProps) {
 
   // Calculate overall progress percentage
   let overallProgress = 0
-  if (liveProgress.isMultiModule && liveProgress.modules && liveProgress.modules.length > 0) {
+  if (game.slug === 'the-sims-4') {
+    const baseGameModule = liveProgress.modules?.find(
+      (m) => m.name === 'Base Game' || m.name.toLowerCase().includes('base')
+    )
+    overallProgress = baseGameModule ? baseGameModule.progress : 39
+  } else if (liveProgress.isMultiModule && liveProgress.modules && liveProgress.modules.length > 0) {
     const total = liveProgress.modules.reduce((sum, m) => sum + m.progress, 0)
     overallProgress = Math.round(total / liveProgress.modules.length)
   } else if (isGoogleSheetSync) {
@@ -375,7 +380,7 @@ export default async function GameDetailPage({ params }: PageProps) {
                         {overallProgress}%
                       </span>
                       <span className="text-[9px] text-text3 font-bold tracking-[1px] uppercase mt-1">
-                        {liveProgress.isMultiModule ? 'เฉลี่ยทุกภาค' : 'ความคืบหน้าหลัก'}
+                        {game.slug === 'the-sims-4' ? 'Base Game' : (liveProgress.isMultiModule ? 'เฉลี่ยทุกภาค' : 'ความคืบหน้าหลัก')}
                       </span>
                     </div>
                   </div>
@@ -390,11 +395,13 @@ export default async function GameDetailPage({ params }: PageProps) {
                           : '⟳ เริ่มโครงการแปลระยะแรก'}
                     </div>
                     <div className="text-[10px] text-text3 mt-1.5">
-                      {liveProgress.isMultiModule 
-                        ? `แปลเสร็จแล้ว ${liveProgress.modules?.filter(m => m.progress >= 100).length || 0} จาก ${liveProgress.modules?.length || 0} ภาค`
-                        : isGoogleSheetSync
-                          ? 'ซิงก์พิกัดความคืบหน้าตรงจาก Google Sheets'
-                          : `เฉลี่ยจากกระบวนการผลิตงานแปล 3 ขั้นตอน`
+                      {game.slug === 'the-sims-4'
+                        ? 'ความคืบหน้าการแปลตัวเกมหลัก (Base Game)'
+                        : liveProgress.isMultiModule 
+                          ? `แปลเสร็จแล้ว ${liveProgress.modules?.filter(m => m.progress >= 100).length || 0} จาก ${liveProgress.modules?.length || 0} ภาค`
+                          : isGoogleSheetSync
+                            ? 'ซิงก์พิกัดความคืบหน้าตรงจาก Google Sheets'
+                            : `เฉลี่ยจากกระบวนการผลิตงานแปล 3 ขั้นตอน`
                       }
                     </div>
                   </div>
@@ -447,9 +454,11 @@ export default async function GameDetailPage({ params }: PageProps) {
                       </div>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-1.5 scrollbar-thin">
-                        {liveProgress.modules.map((mod, idx) => {
-                          const isDone = mod.progress >= 100
-                          return (
+                        {liveProgress.modules
+                          .filter((mod) => !(game.slug === 'the-sims-4' && (mod.name === 'Base Game' || mod.name.toLowerCase().includes('base'))))
+                          .map((mod, idx) => {
+                            const isDone = mod.progress >= 100
+                            return (
                             <div key={idx} className="bg-bg2/30 border border-white/5 rounded-xl p-3.5 hover:border-blue2/20 hover:bg-bg2/40 transition-all duration-300 group/card">
                               <div className="flex justify-between items-center text-[12px] mb-2">
                                 <span className="text-text1 font-bold truncate pr-2" title={mod.name}>
