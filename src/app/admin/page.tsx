@@ -6,22 +6,23 @@ import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, Plus, Edit2, Trash2, Check, X, 
   Loader2, Sparkles, Database, FileCode, CheckCircle, Info,
-  Users, UserPlus, Trash
+  Users, UserPlus, Trash, Pencil, Link as LinkIcon, ExternalLink
 } from 'lucide-react'
 import { Game, GameStatus, TeamMember, DownloadLink, GameModule, InstructionStep } from '@/lib/types'
+import Sims4AdminManager from '@/components/admin/Sims4AdminManager'
 import { 
   getGames, createGame, updateGame, deleteGame, uploadLocalFile,
   checkAdminSession, verifyAdminPassword, logoutAdmin,
-  getTeamPool, addTeamMemberToPool, deleteTeamMemberFromPool
+  getTeamPool, addTeamMemberToPool, updateTeamMemberInPool, deleteTeamMemberFromPool,
+  TeamPoolMember
 } from '@/app/actions/games'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export default function AdminPage() {
   const router = useRouter()
   const [games, setGames] = useState<Game[]>([])
+  const [adminTab, setAdminTab] = useState<'games' | 'sims4' | 'teampool'>('games')
   const [loading, setLoading] = useState(true)
-  const [dbMode, setDbMode] = useState<'supabase' | 'local'>('local')
-  
+    
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [passwordInput, setPasswordInput] = useState('')
@@ -29,10 +30,12 @@ export default function AdminPage() {
   const [verifying, setVerifying] = useState(false)
   
   // Team pool state
-  const [teamPool, setTeamPool] = useState<{ name: string; avatar: string }[]>([])
+  const [teamPool, setTeamPool] = useState<TeamPoolMember[]>([])
   const [isPoolModalOpen, setIsPoolModalOpen] = useState(false)
   const [newMemberName, setNewMemberName] = useState('')
   const [newMemberAvatar, setNewMemberAvatar] = useState('')
+  const [newMemberLink, setNewMemberLink] = useState('')
+  const [editingMemberName, setEditingMemberName] = useState<string | null>(null)
   const [savingMember, setSavingMember] = useState(false)
 
   // Modal State
@@ -67,7 +70,8 @@ export default function AdminPage() {
   const [downloads, setDownloads] = useState<DownloadLink[]>([{ label: '', url: '', type: 'primary' }])
   const [isMultiModule, setIsMultiModule] = useState(false)
   const [modules, setModules] = useState<GameModule[]>([{ name: '', progress: 0 }])
-  const [instructions, setInstructions] = useState<InstructionStep[]>([{ text: '', image: '' }])
+  const [instructions, setInstructions] = useState<InstructionStep[]>([{ text: '', image: '', aspectRatio: '1:1' }])
+  const [uploadingStepIdx, setUploadingStepIdx] = useState<number | null>(null)
   const [sheetUrl, setSheetUrl] = useState('')
   const [sheetCell, setSheetCell] = useState('')
 
@@ -85,19 +89,20 @@ export default function AdminPage() {
         if (authenticated) {
           const data = await getGames()
           setGames(data)
-          const configured = isSupabaseConfigured()
-          setDbMode(configured ? 'supabase' : 'local')
+          
           
           // Load team pool
           const poolData = await getTeamPool()
           
           // Merge poolData with unique members from games database
-          const mergedPoolMap = new Map<string, { name: string; avatar: string }>()
+          const mergedPoolMap = new Map<string, TeamPoolMember>()
           poolData.forEach((m) => {
             if (m.name && m.name.trim()) {
               mergedPoolMap.set(m.name.trim().toLowerCase(), {
                 name: m.name.trim(),
-                avatar: m.avatar || ''
+                avatar: m.avatar || '',
+                link: m.link || m.url || '',
+                url: m.link || m.url || '',
               })
             }
           })
@@ -111,10 +116,18 @@ export default function AdminPage() {
                   if (!existing) {
                     mergedPoolMap.set(nameKey, {
                       name: member.name.trim(),
-                      avatar: member.avatar || ''
+                      avatar: member.avatar || '',
+                      link: member.link || member.url || '',
+                      url: member.link || member.url || '',
                     })
-                  } else if (!existing.avatar && member.avatar) {
-                    existing.avatar = member.avatar
+                  } else {
+                    if (!existing.avatar && member.avatar) {
+                      existing.avatar = member.avatar
+                    }
+                    if (!existing.link && (member.link || member.url)) {
+                      existing.link = member.link || member.url
+                      existing.url = existing.link
+                    }
                   }
                 }
               })
@@ -151,19 +164,20 @@ export default function AdminPage() {
         setLoading(true)
         const data = await getGames()
         setGames(data)
-        const configured = isSupabaseConfigured()
-        setDbMode(configured ? 'supabase' : 'local')
+        
         
         // Load team pool
         const poolData = await getTeamPool()
         
         // Merge poolData with unique members from games database
-        const mergedPoolMap = new Map<string, { name: string; avatar: string }>()
+        const mergedPoolMap = new Map<string, TeamPoolMember>()
         poolData.forEach((m) => {
           if (m.name && m.name.trim()) {
             mergedPoolMap.set(m.name.trim().toLowerCase(), {
               name: m.name.trim(),
-              avatar: m.avatar || ''
+              avatar: m.avatar || '',
+              link: m.link || m.url || '',
+              url: m.link || m.url || '',
             })
           }
         })
@@ -177,10 +191,18 @@ export default function AdminPage() {
                 if (!existing) {
                   mergedPoolMap.set(nameKey, {
                     name: member.name.trim(),
-                    avatar: member.avatar || ''
+                    avatar: member.avatar || '',
+                    link: member.link || member.url || '',
+                    url: member.link || member.url || '',
                   })
-                } else if (!existing.avatar && member.avatar) {
-                  existing.avatar = member.avatar
+                } else {
+                  if (!existing.avatar && member.avatar) {
+                    existing.avatar = member.avatar
+                  }
+                  if (!existing.link && (member.link || member.url)) {
+                    existing.link = member.link || member.url
+                    existing.url = existing.link
+                  }
                 }
               }
             })
@@ -211,7 +233,21 @@ export default function AdminPage() {
     }
   }
 
-  const handleAddMemberToPool = async (e: React.FormEvent) => {
+  const handleStartEditMember = (member: TeamPoolMember) => {
+    setEditingMemberName(member.name)
+    setNewMemberName(member.name)
+    setNewMemberAvatar(member.avatar || '')
+    setNewMemberLink(member.link || member.url || '')
+  }
+
+  const handleCancelEditMember = () => {
+    setEditingMemberName(null)
+    setNewMemberName('')
+    setNewMemberAvatar('')
+    setNewMemberLink('')
+  }
+
+  const handleSaveMemberToPool = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newMemberName.trim()) {
       showToast('กรุณากรอกชื่อผู้จัดทำ', 'error')
@@ -219,25 +255,61 @@ export default function AdminPage() {
     }
     setSavingMember(true)
     try {
-      const res = await addTeamMemberToPool({
-        name: newMemberName.trim(),
-        avatar: newMemberAvatar.trim()
-      })
-      if (res.success && res.data) {
-        // Update pool list
-        const existsIdx = teamPool.findIndex(m => m.name.toLowerCase() === res.data!.name.toLowerCase())
-        if (existsIdx !== -1) {
-          const updated = [...teamPool]
-          updated[existsIdx] = res.data!
+      if (editingMemberName) {
+        // Edit mode
+        const res = await updateTeamMemberInPool(editingMemberName, {
+          name: newMemberName.trim(),
+          avatar: newMemberAvatar.trim(),
+          link: newMemberLink.trim(),
+          url: newMemberLink.trim(),
+        })
+        if (res.success && res.data) {
+          const updated = teamPool.map((m) =>
+            m.name.toLowerCase() === editingMemberName.toLowerCase() ? res.data! : m
+          )
           setTeamPool(updated)
+          // Also update current active editing game's team if it references editingMemberName
+          setTeam((prev) =>
+            prev.map((t) =>
+              t.name.toLowerCase() === editingMemberName.toLowerCase()
+                ? {
+                    ...t,
+                    name: res.data!.name,
+                    avatar: res.data!.avatar || t.avatar,
+                    link: res.data!.link || t.link,
+                  }
+                : t
+            )
+          )
+          handleCancelEditMember()
+          showToast('บันทึกการแก้ไขข้อมูลเรียบร้อย', 'success')
         } else {
-          setTeamPool([...teamPool, res.data!])
+          throw new Error(res.error || 'เกิดข้อผิดพลาดในการแก้ไข')
         }
-        setNewMemberName('')
-        setNewMemberAvatar('')
-        showToast('บันทึกข้อมูลสมาชิกเข้าคลังเรียบร้อย', 'success')
       } else {
-        throw new Error(res.error || 'เกิดข้อผิดพลาดในการบันทึก')
+        // Add mode
+        const res = await addTeamMemberToPool({
+          name: newMemberName.trim(),
+          avatar: newMemberAvatar.trim(),
+          link: newMemberLink.trim(),
+          url: newMemberLink.trim(),
+        })
+        if (res.success && res.data) {
+          const existsIdx = teamPool.findIndex(
+            (m) => m.name.toLowerCase() === res.data!.name.toLowerCase()
+          )
+          if (existsIdx !== -1) {
+            const updated = [...teamPool]
+            updated[existsIdx] = res.data!
+            setTeamPool(updated)
+          } else {
+            setTeamPool([...teamPool, res.data!])
+          }
+          handleCancelEditMember()
+          showToast('บันทึกข้อมูลสมาชิกเข้าคลังเรียบร้อย', 'success')
+        } else {
+          throw new Error(res.error || 'เกิดข้อผิดพลาดในการบันทึก')
+        }
       }
     } catch (err: any) {
       showToast(err.message || 'บันทึกไม่สำเร็จ', 'error')
@@ -251,7 +323,10 @@ export default function AdminPage() {
     try {
       const res = await deleteTeamMemberFromPool(name)
       if (res.success) {
-        setTeamPool(teamPool.filter(m => m.name !== name))
+        setTeamPool(teamPool.filter((m) => m.name.toLowerCase() !== name.toLowerCase()))
+        if (editingMemberName?.toLowerCase() === name.toLowerCase()) {
+          handleCancelEditMember()
+        }
         showToast('ลบสมาชิกออกจากคลังเรียบร้อย', 'success')
       } else {
         throw new Error(res.error)
@@ -267,43 +342,16 @@ export default function AdminPage() {
 
     try {
       showToast('กำลังอัปโหลดรูปโปรไฟล์...', 'success')
-      
-      let imageUrl = ''
-      if (dbMode === 'supabase') {
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
-        const filePath = `${fileName}`
+      const formData = new FormData()
+      formData.append('file', file)
 
-        const { data, error } = await supabase.storage
-          .from('game-assets')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          })
-
-        if (error) {
-          throw new Error(error.message)
-        }
-
-        const { data: urlData } = supabase.storage
-          .from('game-assets')
-          .getPublicUrl(filePath)
-
-        imageUrl = urlData.publicUrl
+      const res = await uploadLocalFile(formData)
+      if (res.success && res.url) {
+        setNewMemberAvatar(res.url)
+        showToast('อัปโหลดสำเร็จ!', 'success')
       } else {
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const res = await uploadLocalFile(formData)
-        if (res.success && res.url) {
-          imageUrl = res.url
-        } else {
-          throw new Error(res.error || 'ไม่สามารถบันทึกไฟล์บนเครื่องได้')
-        }
+        throw new Error(res.error || 'ไม่สามารถบันทึกไฟล์บนเครื่องได้')
       }
-
-      setNewMemberAvatar(imageUrl)
-      showToast('อัปโหลดสำเร็จ!', 'success')
     } catch (err: any) {
       console.error(err)
       showToast(err.message || 'เกิดข้อผิดพลาดในการอัปโหลด', 'error')
@@ -347,7 +395,7 @@ export default function AdminPage() {
     setDownloads([{ label: 'Download', url: '', type: 'primary' }])
     setIsMultiModule(false)
     setModules([{ name: '', progress: 0 }])
-    setInstructions([{ text: '', image: '' }])
+    setInstructions([{ text: '', image: '', aspectRatio: '1:1' }])
     setSheetUrl('')
     setSheetCell('')
     setIsModalOpen(true)
@@ -388,7 +436,15 @@ export default function AdminPage() {
       setIsMultiModule(false)
       setModules([{ name: '', progress: 0 }])
     }
-    setInstructions(game.instructions && game.instructions.length > 0 ? game.instructions : [{ text: '', image: '' }])
+    setInstructions(
+      game.instructions && game.instructions.length > 0
+        ? game.instructions.map((s) => ({
+            text: s.text || '',
+            image: s.image || '',
+            aspectRatio: s.aspectRatio || '1:1',
+          }))
+        : [{ text: '', image: '', aspectRatio: '1:1' }]
+    )
     setSheetUrl(game.progress.sheetUrl || '')
     setSheetCell(game.progress.sheetCell || '')
     setIsModalOpen(true)
@@ -452,125 +508,75 @@ export default function AdminPage() {
   }
 
   const handleAddInstructionStep = () => {
-    setInstructions([...instructions, { text: '', image: '' }])
+    setInstructions([...instructions, { text: '', image: '', aspectRatio: '1:1' }])
   }
 
   const handleRemoveInstructionStep = (index: number) => {
-    const newSteps = [...instructions]
-    newSteps.splice(index, 1)
-    setInstructions(newSteps)
+    setInstructions(instructions.filter((_, i) => i !== index))
   }
 
   const handleInstructionStepChange = (index: number, field: keyof InstructionStep, value: string) => {
-    const newSteps = [...instructions]
-    newSteps[index][field] = value
-    setInstructions(newSteps)
+    setInstructions(
+      instructions.map((step, i) => (i === index ? { ...step, [field]: value } : step))
+    )
   }
 
   const handleInstructionImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0]
     if (!file) return
 
+    setUploadingStepIdx(index)
     try {
       showToast('กำลังอัปโหลดรูปภาพวิธีการติดตั้ง...', 'success')
-      
-      let imageUrl = ''
-      if (dbMode === 'supabase') {
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
-        const filePath = `${fileName}`
+      const formData = new FormData()
+      formData.append('file', file)
 
-        const { data, error } = await supabase.storage
-          .from('game-assets')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          })
-
-        if (error) {
-          throw new Error(error.message + ' (โปรดตรวจสอบว่าได้สร้าง bucket storage "game-assets" และสิทธิ์ RLS แล้วหรือยัง)')
-        }
-
-        const { data: urlData } = supabase.storage
-          .from('game-assets')
-          .getPublicUrl(filePath)
-
-        imageUrl = urlData.publicUrl
+      const res = await uploadLocalFile(formData)
+      if (res.success && res.url) {
+        setInstructions((prev) =>
+          prev.map((step, i) =>
+            i === index ? { ...step, image: res.url, aspectRatio: step.aspectRatio || '1:1' } : step
+          )
+        )
+        showToast('อัปโหลดรูปภาพสำเร็จ!', 'success')
       } else {
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const res = await uploadLocalFile(formData)
-        if (res.success && res.url) {
-          imageUrl = res.url
-        } else {
-          throw new Error(res.error || 'ไม่สามารถบันทึกไฟล์บนเครื่องได้')
-        }
+        throw new Error(res.error || 'ไม่สามารถบันทึกไฟล์บนเครื่องได้')
       }
-
-      const newSteps = [...instructions]
-      newSteps[index].image = imageUrl
-      setInstructions(newSteps)
-      showToast('อัปโหลดรูปภาพเสร็จสิ้น!', 'success')
     } catch (err: any) {
       console.error(err)
       showToast(err.message || 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ', 'error')
+    } finally {
+      setUploadingStepIdx(null)
+      e.target.value = ''
     }
   }
 
-  // Handle File Uploads (Supports Supabase Storage & Local Public Uploads fallback)
+  // Handle File Uploads (Local Public Uploads)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'poster' | 'cover') => {
     const file = e.target.files?.[0]
     if (!file) return
 
     try {
       showToast('กำลังอัปโหลดรูปภาพ...', 'success')
-      
-      let imageUrl = ''
-      if (dbMode === 'supabase') {
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
-        const filePath = `${fileName}`
+      const formData = new FormData()
+      formData.append('file', file)
 
-        // Upload directly to Supabase Storage Bucket
-        const { data, error } = await supabase.storage
-          .from('game-assets')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          })
-
-        if (error) {
-          throw new Error(error.message + ' (โปรดตรวจสอบว่าได้รัน SQL สำหรับ Storage bucket และเปิดนโยบาย RLS แล้วหรือยัง)')
-        }
-
-        const { data: urlData } = supabase.storage
-          .from('game-assets')
-          .getPublicUrl(filePath)
-
-        imageUrl = urlData.publicUrl
-      } else {
-        // Local Fallback Upload mode
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const res = await uploadLocalFile(formData)
-        if (res.success && res.url) {
-          imageUrl = res.url
+      const res = await uploadLocalFile(formData)
+      if (res.success && res.url) {
+        if (target === 'poster') {
+          setPosterImage(res.url)
         } else {
-          throw new Error(res.error || 'ไม่สามารถบันทึกไฟล์บนเครื่องได้')
+          setCoverImage(res.url)
         }
-      }
-
-      if (target === 'poster') {
-        setPosterImage(imageUrl)
+        showToast('อัปโหลดสำเร็จ!', 'success')
       } else {
-        setCoverImage(imageUrl)
+        throw new Error(res.error || 'ไม่สามารถบันทึกไฟล์บนเครื่องได้')
       }
-      showToast('อัปโหลดสำเร็จ!', 'success')
     } catch (err: any) {
       console.error(err)
       showToast(err.message || 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ', 'error')
+    } finally {
+      e.target.value = ''
     }
   }
 
@@ -580,45 +586,18 @@ export default function AdminPage() {
 
     try {
       showToast('กำลังอัปโหลดรูปโปรไฟล์...', 'success')
-      
-      let imageUrl = ''
-      if (dbMode === 'supabase') {
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
-        const filePath = `${fileName}`
+      const formData = new FormData()
+      formData.append('file', file)
 
-        const { data, error } = await supabase.storage
-          .from('game-assets')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          })
-
-        if (error) {
-          throw new Error(error.message + ' (โปรดตรวจสอบว่าได้รัน SQL สำหรับ Storage bucket และเปิดนโยบาย RLS แล้วหรือยัง)')
-        }
-
-        const { data: urlData } = supabase.storage
-          .from('game-assets')
-          .getPublicUrl(filePath)
-
-        imageUrl = urlData.publicUrl
+      const res = await uploadLocalFile(formData)
+      if (res.success && res.url) {
+        const next = [...team]
+        next[index].avatar = res.url
+        setTeam(next)
+        showToast('อัปโหลดสำเร็จ!', 'success')
       } else {
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const res = await uploadLocalFile(formData)
-        if (res.success && res.url) {
-          imageUrl = res.url
-        } else {
-          throw new Error(res.error || 'ไม่สามารถบันทึกไฟล์บนเครื่องได้')
-        }
+        throw new Error(res.error || 'ไม่สามารถบันทึกไฟล์บนเครื่องได้')
       }
-
-      const newTeam = [...team]
-      newTeam[index].avatar = imageUrl
-      setTeam(newTeam)
-      showToast('อัปโหลดรูปโปรไฟล์สำเร็จ!', 'success')
     } catch (err: any) {
       console.error(err)
       showToast(err.message || 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ', 'error')
@@ -680,7 +659,13 @@ export default function AdminPage() {
       fileSize: fileSize.trim(),
       team: cleanedTeam,
       downloads: cleanedDownloads,
-      instructions: instructions.filter((step) => step.text.trim() !== ''),
+      instructions: instructions
+        .filter((step) => (step.text && step.text.trim() !== '') || (step.image && step.image.trim() !== ''))
+        .map((step) => ({
+          text: step.text ? step.text.trim() : '',
+          image: step.image ? step.image.trim() : undefined,
+          aspectRatio: step.aspectRatio || '1:1',
+        })),
       updatedAt: new Date().toISOString().split('T')[0],
     }
 
@@ -844,13 +829,9 @@ export default function AdminPage() {
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Database indicator */}
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border ${
-            dbMode === 'supabase' 
-              ? 'bg-[rgba(16,185,129,0.1)] text-[#00E575] border-[rgba(16,185,129,0.2)]'
-              : 'bg-[rgba(234,179,8,0.1)] text-star border-[rgba(234,179,8,0.2)]'
-          }`}>
-            <Database size={13} />
-            <span>โหมด: {dbMode === 'supabase' ? 'Supabase (คลาวด์)' : 'JSON File (โลคอล)'}</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border bg-blue-dim text-blue3 border-blue2/30">
+            <FileCode size={13} />
+            <span>โหมด: JSON Data (ไม่ต้องใช้ Database)</span>
           </div>
 
           <button 
@@ -862,14 +843,6 @@ export default function AdminPage() {
           </button>
 
           <button 
-            onClick={() => setIsPoolModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-text2 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue2/40 transition-all focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none"
-          >
-            <Users size={14} className="text-blue3" />
-            จัดการคลังทีมงาน
-          </button>
-
-          <button 
             onClick={handleLogout}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-text2 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none"
           >
@@ -878,16 +851,56 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Notice alert */}
-      {dbMode === 'local' && (
-        <div className="bg-bg1/40 border border-amber-500/20 text-star rounded-xl p-4 mb-6 flex items-start gap-3">
-          <Info size={18} className="shrink-0 mt-0.5" />
-          <div className="text-xs leading-relaxed">
-            <strong>หมายเหตุการเชื่อมต่อ Supabase:</strong> ปัจจุบันระบบกำลังทำงานในโหมดบันทึกข้อมูลลงไฟล์จำลอง <code>src/lib/games-db.json</code> ภายในเครื่องของคุณ
-            ข้อมูลที่เพิ่มหรือลบจะถูกบันทึกไว้ในเครื่องแบบถาวร เพื่อให้คุณทดสอบระบบได้ทันที และระบบพร้อมเปลี่ยนเป็นดึงข้อมูลจาก Supabase ทันทีที่คุณกรอกคีย์เชื่อมต่อจริงใน <code>.env.local</code> และรันคำสั่ง SQL สร้างตาราง
-          </div>
+      {/* Admin Top Navigation Tabs */}
+      <div className="flex items-center gap-2 mb-6 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
+        <button
+          onClick={() => setAdminTab('games')}
+          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
+            adminTab === 'games'
+              ? 'bg-blue text-white shadow-[0_0_18px_rgba(43,95,255,0.35)] scale-[1.02]'
+              : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
+          }`}
+        >
+          <span>🎮 จัดการการ์ดเกมทั่วไป ({games.length})</span>
+        </button>
+
+        <button
+          onClick={() => setAdminTab('sims4')}
+          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
+            adminTab === 'sims4'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-[0_0_18px_rgba(16,185,129,0.25)] scale-[1.02]'
+              : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
+          }`}
+        >
+          <span className="w-1.5 h-1.5 rotate-45 bg-emerald-400 inline-block" />
+          <span>💎 จัดการ The Sims 4 (ภาคเสริม & ม็อด)</span>
+        </button>
+
+        <button
+          onClick={() => setIsPoolModalOpen(true)}
+          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
+            isPoolModalOpen
+              ? 'bg-purple-500/20 text-purple-300 border border-purple-500/50 scale-[1.02]'
+              : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
+          }`}
+        >
+          <Users size={13} className="text-purple-300" />
+          <span>👥 คลังรายชื่อทีมงาน ({teamPool.length})</span>
+        </button>
+      </div>
+
+      {/* Conditionally Render: Sims 4 Hub vs General Games */}
+      {adminTab === 'sims4' ? (
+        <Sims4AdminManager />
+      ) : (
+        <>
+          {/* Notice alert */}
+      <div className="bg-bg1/40 border border-blue2/20 text-text2 rounded-xl p-4 mb-6 flex items-start gap-3">
+        <Info size={18} className="shrink-0 mt-0.5 text-blue3" />
+        <div className="text-xs leading-relaxed">
+          <strong>โครงสร้างข้อมูลแบบ Local JSON:</strong> ข้อมูลทั้งหมดถูกจัดเก็บไว้ในไฟล์ <code>src/data/games.json</code> และไฟล์รูปภาพอยู่ในโฟลเดอร์ <code>public/</code> สามารถ Deploy ขึ้น Vercel ได้ทันทีโดยไม่ต้องเชื่อมต่อ Database ภายนอก
         </div>
-      )}
+      </div>
 
       {/* Content list */}
       <div className="bg-bg1 border border-border2 rounded-2xl overflow-hidden shadow-xl">
@@ -990,6 +1003,8 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+        </>
+      )}
 
       {/* Form Dialog Modal */}
       {isModalOpen && (
@@ -1184,6 +1199,25 @@ export default function AdminPage() {
                       />
                     </label>
                   </div>
+                  {posterImage && (
+                    <div className="mt-2.5 flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <img src={posterImage} alt="Poster preview" className="w-12 h-16 object-cover rounded-lg border border-white/10 shadow-sm shrink-0" />
+                        <div className="min-w-0">
+                          <div className="text-[11px] font-bold text-emerald-400">รูปภาพปกแนวตั้งพร้อมใช้งาน</div>
+                          <div className="text-[10px] text-text3 font-mono mt-0.5 truncate max-w-[280px] sm:max-w-md">{posterImage}</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPosterImage('')}
+                        className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 transition-colors shrink-0"
+                        title="ลบรูปภาพนี้"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Cover Image URL & Upload */}
@@ -1207,6 +1241,25 @@ export default function AdminPage() {
                       />
                     </label>
                   </div>
+                  {coverImage && (
+                    <div className="mt-2.5 flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <img src={coverImage} alt="Cover preview" className="w-24 h-14 object-cover rounded-lg border border-white/10 shadow-sm shrink-0" />
+                        <div className="min-w-0">
+                          <div className="text-[11px] font-bold text-emerald-400">รูปภาพแบนเนอร์แนวนอนพร้อมใช้งาน</div>
+                          <div className="text-[10px] text-text3 font-mono mt-0.5 truncate max-w-[280px] sm:max-w-md">{coverImage}</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCoverImage('')}
+                        className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 transition-colors shrink-0"
+                        title="ลบรูปภาพนี้"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* 8. Progress Settings Section */}
@@ -1439,46 +1492,62 @@ export default function AdminPage() {
                         </label>
                       </div>
 
-                      {/* Name & Role Inputs */}
-                      <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <select
-                          value={member.name}
-                          onChange={(e) => {
-                            const val = e.target.value
-                            const poolMem = teamPool.find(m => m.name === val)
-                            if (poolMem) {
-                              const newTeam = [...team]
-                              newTeam[idx].name = poolMem.name
-                              newTeam[idx].avatar = poolMem.avatar
-                              setTeam(newTeam)
-                            } else {
-                              const newTeam = [...team]
-                              newTeam[idx].name = val
-                              newTeam[idx].avatar = ''
-                              setTeam(newTeam)
-                            }
-                          }}
-                          className="w-full px-3 py-2 rounded-lg bg-bg2/40 border border-white/5 focus:outline-none text-xs text-text1"
-                        >
-                          <option value="" className="bg-bg1">-- เลือกรายชื่อทีมงาน --</option>
-                          {teamPool.map((poolMem, poolIdx) => (
-                            <option key={poolIdx} value={poolMem.name} className="bg-bg1">
-                              {poolMem.name}
-                            </option>
-                          ))}
-                          {member.name && !teamPool.some(m => m.name === member.name) && (
-                            <option value={member.name} className="bg-bg1">
-                              {member.name} (ไม่มีในคลัง)
-                            </option>
-                          )}
-                        </select>
-                        <input 
-                          type="text" 
-                          placeholder="หน้าที่รับผิดชอบ"
-                          value={member.role}
-                          onChange={(e) => handleTeamMemberChange(idx, 'role', e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg bg-bg2/40 border border-white/5 focus:outline-none text-xs text-text1"
-                        />
+                      {/* Name, Role & Link Inputs */}
+                      <div className="flex-1 w-full space-y-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          <select
+                            value={member.name}
+                            onChange={(e) => {
+                              const val = e.target.value
+                              const poolMem = teamPool.find(m => m.name === val)
+                              if (poolMem) {
+                                const newTeam = [...team]
+                                newTeam[idx].name = poolMem.name
+                                newTeam[idx].avatar = poolMem.avatar || ''
+                                newTeam[idx].link = poolMem.link || poolMem.url || ''
+                                setTeam(newTeam)
+                              } else {
+                                const newTeam = [...team]
+                                newTeam[idx].name = val
+                                newTeam[idx].avatar = ''
+                                newTeam[idx].link = ''
+                                setTeam(newTeam)
+                              }
+                            }}
+                            className="w-full px-3 py-2 rounded-lg bg-bg2/40 border border-white/5 focus:outline-none text-xs text-text1"
+                          >
+                            <option value="" className="bg-bg1">-- เลือกรายชื่อทีมงาน --</option>
+                            {teamPool.map((poolMem, poolIdx) => (
+                              <option key={poolIdx} value={poolMem.name} className="bg-bg1">
+                                {poolMem.name}
+                              </option>
+                            ))}
+                            {member.name && !teamPool.some(m => m.name === member.name) && (
+                              <option value={member.name} className="bg-bg1">
+                                {member.name} (ไม่มีในคลัง)
+                              </option>
+                            )}
+                          </select>
+                          <input 
+                            type="text" 
+                            placeholder="หน้าที่รับผิดชอบ"
+                            value={member.role}
+                            onChange={(e) => handleTeamMemberChange(idx, 'role', e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg bg-bg2/40 border border-white/5 focus:outline-none text-xs text-text1"
+                          />
+                        </div>
+
+                        {/* Optional profile link */}
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-bg2/25 border border-white/5 focus-within:border-white/15">
+                          <LinkIcon size={12} className="text-text3 shrink-0" />
+                          <input 
+                            type="text" 
+                            placeholder="ลิงก์โปรไฟล์ / ช่องทางติดตาม (เช่น เพจ Facebook, YouTube, เว็บไซต์ - เว้นว่างได้)"
+                            value={member.link || member.url || ''}
+                            onChange={(e) => handleTeamMemberChange(idx, 'link', e.target.value)}
+                            className="w-full bg-transparent border-none focus:outline-none text-[11px] text-text1 placeholder:text-text3/50"
+                          />
+                        </div>
                       </div>
                       
                       {team.length > 1 && (
@@ -1546,7 +1615,10 @@ export default function AdminPage() {
                 {/* 13. Dynamic Installation Steps */}
                 <div className="md:col-span-2 bg-bg2/25 border border-white/5 rounded-2xl p-4 space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-bold text-text3 uppercase">วิธีการติดตั้งม็อด (Installation Steps)</span>
+                    <div>
+                      <span className="text-[11px] font-bold text-text3 uppercase">วิธีการติดตั้งม็อด (Installation Steps)</span>
+                      <p className="text-[10px] text-text3/70 mt-0.5">ระบุขั้นตอนเป็นข้อ ๆ พร้อมแทรกรูปภาพประกอบ (รองรับแบบ 1:1 จัตุรัส, 16:9 แนวนอน หรือ Auto)</p>
+                    </div>
                     <button 
                       type="button"
                       onClick={handleAddInstructionStep}
@@ -1555,74 +1627,163 @@ export default function AdminPage() {
                       <Plus size={11} /> เพิ่มขั้นตอน
                     </button>
                   </div>
-                  {instructions.map((step, idx) => (
-                    <div key={idx} className="flex flex-col gap-3 bg-bg2/10 border border-white/5 p-3 rounded-xl w-full">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-blue text-white text-[10px] flex items-center justify-center font-bold">
-                            {idx + 1}
-                          </span>
-                          <span className="text-[10px] text-text3 font-semibold uppercase">ขั้นตอนที่ {idx + 1}</span>
+                  {instructions.map((step, idx) => {
+                    const ratio = step.aspectRatio || '1:1'
+                    const isUploadingThis = uploadingStepIdx === idx
+                    return (
+                      <div key={idx} className="flex flex-col gap-3 bg-bg2/10 border border-white/5 p-3 rounded-xl w-full">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-blue text-white text-[10px] flex items-center justify-center font-bold">
+                              {idx + 1}
+                            </span>
+                            <span className="text-[10px] text-text3 font-semibold uppercase">ขั้นตอนที่ {idx + 1}</span>
+                          </div>
+                          {instructions.length > 1 && (
+                            <button 
+                              type="button" 
+                              onClick={() => handleRemoveInstructionStep(idx)}
+                              className="p-1 text-rose-400 hover:bg-white/5 rounded-lg shrink-0 transition-colors"
+                              title="ลบขั้นตอนนี้"
+                            >
+                              <X size={12} />
+                            </button>
+                          )}
                         </div>
-                        {instructions.length > 1 && (
-                          <button 
-                            type="button" 
-                            onClick={() => handleRemoveInstructionStep(idx)}
-                            className="p-1 text-rose-400 hover:bg-white/5 rounded-lg shrink-0 transition-colors"
-                            title="ลบขั้นตอนนี้"
-                          >
-                            <X size={12} />
-                          </button>
-                        )}
-                      </div>
-                      
-                      <div className="flex flex-col sm:flex-row gap-3 items-start">
-                        <textarea 
-                          placeholder="คำอธิบายขั้นตอนการติดตั้ง (เช่น โหลดไฟล์ แล้วนำไปวางไว้ในโฟลเดอร์...)"
-                          value={step.text}
-                          onChange={(e) => handleInstructionStepChange(idx, 'text', e.target.value)}
-                          rows={2}
-                          className="flex-1 w-full px-3 py-2 rounded-lg bg-bg2/40 border border-white/5 focus:outline-none text-xs text-text1 resize-y"
-                        />
+                        
+                        <div className="flex flex-col sm:flex-row gap-3 items-start">
+                          <textarea 
+                            placeholder="คำอธิบายขั้นตอนการติดตั้ง (เว้นว่างได้หากรูปภาพมีคำอธิบายแล้ว)"
+                            value={step.text}
+                            onChange={(e) => handleInstructionStepChange(idx, 'text', e.target.value)}
+                            rows={3}
+                            className="flex-1 w-full px-3 py-2 rounded-lg bg-bg2/40 border border-white/5 focus:outline-none text-xs text-text1 resize-y"
+                          />
 
-                        {/* Image URL & Upload button */}
-                        <div className="w-full sm:w-[320px] space-y-2 shrink-0">
-                          <div className="flex gap-1.5">
-                            <input 
-                              type="text" 
-                              placeholder="ลิงก์ URL รูปภาพ (ถ้ามี)"
-                              value={step.image || ''}
-                              onChange={(e) => handleInstructionStepChange(idx, 'image', e.target.value)}
-                              className="flex-1 min-w-0 px-3 py-1.5 rounded-lg bg-bg2/40 border border-white/5 focus:outline-none text-xs text-text1"
-                            />
-                            <label className="px-2.5 py-1.5 rounded-lg bg-blue/15 border border-[rgba(43,95,255,0.3)] hover:bg-blue/30 text-blue3 hover:text-white transition-all text-[10px] font-bold cursor-pointer flex items-center justify-center shrink-0">
-                              เลือกรูป
+                          {/* Image URL & Upload button & Aspect Ratio Selector */}
+                          <div className="w-full sm:w-[320px] space-y-2 shrink-0">
+                            <div className="flex gap-1.5 items-center">
                               <input 
+                                type="text" 
+                                placeholder="ลิงก์ URL หรือคลิกเลือกรูป"
+                                value={step.image || ''}
+                                onChange={(e) => handleInstructionStepChange(idx, 'image', e.target.value)}
+                                className="flex-1 min-w-0 px-3 py-1.5 rounded-lg bg-bg2/40 border border-white/5 focus:outline-none text-xs text-text1"
+                              />
+                              <label 
+                                htmlFor={`instruction-file-input-${idx}`}
+                                className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-bold cursor-pointer flex items-center gap-1 justify-center shrink-0 transition-all ${
+                                  isUploadingThis
+                                    ? 'bg-blue/30 text-white border-blue2 opacity-75 cursor-wait'
+                                    : 'bg-blue/15 border-[rgba(43,95,255,0.3)] hover:bg-blue/30 text-blue3 hover:text-white'
+                                }`}
+                              >
+                                {isUploadingThis ? (
+                                  <>
+                                    <Loader2 size={11} className="animate-spin" />
+                                    <span>อัปโหลด...</span>
+                                  </>
+                                ) : (
+                                  <span>เลือกรูป</span>
+                                )}
+                              </label>
+                              <input 
+                                id={`instruction-file-input-${idx}`}
                                 type="file" 
                                 accept="image/*"
+                                disabled={isUploadingThis}
                                 onChange={(e) => handleInstructionImageUpload(e, idx)}
                                 className="hidden" 
                               />
-                            </label>
-                          </div>
-
-                          {step.image && (
-                            <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-white/5">
-                              <img src={step.image} alt={`Step ${idx + 1}`} className="w-full h-full object-cover" />
-                              <button
-                                type="button"
-                                onClick={() => handleInstructionStepChange(idx, 'image', '')}
-                                className="absolute top-1 right-1 p-1 bg-black/60 rounded-full hover:bg-rose-500 hover:text-white text-text3 transition-colors"
-                                title="ลบรูปภาพ"
-                              >
-                                <X size={10} />
-                              </button>
                             </div>
-                          )}
+
+                            {/* Aspect Ratio Selector */}
+                            <div className="flex items-center justify-between gap-1 text-[10px] bg-bg0/40 p-1 rounded-lg border border-white/5">
+                              <span className="text-text3/70 px-1 font-semibold">อัตราส่วน:</span>
+                              <div className="flex gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleInstructionStepChange(idx, 'aspectRatio', '1:1')}
+                                  className={`px-2 py-0.5 rounded font-bold transition-all ${
+                                    ratio === '1:1'
+                                      ? 'bg-blue text-white shadow-sm'
+                                      : 'text-text3 hover:text-text2 hover:bg-white/5'
+                                  }`}
+                                  title="เหมาะสำหรับภาพสี่เหลี่ยมจัตุรัส หรือภาพหน้าจอแคปเจอร์สไตล์อินโฟกราฟิก"
+                                >
+                                  1:1 จัตุรัส
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleInstructionStepChange(idx, 'aspectRatio', '16:9')}
+                                  className={`px-2 py-0.5 rounded font-bold transition-all ${
+                                    ratio === '16:9'
+                                      ? 'bg-blue text-white shadow-sm'
+                                      : 'text-text3 hover:text-text2 hover:bg-white/5'
+                                  }`}
+                                  title="เหมาะสำหรับภาพแนวนอน กว้าง 16:9"
+                                >
+                                  16:9 แนวนอน
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleInstructionStepChange(idx, 'aspectRatio', 'auto')}
+                                  className={`px-2 py-0.5 rounded font-bold transition-all ${
+                                    ratio === 'auto'
+                                      ? 'bg-blue text-white shadow-sm'
+                                      : 'text-text3 hover:text-text2 hover:bg-white/5'
+                                  }`}
+                                  title="แสดงตามขนาดสัดส่วนจริงของภาพโดยไม่ตัดขอบ"
+                                >
+                                  Auto
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Image Preview Container */}
+                            {step.image && (
+                              <div className="relative group/step rounded-lg overflow-hidden border border-white/10 bg-bg0/60 flex items-center justify-center">
+                                <div className={`w-full overflow-hidden flex items-center justify-center ${
+                                  ratio === '1:1' 
+                                    ? 'aspect-square max-w-[200px] mx-auto' 
+                                    : ratio === '16:9'
+                                    ? 'aspect-video'
+                                    : 'max-h-[220px]'
+                                }`}>
+                                  <img 
+                                    src={step.image} 
+                                    alt={`Step ${idx + 1}`} 
+                                    className={`w-full h-full ${
+                                      ratio === 'auto' ? 'object-contain' : 'object-cover'
+                                    }`} 
+                                  />
+                                </div>
+                                <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
+                                  <a
+                                    href={step.image}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-1 bg-black/70 rounded-full hover:bg-blue hover:text-white text-text3 transition-colors"
+                                    title="เปิดดูรูปเต็ม"
+                                  >
+                                    <ExternalLink size={11} />
+                                  </a>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleInstructionStepChange(idx, 'image', '')}
+                                    className="p-1 bg-black/70 rounded-full hover:bg-rose-500 hover:text-white text-text3 transition-colors"
+                                    title="ลบรูปภาพ"
+                                  >
+                                    <X size={11} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
 
               </div>
@@ -1666,22 +1827,49 @@ export default function AdminPage() {
                 <p className="text-[11px] text-text3 mt-0.5">เพิ่ม ลบ หรือแก้ไขข้อมูลทีมงานทั้งหมดที่จะนำไปใส่ในการ์ดเกม</p>
               </div>
               <button 
-                onClick={() => setIsPoolModalOpen(false)}
+                onClick={() => {
+                  handleCancelEditMember()
+                  setIsPoolModalOpen(false)
+                }}
                 className="p-2.5 rounded-full hover:bg-white/5 text-text3 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue2"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Scrollable list & Add form */}
+            {/* Scrollable list & Add/Edit form */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               
-              {/* Add New Member Form */}
-              <div className="bg-bg2/30 border border-white/5 rounded-2xl p-4.5 space-y-4">
-                <div className="text-xs font-bold text-blue3 tracking-[0.5px] flex items-center gap-1.5">
-                  <UserPlus size={14} /> เพิ่มรายชื่อใหม่เข้าคลัง
+              {/* Add / Edit Member Form */}
+              <div className={`border rounded-2xl p-4.5 space-y-4 transition-colors ${
+                editingMemberName ? 'bg-amber-500/5 border-amber-400/30' : 'bg-bg2/30 border-white/5'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-bold tracking-[0.5px] flex items-center gap-1.5">
+                    {editingMemberName ? (
+                      <>
+                        <Pencil size={14} className="text-amber-400" />
+                        <span className="text-amber-300">แก้ไขข้อมูลทีมงาน: {editingMemberName}</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus size={14} className="text-blue3" />
+                        <span className="text-blue3">เพิ่มรายชื่อใหม่เข้าคลัง</span>
+                      </>
+                    )}
+                  </div>
+                  {editingMemberName && (
+                    <button
+                      type="button"
+                      onClick={handleCancelEditMember}
+                      className="text-[11px] text-text3 hover:text-white px-2 py-0.5 rounded-md hover:bg-white/10 transition-colors"
+                    >
+                      ✕ ยกเลิกแก้ไข
+                    </button>
+                  )}
                 </div>
-                <form onSubmit={handleAddMemberToPool} className="space-y-3.5">
+
+                <form onSubmit={handleSaveMemberToPool} className="space-y-3.5">
                   <div className="flex flex-col sm:flex-row gap-3 items-center w-full">
                     {/* Avatar circle & upload */}
                     <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
@@ -1693,7 +1881,7 @@ export default function AdminPage() {
                         )}
                       </div>
                       <label className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-[11px] font-semibold cursor-pointer text-text2 hover:text-white transition-all shrink-0">
-                        เลือกรูปโปรไฟล์
+                        {newMemberAvatar ? 'เปลี่ยนรูป' : 'เลือกรูปโปรไฟล์'}
                         <input 
                           type="file" 
                           accept="image/*"
@@ -1701,6 +1889,15 @@ export default function AdminPage() {
                           className="hidden" 
                         />
                       </label>
+                      {newMemberAvatar && (
+                        <button
+                          type="button"
+                          onClick={() => setNewMemberAvatar('')}
+                          className="text-[10px] text-rose-400 hover:text-rose-300 underline"
+                        >
+                          ลบรูป
+                        </button>
+                      )}
                     </div>
 
                     {/* Name input */}
@@ -1710,7 +1907,19 @@ export default function AdminPage() {
                       value={newMemberName}
                       onChange={(e) => setNewMemberName(e.target.value)}
                       required
-                      className="flex-1 w-full px-3 py-2 rounded-xl bg-bg2/50 border border-white/5 focus:outline-none text-xs text-text1"
+                      className="flex-1 w-full px-3 py-2 rounded-xl bg-bg2/50 border border-white/5 focus:outline-none text-xs text-text1 focus:border-blue2/40"
+                    />
+                  </div>
+
+                  {/* Link input */}
+                  <div className="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-bg2/50 border border-white/5 focus-within:border-blue2/40 transition-colors">
+                    <LinkIcon size={13} className="text-blue3 shrink-0" />
+                    <input 
+                      type="text" 
+                      placeholder="ลิงก์เชื่อมโยง (เช่น เพจ Facebook, YouTube, เว็บไซต์ ฯลฯ)"
+                      value={newMemberLink}
+                      onChange={(e) => setNewMemberLink(e.target.value)}
+                      className="flex-1 bg-transparent border-none focus:outline-none text-xs text-text1 placeholder:text-text3/60"
                     />
                   </div>
 
@@ -1720,13 +1929,30 @@ export default function AdminPage() {
                     </div>
                   )}
 
-                  <div className="flex justify-end pt-1">
+                  <div className="flex justify-end gap-2 pt-1">
+                    {editingMemberName && (
+                      <button
+                        type="button"
+                        onClick={handleCancelEditMember}
+                        className="px-3.5 py-2 rounded-xl text-xs font-bold text-text2 hover:text-white bg-white/5 hover:bg-white/10 transition-all"
+                      >
+                        ยกเลิก
+                      </button>
+                    )}
                     <button
                       type="submit"
                       disabled={savingMember}
-                      className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-xl text-xs font-bold text-white bg-blue hover:scale-[1.02] shadow-md transition-all disabled:opacity-50"
+                      className={`inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold shadow-md transition-all disabled:opacity-50 ${
+                        editingMemberName
+                          ? 'bg-amber-400 hover:bg-amber-300 text-black font-extrabold hover:scale-[1.02]'
+                          : 'bg-blue hover:bg-blue-light text-white hover:scale-[1.02]'
+                      }`}
                     >
-                      {savingMember ? 'กำลังบันทึก...' : 'บันทึกเข้าคลัง'}
+                      {savingMember
+                        ? 'กำลังบันทึก...'
+                        : editingMemberName
+                        ? '✓ บันทึกการแก้ไข'
+                        : '+ บันทึกเข้าคลัง'}
                     </button>
                   </div>
                 </form>
@@ -1742,8 +1968,15 @@ export default function AdminPage() {
                 ) : (
                   <div className="grid grid-cols-1 gap-2">
                     {teamPool.map((member, idx) => (
-                      <div key={idx} className="flex items-center justify-between bg-bg2/10 border border-white/5 p-3 rounded-xl hover:border-white/10 transition-colors">
-                        <div className="flex items-center gap-3">
+                      <div 
+                        key={idx} 
+                        className={`flex items-center justify-between border p-3 rounded-xl transition-all ${
+                          editingMemberName?.toLowerCase() === member.name.toLowerCase()
+                            ? 'bg-amber-500/10 border-amber-400/40'
+                            : 'bg-bg2/10 border-white/5 hover:border-white/10'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
                           <div className="w-9 h-9 rounded-full bg-blue-dim border border-border2 flex items-center justify-center overflow-hidden shrink-0">
                             {member.avatar ? (
                               <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
@@ -1751,20 +1984,53 @@ export default function AdminPage() {
                               <span className="text-[10px] text-text3 font-bold">{member.name.slice(0, 2)}</span>
                             )}
                           </div>
-                          <div>
-                            <div className="text-xs font-bold text-text1">{member.name}</div>
-                            <div className="text-[9px] text-text3">{member.avatar ? 'มีรูปโปรไฟล์' : 'ไม่มีรูปโปรไฟล์'}</div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-text1 truncate flex items-center gap-1.5">
+                              <span>{member.name}</span>
+                              {editingMemberName?.toLowerCase() === member.name.toLowerCase() && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                                  กำลังแก้ไข
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5 text-[9px] text-text3 flex-wrap">
+                              <span>{member.avatar ? 'มีรูปโปรไฟล์' : 'ไม่มีรูปโปรไฟล์'}</span>
+                              {(member.link || member.url) ? (
+                                <a
+                                  href={member.link || member.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="inline-flex items-center gap-1 text-blue3 hover:underline truncate max-w-[200px]"
+                                >
+                                  <ExternalLink size={9} />
+                                  <span className="truncate">{member.link || member.url}</span>
+                                </a>
+                              ) : (
+                                <span className="text-text3/50">ไม่มีลิงก์</span>
+                              )}
+                            </div>
                           </div>
                         </div>
 
-                        <button 
-                          type="button"
-                          onClick={() => handleDeleteMemberFromPool(member.name)}
-                          className="p-1.5 rounded-lg hover:bg-white/5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 transition-colors"
-                          title="ลบออกจากคลัง"
-                        >
-                          <Trash size={13} />
-                        </button>
+                        <div className="flex items-center gap-1 shrink-0 ml-2">
+                          <button 
+                            type="button"
+                            onClick={() => handleStartEditMember(member)}
+                            className="p-1.5 rounded-lg text-blue3 hover:text-white hover:bg-blue/15 transition-colors"
+                            title="แก้ไขข้อมูลทีมงานนี้"
+                          >
+                            <Pencil size={13} />
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => handleDeleteMemberFromPool(member.name)}
+                            className="p-1.5 rounded-lg hover:bg-white/5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors"
+                            title="ลบออกจากคลัง"
+                          >
+                            <Trash size={13} />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1776,7 +2042,10 @@ export default function AdminPage() {
             <div className="p-4 bg-bg2/40 border-t border-white/5 flex justify-end shrink-0">
               <button 
                 type="button"
-                onClick={() => setIsPoolModalOpen(false)}
+                onClick={() => {
+                  handleCancelEditMember()
+                  setIsPoolModalOpen(false)
+                }}
                 className="px-4.5 py-2 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 text-text2 hover:text-white transition-all"
               >
                 ปิดหน้าต่าง

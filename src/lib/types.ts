@@ -10,6 +10,8 @@ export interface TeamMember {
   name: string
   role: string
   avatar?: string
+  link?: string
+  url?: string
 }
 
 export interface GameModule {
@@ -55,5 +57,27 @@ export interface Game {
 export interface InstructionStep {
   text: string
   image?: string
+  aspectRatio?: '1:1' | '16:9' | 'auto'
+}
+
+export type Sims4Category = 'expansion' | 'gamepack' | 'stuffpack' | 'mod'
+export type Sims4Status = 'done' | 'wip' | 'planned'
+
+export interface Sims4Pack {
+  id: string
+  name: string
+  thName?: string
+  category: Sims4Category
+  status: Sims4Status
+  isReleased?: boolean
+  progress?: number
+  coverImage?: string
+  icon?: string
+  version?: string
+  author?: string
+  description?: string
+  downloadUrl?: string
+  badgeText?: string
+  releaseOrder?: number
 }
 

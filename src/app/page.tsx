@@ -12,13 +12,10 @@ export default async function HomePage() {
     return dateB - dateA
   })
 
-  // Take only the top 4 latest games
-  const latestGames = sortedGames.slice(0, 4)
-
   return (
     <>
       <HeroBanner />
-      <GameGrid games={latestGames} title="ผลงานล่าสุด" />
+      <GameGrid games={sortedGames} title="ม็อดแปลภาษาไทยทั้งหมด" />
     </>
   )
 }

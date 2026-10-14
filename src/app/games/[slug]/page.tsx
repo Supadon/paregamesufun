@@ -1,11 +1,15 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { getGames, getGameBySlug } from '@/app/actions/games'
+import { getGames, getGameBySlug, getSims4Packs, getTeamPool } from '@/app/actions/games'
 import ProgressBar from '@/components/ProgressBar'
 import DownloadSection from '@/components/DownloadSection'
 import TeamSection from '@/components/TeamSection'
-import { ArrowLeft, Languages, ExternalLink, RefreshCw, Check } from 'lucide-react'
+import Sims4PageLayout from '@/components/sims4/Sims4PageLayout'
+import sims4PacksData from '@/data/sims4-packs.json'
+import { Sims4Pack } from '@/lib/types'
+import { ArrowLeft, ExternalLink } from 'lucide-react'
+import ThemedCard from '@/components/ThemedCard'
 
 // Convert standard or published Google Sheet URL to CSV URL
 function getGoogleSheetCsvUrl(url: string): string | null {
@@ -35,30 +39,27 @@ function parseCellAddress(cell: string): { row: number; col: number } | null {
   for (let i = 0; i < colStr.length; i++) {
     colIndex = colIndex * 26 + (colStr.charCodeAt(i) - 64)
   }
-  colIndex = colIndex - 1 // 0-based
+  colIndex = colIndex - 1
 
-  const rowIndex = parseInt(rowStr, 10) - 1 // 0-based
+  const rowIndex = parseInt(rowStr, 10) - 1
 
   return { row: rowIndex, col: colIndex }
 }
 
-// Fetch specific cell (default C1) from Google Sheet CSV
+// Fetch specific cell from Google Sheet CSV
 async function fetchGoogleSheetPercentage(url: string, cell?: string): Promise<number | null> {
   const csvUrl = getGoogleSheetCsvUrl(url)
   if (!csvUrl) return null
 
   try {
     const res = await fetch(csvUrl, {
-      next: { revalidate: 60 } // cache for 60 seconds
+      next: { revalidate: 60 }
     })
     if (!res.ok) return null
     const csvText = await res.text()
-    
-    // Parse rows
     const lines = csvText.split('\n')
     if (lines.length === 0) return null
     
-    // Parse target coordinates (fallback to C1 -> row 0, col 2)
     const target = cell ? (parseCellAddress(cell) || { row: 0, col: 2 }) : { row: 0, col: 2 }
     if (lines.length <= target.row) return null
     
@@ -107,16 +108,35 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function GameDetailPage({ params }: PageProps) {
   const { slug } = await params
-  const game = await getGameBySlug(slug)
+  const rawGame = await getGameBySlug(slug)
 
-  if (!game) {
+  if (!rawGame) {
     notFound()
   }
 
-  // Fetch live Google Sheet percentage if configured
+  // Enrich team members with latest team pool avatars and links
+  const teamPool = await getTeamPool()
+  const enrichedTeam = (rawGame.team || []).map((m) => {
+    const poolMember = teamPool.find((p) => p.name.toLowerCase() === m.name.toLowerCase())
+    return {
+      ...m,
+      avatar: m.avatar || poolMember?.avatar || '',
+      link: m.link || poolMember?.link || poolMember?.url || '',
+      url: m.url || m.link || poolMember?.url || poolMember?.link || '',
+    }
+  })
+  const game = { ...rawGame, team: enrichedTeam }
+
+  // 💎 The Sims 4: Full-Width Dedicated Experience
+  if (game.slug === 'the-sims-4') {
+    const packs = await getSims4Packs()
+    return <Sims4PageLayout game={game} packs={packs.length > 0 ? packs : (sims4PacksData as Sims4Pack[])} />
+  }
+
+  // Standard Game: 2-Column Sidebar Layout
   let liveProgress = { ...game.progress }
   let isGoogleSheetSync = false
-  if (game.progress.sheetUrl) {
+  if (game.progress?.sheetUrl) {
     const sheetPercent = await fetchGoogleSheetPercentage(game.progress.sheetUrl, game.progress.sheetCell)
     if (sheetPercent !== null) {
       liveProgress.translate = sheetPercent
@@ -124,14 +144,8 @@ export default async function GameDetailPage({ params }: PageProps) {
     }
   }
 
-  // Calculate overall progress percentage
   let overallProgress = 0
-  if (game.slug === 'the-sims-4') {
-    const baseGameModule = liveProgress.modules?.find(
-      (m) => m.name === 'Base Game' || m.name.toLowerCase().includes('base')
-    )
-    overallProgress = baseGameModule ? baseGameModule.progress : 39
-  } else if (liveProgress.isMultiModule && liveProgress.modules && liveProgress.modules.length > 0) {
+  if (liveProgress.isMultiModule && liveProgress.modules && liveProgress.modules.length > 0) {
     const total = liveProgress.modules.reduce((sum, m) => sum + m.progress, 0)
     overallProgress = Math.round(total / liveProgress.modules.length)
   } else if (isGoogleSheetSync) {
@@ -142,71 +156,66 @@ export default async function GameDetailPage({ params }: PageProps) {
 
   return (
     <div className="w-full min-h-screen text-text1 pb-16 relative">
-      {/* 1. Subtle Widescreen Cinematic Cover Background (Fades out, no blocking height) */}
-      {game.coverImage && (
-        <div className="absolute top-0 left-0 right-0 h-[480px] overflow-hidden pointer-events-none z-0">
+      {/* Cinematic Cover Background */}
+      {game.coverImage ? (
+        <div className="absolute top-0 left-0 right-0 h-[520px] overflow-hidden pointer-events-none z-0">
           <img
             src={game.coverImage}
             alt={game.title}
-            className="w-full h-full object-cover opacity-25 scale-[1.01]"
+            className="w-full h-full object-cover object-[center_30%] opacity-65 scale-[1.01]"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-bg0/0 via-bg0/60 to-bg0" />
+          <div className="absolute inset-0 bg-gradient-to-r from-bg0/80 via-transparent to-bg0/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-bg0/30 via-bg0/20 to-bg0" />
+        </div>
+      ) : (
+        /* Themed fallback banner for games without a cover image */
+        <div className="absolute top-0 left-0 right-0 h-[520px] overflow-hidden pointer-events-none z-0">
+          <div className="themed-card__art absolute inset-0 opacity-80" />
+          <span className="absolute right-[8%] top-[15%] text-[260px] leading-none opacity-[0.12] blur-[1px] select-none">
+            {game.emoji}
+          </span>
+          <div className="absolute inset-0 bg-gradient-to-r from-bg0/70 via-transparent to-bg0/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-bg0/20 via-bg0/10 to-bg0" />
         </div>
       )}
 
-      {/* Main Layout Container */}
+      {/* Main Container */}
       <div className="max-w-[1100px] mx-auto px-6 pt-28 pb-12 relative z-10">
-        
-        {/* Breadcrumbs / Back Link */}
+        {/* Breadcrumbs */}
         <div className="mb-6 flex items-center gap-2 text-text3 text-[12px] font-bold">
-          <Link href="/" className="hover:text-blue3 transition-colors flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none rounded-md px-1">
+          <Link href="/" className="hover:text-blue3 transition-colors flex items-center gap-1">
             <ArrowLeft size={12} />
             หน้าแรก
           </Link>
-          <span>/</span>
-          {game.status === 'done' ? (
-            <Link href="/completed" className="hover:text-blue3 transition-colors text-text2 focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none rounded-md px-1">
-              เสร็จสมบูรณ์
-            </Link>
-          ) : (
-            <Link href="/in-progress" className="hover:text-blue3 transition-colors text-text2 focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:outline-none rounded-md px-1">
-              กำลังพัฒนา
-            </Link>
-          )}
           <span>/</span>
           <span className="text-blue3 font-extrabold">{game.title}</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* LEFT COLUMN: Sidebar (lg:col-span-4) - contains Poster, Downloads, Team */}
+          {/* LEFT COLUMN: Sidebar (lg:col-span-4) */}
           <div className="lg:col-span-4 space-y-6 max-w-[320px] mx-auto lg:mx-0 w-full">
-            
-            {/* Poster Art Card */}
-            <div className="w-full aspect-[2/3] rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden bg-bg1/40 backdrop-blur-md flex items-center justify-center">
+            <ThemedCard accent="#4A7FFF" className="group w-full aspect-[2/3] rounded-2xl border border-white/10 shadow-2xl overflow-hidden bg-bg1/40 backdrop-blur-md flex items-center justify-center">
               {(game.posterImage || game.coverImage) ? (
                 <img
                   src={game.posterImage || game.coverImage}
                   alt={game.title}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
-                <span className="text-[72px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-                  {game.emoji}
-                </span>
+                <div className="themed-card__art absolute inset-0 flex items-center justify-center">
+                  <span className="relative z-10 text-[84px] drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)] transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
+                    {game.emoji}
+                  </span>
+                </div>
               )}
-            </div>
+            </ThemedCard>
 
-            {/* Downloads / ปุ่มดาวน์โหลด (Highly visible under poster) */}
             <DownloadSection downloads={game.downloads} />
-
-            {/* Team / ทีมงาน */}
             <TeamSection team={game.team} />
           </div>
 
-          {/* RIGHT COLUMN: Content (lg:col-span-8) - contains Title, Overview, Specs, Progress, Video, Guide */}
+          {/* RIGHT COLUMN: Content (lg:col-span-8) */}
           <div className="lg:col-span-8 space-y-6">
-            
             {/* Header info */}
             <div>
               <h1 className="font-display text-[clamp(2rem,5vw,2.75rem)] font-black text-white leading-[1.2] mb-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] tracking-[-0.015em]">
@@ -258,7 +267,7 @@ export default async function GameDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Overview / เกี่ยวกับเกม */}
+            {/* Overview */}
             <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
               <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
@@ -267,7 +276,7 @@ export default async function GameDetailPage({ params }: PageProps) {
               <p className="text-[14px] text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.overview}</p>
             </div>
 
-            {/* Technical Specifications / ข้อมูลทางเทคนิค (4-column horizontal card grid like reference site) */}
+            {/* Specifications */}
             <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
               <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-4 flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
@@ -275,286 +284,93 @@ export default async function GameDetailPage({ params }: PageProps) {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-bg2/60 border border-border2/80 rounded-lg p-[14px_16px] flex flex-col justify-between hover:border-blue2/20 transition-colors">
-                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">
-                    SUPPORTED GAME
-                  </div>
+                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">SUPPORTED GAME</div>
                   <div className="text-[14px] text-white font-black leading-tight">{game.version}</div>
-                  <div className="text-[9px] text-blue3 font-medium mt-1">Game Version</div>
                 </div>
                 <div className="bg-bg2/60 border border-border2/80 rounded-lg p-[14px_16px] flex flex-col justify-between hover:border-blue2/20 transition-colors">
-                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">
-                    PLATFORM
-                  </div>
+                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">PLATFORM</div>
                   <div className="text-[14px] text-white font-black leading-tight">{game.client}</div>
-                  <div className="text-[9px] text-blue3 font-medium mt-1">Platform</div>
                 </div>
                 <div className="bg-bg2/60 border border-border2/80 rounded-lg p-[14px_16px] flex flex-col justify-between hover:border-blue2/20 transition-colors">
-                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">
-                    TRANSLATION v
-                  </div>
+                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">TRANSLATION v</div>
                   <div className="text-[14px] text-white font-black leading-tight">v{game.translationVersion}</div>
-                  <div className="text-[9px] text-blue3 font-medium mt-1">Mod Version</div>
                 </div>
                 <div className="bg-bg2/60 border border-border2/80 rounded-lg p-[14px_16px] flex flex-col justify-between hover:border-blue2/20 transition-colors">
-                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">
-                    FILE SIZE
-                  </div>
+                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">FILE SIZE</div>
                   <div className="text-[14px] text-white font-black leading-tight">{game.fileSize || 'N/A'}</div>
-                  <div className="text-[9px] text-blue3 font-medium mt-1">Mod Size</div>
                 </div>
               </div>
             </div>
 
-            {/* Redesigned Full-Width Development Progress Dashboard */}
-            <div className="bg-bg1/45 border border-border2 rounded-2xl p-6 md:p-8 shadow-xl relative overflow-hidden backdrop-blur-md">
-              {/* Glowing neon background highlight */}
-              <div
-                className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none"
-                style={{
-                  background: 'radial-gradient(circle at 50% 0%, var(--blue) 0%, transparent 70%)',
-                }}
-              />
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue2/20 to-transparent" />
-
-              {/* Header */}
-              <div className="relative z-10 text-[10px] font-bold text-text3 tracking-[1.5px] uppercase mb-6 flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-2.5">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue3 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue"></span>
-                  </span>
-                  <span className="text-[12px] font-extrabold text-blue3 tracking-[1.5px] uppercase">ความคืบหน้าการแปลภาษาไทย</span>
+            {/* Progress / ความคืบหน้า */}
+            <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase flex items-center gap-1.5">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
+                  ความคืบหน้า
                 </div>
+                {isGoogleSheetSync && (
+                  <span className="inline-flex items-center gap-1.5 text-[9px] bg-blue/10 border border-blue2/20 text-blue3 px-2.5 py-0.5 rounded-full font-bold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    LIVE SYNCED
+                  </span>
+                )}
               </div>
 
-              {/* Layout Content */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-                
-                {/* Left Area: Circular SVG Progress Ring Gauge (lg:col-span-4) */}
-                <div className="lg:col-span-4 flex flex-col items-center justify-center text-center p-4 bg-bg2/25 border border-white/5 rounded-2xl">
-                  {/* Circular SVG representation */}
-                  <div className="relative w-40 h-40 flex items-center justify-center">
-                    {/* Glow ring behind */}
-                    <div className="absolute inset-4 rounded-full bg-blue/10 filter blur-xl pointer-events-none" />
-                    
-                    <svg className="w-full h-full transform -rotate-90">
-                      {/* Background Circle */}
-                      <circle
-                        cx="80"
-                        cy="80"
-                        r="68"
-                        className="stroke-white/5"
-                        strokeWidth="8"
-                        fill="transparent"
+              <div className="space-y-3">
+                <div className="flex items-baseline justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+                        overallProgress >= 100
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                          : 'bg-blue/15 text-blue3 border-blue2/30'
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          overallProgress >= 100 ? 'bg-emerald-400' : 'bg-blue3 animate-pulse'
+                        }`}
                       />
-                      {/* Colored Active Circle */}
-                      <circle
-                        cx="80"
-                        cy="80"
-                        r="68"
-                        className="stroke-blue transition-all duration-1000 ease-out"
-                        strokeWidth="8"
-                        fill="transparent"
-                        strokeDasharray={427}
-                        strokeDashoffset={427 - (427 * overallProgress) / 100}
-                        strokeLinecap="round"
-                        style={{
-                          filter: 'drop-shadow(0 0 8px rgba(43, 95, 255, 0.5))',
-                        }}
-                      />
-                    </svg>
-                    
-                    {/* Center Percentage */}
-                    <div className="absolute flex flex-col items-center justify-center">
-                      <span className="text-[38px] font-black text-white leading-none tracking-tight">
-                        {overallProgress}%
-                      </span>
-                      <span className="text-[9px] text-text3 font-bold tracking-[1px] uppercase mt-1">
-                        {game.slug === 'the-sims-4' ? 'Base Game' : (liveProgress.isMultiModule ? 'เฉลี่ยทุกภาค' : 'ความคืบหน้าหลัก')}
-                      </span>
-                    </div>
+                      {overallProgress >= 100
+                        ? 'แปลภาษาไทยเสร็จสิ้นสมบูรณ์'
+                        : 'กำลังดำเนินการแปลภาษาไทย'}
+                    </span>
                   </div>
 
-                  {/* Status Statement */}
-                  <div className="mt-4">
-                    <div className="text-[13px] font-bold text-text1">
-                      {overallProgress >= 100 
-                        ? '✦ แปลภาษาไทยเสร็จสิ้นสมบูรณ์' 
-                        : overallProgress >= 50 
-                          ? '⟳ กำลังดำเนินการแปลครึ่งหลัง' 
-                          : '⟳ เริ่มโครงการแปลระยะแรก'}
-                    </div>
-                    <div className="text-[10px] text-text3 mt-1.5">
-                      {game.slug === 'the-sims-4'
-                        ? 'ความคืบหน้าการแปลตัวเกมหลัก (Base Game)'
-                        : liveProgress.isMultiModule 
-                          ? `แปลเสร็จแล้ว ${liveProgress.modules?.filter(m => m.progress >= 100).length || 0} จาก ${liveProgress.modules?.length || 0} ภาค`
-                          : isGoogleSheetSync
-                            ? 'ซิงก์พิกัดความคืบหน้าตรงจาก Google Sheets'
-                            : `เฉลี่ยจากกระบวนการผลิตงานแปล 3 ขั้นตอน`
-                      }
-                    </div>
+                  <div className="text-right flex items-baseline gap-1">
+                    <span className="font-display text-3xl sm:text-4xl font-black text-white tracking-tight">
+                      {overallProgress}
+                    </span>
+                    <span className="text-base font-bold text-blue3">%</span>
                   </div>
                 </div>
 
-                {/* Right Area: Detailed Breakdown (lg:col-span-8) */}
-                <div className="lg:col-span-8 h-full flex flex-col justify-center">
-                  
-                  {isGoogleSheetSync ? (
-                    // Google Sheets Mode
-                    <div className="space-y-4 bg-bg2/20 border border-blue/15 rounded-2xl p-5 md:p-6 flex flex-col justify-between h-full hover:border-blue2/30 transition-all duration-300">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-blue3">
-                          <Languages size={18} />
-                          <h3 className="text-sm font-bold uppercase tracking-[0.5px]">เชื่อมโยงชีตแปลภาษาหลัก</h3>
-                        </div>
-                        <p className="text-[12px] text-text2 leading-relaxed">
-                          โปรเจกต์นี้ได้รับการเชื่อมต่อข้อมูลกับ Google Sheets ของทีมแปลไทยโดยตรง ทำให้ความคืบหน้าในการแปลหลัก (Translation Progress) จะถูกอัปเดตเป็นเปอร์เซ็นต์แบบเรียลไทม์ทันทีเมื่อมีการอัปเดตงานแปลภายในชีต
-                        </p>
-                        <div className="flex flex-wrap gap-4 pt-2 text-[11px] text-text3 font-semibold">
-                          <div className="flex items-center gap-1.5">
-                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400" />
-                            สถานะเชื่อมต่อ: เรียบร้อย
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
-                            อ่านพิกัด: เซลล์ C1 (เปอร์เซ็นต์รวม)
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pt-4 border-t border-white/5 flex justify-end">
-                        <a
-                          href={game.progress.sheetUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs text-blue3 font-bold bg-blue/10 border border-blue2/20 px-4 py-2 rounded-xl hover:bg-blue hover:text-white transition-all shadow-md group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue2"
-                        >
-                          เปิดดู Google Sheet ตารางแปลภาษา
-                          <ExternalLink size={12} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                        </a>
-                      </div>
-                    </div>
-                  ) : liveProgress.isMultiModule && liveProgress.modules && liveProgress.modules.length > 0 ? (
-                    // Multi-Module (DLCs) Grid Mode
-                    <div className="space-y-3">
-                      <div className="text-[11px] font-bold text-text3 uppercase tracking-[1px] mb-2 flex justify-between items-center pr-1">
-                        <span>แบ่งตามภาค / ส่วนเสริม (DLCs)</span>
-                        <span className="text-[10px] font-semibold text-text3/70">เลื่อนเมาส์เพื่อดูส่วนเสริมทั้งหมด</span>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-1.5 scrollbar-thin">
-                        {liveProgress.modules
-                          .filter((mod) => !(game.slug === 'the-sims-4' && (mod.name === 'Base Game' || mod.name.toLowerCase().includes('base'))))
-                          .map((mod, idx) => {
-                            const isDone = mod.progress >= 100
-                            return (
-                            <div key={idx} className="bg-bg2/30 border border-white/5 rounded-xl p-3.5 hover:border-blue2/20 hover:bg-bg2/40 transition-all duration-300 group/card">
-                              <div className="flex justify-between items-center text-[12px] mb-2">
-                                <span className="text-text1 font-bold truncate pr-2" title={mod.name}>
-                                  {mod.name}
-                                </span>
-                                <span className={`font-black ${isDone ? 'text-blue3' : 'text-star'}`}>{mod.progress}%</span>
-                              </div>
-                              <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
-                                <div 
-                                  className={`h-full rounded-full transition-all duration-500 ${isDone ? 'bg-gradient-to-r from-blue to-blue3' : 'bg-gradient-to-r from-star to-star2'}`} 
-                                  style={{ width: `${mod.progress}%` }} 
-                                />
-                              </div>
-                              <div className="text-[9px] text-text3 mt-1.5 font-bold flex justify-between">
-                                <span>{isDone ? '✦ เสร็จสมบูรณ์' : '⟳ กำลังแปลและพัฒนา'}</span>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    // Standard Game 3-Stage Mode
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                      {/* Stage 1: Translation */}
-                      <div className="bg-bg2/25 border border-white/5 rounded-xl p-5 flex flex-col justify-between items-center text-center hover:border-blue2/25 hover:bg-bg2/40 transition-all duration-300 shadow-md min-h-[200px]">
-                        <div className="w-full flex flex-col items-center">
-                          <div className="text-[10px] text-text3 uppercase font-extrabold tracking-[1px] mb-1">STAGE 01</div>
-                          <div className="text-[32px] font-black text-blue3 leading-none drop-shadow-[0_2px_8px_rgba(43,95,255,0.2)]">{liveProgress.translate}%</div>
-                          <div className="text-[17px] font-black text-text1 mt-3.5 leading-snug">
-                            แปลเนื้อหาหลัก
-                          </div>
-                        </div>
-                        <div className="w-full mt-5 space-y-2.5">
-                          <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
-                            <div 
-                              className="h-full bg-gradient-to-r from-blue to-blue3 rounded-full transition-all duration-500" 
-                              style={{ width: `${liveProgress.translate}%` }} 
-                            />
-                          </div>
-                          <div className="text-[11px] text-text2 font-bold leading-normal">
-                            {liveProgress.translate >= 100 
-                              ? '✦ แปลเนื้อหาทั้งหมดเสร็จสิ้น' 
-                              : liveProgress.translate > 0 
-                                ? '⟳ กำลังแปลซับไตเติลและ UI' 
-                                : 'ยังไม่ดำเนินการแปล'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Stage 2: Proofreading */}
-                      <div className="bg-bg2/25 border border-white/5 rounded-xl p-5 flex flex-col justify-between items-center text-center hover:border-blue2/25 hover:bg-bg2/40 transition-all duration-300 shadow-md min-h-[200px]">
-                        <div className="w-full flex flex-col items-center">
-                          <div className="text-[10px] text-text3 uppercase font-extrabold tracking-[1px] mb-1">STAGE 02</div>
-                          <div className="text-[32px] font-black text-star leading-none drop-shadow-[0_2px_8px_rgba(234,179,8,0.15)]">{liveProgress.proofread || 0}%</div>
-                          <div className="text-[17px] font-black text-text1 mt-3.5 leading-snug">
-                            ตรวจทานเรียบเรียง
-                          </div>
-                        </div>
-                        <div className="w-full mt-5 space-y-2.5">
-                          <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
-                            <div 
-                              className="h-full bg-gradient-to-r from-star to-star2 rounded-full transition-all duration-500" 
-                              style={{ width: `${liveProgress.proofread || 0}%` }} 
-                            />
-                          </div>
-                          <div className="text-[11px] text-text2 font-bold leading-normal">
-                            {(liveProgress.proofread || 0) >= 100 
-                              ? '✦ ตรวจทานความถูกต้องเสร็จสิ้น' 
-                              : (liveProgress.proofread || 0) > 0 
-                                ? '⟳ กำลังเกลาสำนวนและคำทับศัพท์' 
-                                : 'รอเริ่มขั้นตอนการตรวจทาน'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Stage 3: Testing */}
-                      <div className="bg-bg2/25 border border-white/5 rounded-xl p-5 flex flex-col justify-between items-center text-center hover:border-blue2/25 hover:bg-bg2/40 transition-all duration-300 shadow-md min-h-[200px]">
-                        <div className="w-full flex flex-col items-center">
-                          <div className="text-[10px] text-text3 uppercase font-extrabold tracking-[1px] mb-1">STAGE 03</div>
-                          <div className="text-[32px] font-black text-text1 leading-none">{liveProgress.test || 0}%</div>
-                          <div className="text-[17px] font-black text-text1 mt-3.5 leading-snug">
-                            ทดสอบระบบในเกม
-                          </div>
-                        </div>
-                        <div className="w-full mt-5 space-y-2.5">
-                          <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
-                            <div 
-                              className="h-full bg-gradient-to-r from-text3 to-text2 rounded-full transition-all duration-500" 
-                              style={{ width: `${liveProgress.test || 0}%` }} 
-                            />
-                          </div>
-                          <div className="text-[11px] text-text2 font-bold leading-normal">
-                            {game.status === 'done' || (liveProgress.test || 0) >= 100
-                              ? '✦ แก้ไขบั๊กและฟอนต์เรียบร้อย' 
-                              : (liveProgress.test || 0) > 0 
-                                ? '⟳ ไล่ตรวจบั๊กและข้อความทับซ้อน' 
-                                : 'รอเริ่มการทดสอบในเกม'}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
+                {/* Horizontal Progress Bar */}
+                <div className="w-full h-3 rounded-full bg-bg2/80 border border-white/10 p-0.5 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-1000 ease-out shadow-sm ${
+                      overallProgress >= 100
+                        ? 'bg-gradient-to-r from-blue via-emerald-400 to-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.4)]'
+                        : 'bg-gradient-to-r from-blue via-blue2 to-blue3 shadow-[0_0_12px_rgba(43,95,255,0.4)]'
+                    }`}
+                    style={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
+                  />
                 </div>
 
+                {game.progress?.sheetUrl && (
+                  <div className="pt-2 flex justify-end">
+                    <a
+                      href={game.progress.sheetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-blue3 hover:text-white transition-colors font-semibold"
+                    >
+                      เปิดดู Google Sheet ตารางแปลภาษา
+                      <ExternalLink size={12} />
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -579,7 +395,7 @@ export default async function GameDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Details of Translation / รายละเอียดการแปล */}
+            {/* Details */}
             <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
               <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
@@ -593,9 +409,7 @@ export default async function GameDetailPage({ params }: PageProps) {
               <p className="text-xs text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.description}</p>
             </div>
 
-
-
-            {/* Installation Guide / วิธีการลงม็อด */}
+            {/* Installation Guide */}
             {game.instructions && game.instructions.length > 0 && (
               <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
                 <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-5 flex items-center gap-1.5">
@@ -604,30 +418,45 @@ export default async function GameDetailPage({ params }: PageProps) {
                 </div>
                 
                 <div className="relative pl-2 sm:pl-4 space-y-6">
-                  {/* Timeline vertical connector line */}
                   {game.instructions.length > 1 && (
                     <div className="absolute left-[20px] sm:left-[28px] top-4 bottom-4 w-[1px] bg-gradient-to-b from-blue/40 via-blue2/10 to-transparent border-l border-dashed border-white/5 pointer-events-none" />
                   )}
                   
                   {game.instructions.map((step, idx) => (
                     <div key={idx} className="relative flex gap-4 sm:gap-5 items-start">
-                      {/* Step badge */}
-                      <div className="z-10 shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-bg2 border border-blue2/25 flex items-center justify-center text-xs sm:text-sm font-bold text-blue3 shadow-[0_0_15px_rgba(43,95,255,0.15)]">
+                      <div className="z-10 shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-bg2 border border-blue2/25 flex items-center justify-center text-xs sm:text-sm font-bold text-blue3 shadow-lg">
                         {idx + 1}
                       </div>
                       
-                      {/* Step content */}
                       <div className="flex-1 space-y-3 pt-0.5 sm:pt-1">
-                        <p className="text-[13px] text-text2 leading-relaxed font-normal whitespace-pre-line">{step.text}</p>
-                        
+                        {step.text && (
+                          <p className="text-[13px] text-text2 leading-relaxed font-normal whitespace-pre-line">{step.text}</p>
+                        )}
                         {step.image && (
-                          <div className="relative rounded-xl overflow-hidden border border-white/5 bg-bg2/40 max-w-[560px] shadow-lg group/img">
+                          <div className={`relative rounded-2xl overflow-hidden border border-white/10 bg-bg2/40 shadow-xl group/stepimg ${
+                            step.aspectRatio === '1:1'
+                              ? 'max-w-[420px] aspect-square'
+                              : step.aspectRatio === 'auto'
+                              ? 'max-w-[620px] max-h-[520px] flex items-center justify-center'
+                              : 'max-w-[620px] aspect-video'
+                          }`}>
                             <img
                               src={step.image}
                               alt={`ขั้นตอนที่ ${idx + 1}`}
-                              className="w-full h-auto object-cover max-h-[300px] transition-transform duration-500 group-hover/img:scale-[1.015]"
+                              className={`w-full h-full ${
+                                step.aspectRatio === 'auto' ? 'object-contain max-h-[520px]' : 'object-cover'
+                              } transition-transform duration-300 group-hover/stepimg:scale-102`}
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                            <a
+                              href={step.image}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/75 hover:bg-black/90 backdrop-blur-md text-[11px] text-white font-medium opacity-0 group-hover/stepimg:opacity-100 transition-opacity flex items-center gap-1.5 shadow-lg border border-white/10"
+                              title="คลิกเพื่อดูรูปภาพขนาดเต็ม"
+                            >
+                              <ExternalLink size={12} />
+                              ดูรูปขนาดเต็ม
+                            </a>
                           </div>
                         )}
                       </div>
@@ -636,7 +465,6 @@ export default async function GameDetailPage({ params }: PageProps) {
                 </div>
               </div>
             )}
-
           </div>
         </div>
       </div>

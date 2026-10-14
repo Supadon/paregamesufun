@@ -317,12 +317,15 @@ export default function HeroBanner() {
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-pulse">
-        <span className="text-[11px] text-text3 font-medium">เลื่อนลง</span>
-        <svg className="w-4 h-4 text-text3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <a
+        href="#games"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-pulse text-text3 hover:text-white transition-colors cursor-pointer no-underline focus-visible:outline-none"
+      >
+        <span className="text-[11px] font-medium">เลื่อนลง</span>
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
         </svg>
-      </div>
+      </a>
     </section>
   )
 }

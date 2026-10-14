@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Game } from '@/lib/types'
+import ThemedCard, { PosterImage } from './ThemedCard'
 
 interface GameCardProps {
   game: Game
@@ -7,57 +8,74 @@ interface GameCardProps {
 
 export default function GameCard({ game }: GameCardProps) {
   const isDone = game.status === 'done'
+  const accent = isDone ? '#4A7FFF' : '#A8C4FF'
+  const poster = game.posterImage || game.coverImage
+
+  // Themed fallback artwork — used when a game has no poster (or it fails to load)
+  const fallbackArt = (
+    <div className="themed-card__art absolute inset-0 flex items-center justify-center">
+      <span className="relative z-10 -mt-10 text-[72px] sm:text-[84px] drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)] transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
+        {game.emoji}
+      </span>
+    </div>
+  )
 
   return (
-    <Link
-      href={`/games/${game.slug}`}
-      className="group relative flex flex-col rounded-xl overflow-hidden no-underline aspect-[2/3] bg-bg1 border border-border2 transition-all duration-500 hover:border-blue3 hover:-translate-y-[6px] hover:shadow-[0_12px_40px_rgba(0,0,0,0.6),0_0_25px_rgba(43,95,255,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue2 focus-visible:border-blue3"
+    <ThemedCard
+      accent={accent}
+      className="group aspect-[2/3] rounded-xl overflow-hidden bg-bg1 border border-border2"
     >
-      {/* Visual cover area (fills 100% of card) */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden bg-gradient-to-br from-bg2 to-bg3 z-0">
-        {(game.posterImage || game.coverImage) ? (
-          <img
-            src={game.posterImage || game.coverImage}
+      <Link
+        href={`/games/${game.slug}`}
+        className="absolute inset-0 z-0 flex flex-col no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue2 rounded-xl"
+      >
+        {/* Poster — always vivid, no dimming overlay on the artwork itself */}
+        <div className="absolute inset-0 overflow-hidden">
+          <PosterImage
+            src={poster}
             alt={game.title}
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            fallback={fallbackArt}
+            className="absolute inset-0 w-full h-full object-cover saturate-[1.08] contrast-[1.04] transition-transform duration-700 ease-out group-hover:scale-[1.07]"
           />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[64px] sm:text-[72px] transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-              {game.emoji}
+        </div>
+
+        {/* Bottom info panel — always visible so every card is readable at a glance */}
+        <div className="relative z-10 mt-auto">
+          <div className="absolute inset-x-0 bottom-0 h-[150%] bg-gradient-to-t from-black/95 via-black/70 to-transparent pointer-events-none" />
+
+          <div className="relative p-3.5 pt-8 flex flex-col gap-1.5">
+            <span
+              className="text-[10px] font-extrabold uppercase tracking-[0.12em] truncate"
+              style={{ color: accent }}
+            >
+              {game.genre}
             </span>
+
+            <h3 className="font-display text-[15px] sm:text-base font-black text-white leading-snug line-clamp-2 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+              {game.title}
+            </h3>
+
+            <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-white/10">
+              <span
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold border whitespace-nowrap ${
+                  isDone
+                    ? 'bg-blue/25 text-star2 border-blue2/50'
+                    : 'bg-[rgba(168,196,255,0.14)] text-star border-[rgba(168,196,255,0.35)]'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${isDone ? 'bg-blue3' : 'bg-star animate-pulse'}`}
+                />
+                {isDone ? 'เสร็จสิ้น' : 'กำลังแปล'}
+              </span>
+
+              <span className="text-[10.5px] font-bold text-text2 transition-all duration-300 group-hover:text-white group-hover:translate-x-0.5 whitespace-nowrap">
+                ดูรายละเอียด →
+              </span>
+            </div>
           </div>
-        )}
-        
-        {/* Dark gradient fade for text legibility (Visible only on hover) */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out z-10" />
-
-        {/* Shine sweep effect */}
-        <div className="absolute inset-0 w-[50%] h-full bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 -translate-x-[150%] group-hover:translate-x-[250%] transition-transform duration-1000 ease-out pointer-events-none z-20" />
-      </div>
-
-      {/* Info bar at bottom (Slides up and fades in on hover) */}
-      <div className="absolute bottom-0 inset-x-0 z-30 p-4 bg-black/40 backdrop-blur-md border-t border-white/10 flex flex-col gap-2 transform translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out">
-        <div className="flex justify-between items-start gap-2">
-          <span className="text-sm font-bold text-white line-clamp-1 group-hover:text-blue3 transition-colors duration-300">
-            {game.title}
-          </span>
-          <span className={`shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-[0.5px] ${
-            isDone 
-              ? 'bg-blue-dim text-blue3 border border-blue-dim/30' 
-              : 'bg-[rgba(168,196,255,0.12)] border border-[rgba(168,196,255,0.3)] text-star'
-          }`}>
-            {isDone ? 'Done' : 'WIP'}
-          </span>
         </div>
-        <div className="flex justify-between items-center text-[10.5px] text-text2 font-semibold">
-          <span>{game.genre}</span>
-          <span className="text-text3 transition-colors duration-300 group-hover:text-white">
-            {isDone ? '✦ เสร็จสิ้น' : '⟳ กำลังแปล'}
-          </span>
-        </div>
-      </div>
-    </Link>
+      </Link>
+    </ThemedCard>
   )
 }

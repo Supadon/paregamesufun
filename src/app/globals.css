@@ -72,6 +72,87 @@ body {
   50% { transform: translateY(-12px); }
 }
 
+/* ============================================================
+   THEMED CARD — one signature interaction shared by every card
+   (cursor spotlight · HUD corner brackets · shine sweep · glow ring)
+   Per-card color comes from --card-accent (set by <ThemedCard accent>).
+   ============================================================ */
+.themed-card {
+  --card-accent: #4a7fff;
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+.themed-card:hover {
+  border-color: color-mix(in srgb, var(--card-accent) 75%, transparent);
+  box-shadow:
+    0 16px 42px -6px rgba(0, 0, 0, 0.65),
+    0 0 32px color-mix(in srgb, var(--card-accent) 38%, transparent);
+}
+
+/* Cursor-following spotlight */
+.themed-card__spot {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    240px circle at var(--mx) var(--my),
+    color-mix(in srgb, var(--card-accent) 32%, transparent),
+    transparent 65%
+  );
+  mix-blend-mode: screen;
+}
+.themed-card:hover .themed-card__spot { opacity: 1; }
+
+/* Diagonal shine sweep */
+.themed-card__shine {
+  position: absolute;
+  inset: 0;
+  z-index: 26;
+  pointer-events: none;
+  overflow: hidden;
+}
+.themed-card__shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  left: -60%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  transform: skewX(-14deg);
+  transition: left 0.9s ease;
+}
+.themed-card:hover .themed-card__shine::before { left: 130%; }
+
+/* Shared fallback artwork for cards without a poster */
+.themed-card__art {
+  background:
+    radial-gradient(circle at 20% 15%, color-mix(in srgb, var(--card-accent) 38%, transparent), transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(140, 80, 255, 0.22), transparent 55%),
+    linear-gradient(160deg, var(--bg3), var(--bg1) 70%);
+}
+.themed-card__art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(168, 196, 255, 0.55) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
