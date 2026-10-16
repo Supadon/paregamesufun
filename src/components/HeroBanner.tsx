@@ -1,6 +1,34 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { SiteSettings } from '@/lib/types'
+
+// Official Brand Icons for Social Channels
+function FacebookIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={`${className} fill-[#1877F2] shrink-0`} viewBox="0 0 24 24">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+    </svg>
+  )
+}
+
+function NexusModsIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <img 
+      src="/nexusmods-logo.png" 
+      alt="Nexus Mods" 
+      className={`${className} object-contain shrink-0`} 
+    />
+  )
+}
+
+function DiscordIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={`${className} fill-[#5865F2] shrink-0`} viewBox="0 0 24 24">
+      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+    </svg>
+  )
+}
 
 // Floating decorative element component
 function FloatingIcon({
@@ -180,152 +208,90 @@ function DotGrid({ size = 4, gap = 12, rows = 4, cols = 5 }: { size?: number; ga
   )
 }
 
-export default function HeroBanner() {
-  return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
-      {/* Deep radial glows */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: `
-            radial-gradient(ellipse 60% 50% at 50% 40%, rgba(43,95,255,0.14) 0%, transparent 60%),
-            radial-gradient(ellipse 40% 30% at 20% 65%, rgba(140,80,255,0.05) 0%, transparent 50%),
-            radial-gradient(ellipse 40% 30% at 80% 60%, rgba(43,95,255,0.06) 0%, transparent 50%)
-          `,
-        }}
-      />
+export default function HeroBanner({ settings }: { settings?: SiteSettings }) {
+  const social = settings?.socialLinks || {
+    facebook: 'https://www.facebook.com/profile.php?id=61559423189253',
+    nexusmods: 'https://www.nexusmods.com',
+    discord: 'https://discord.gg',
+  }
 
+  return (
+    <section className="relative pt-24 sm:pt-28 pb-8 flex flex-col items-center justify-center overflow-hidden">
       {/* Circuit lines */}
       <CircuitLines />
 
-      {/* Grid pattern overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.025]"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(100,150,255,0.5) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(100,150,255,0.5) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px',
-        }}
-      />
-
-      {/* === Decorative floating icons === */}
-
-      {/* Gamepad - bottom left */}
-      <FloatingIcon className="left-[5%] bottom-[18%] hidden md:block" delay={0} duration={7}>
+      {/* Decorative subtle floating icons */}
+      <FloatingIcon className="left-[4%] top-[25%] hidden lg:block" delay={0} duration={8}>
         <GamepadIcon />
       </FloatingIcon>
-
-      {/* Translate icon - top right */}
-      <FloatingIcon className="right-[6%] top-[14%] hidden md:block" delay={1} duration={8}>
+      <FloatingIcon className="right-[5%] top-[20%] hidden lg:block" delay={1} duration={9}>
         <TranslateIcon />
       </FloatingIcon>
-
-      {/* Code icon - bottom right */}
-      <FloatingIcon className="right-[8%] bottom-[16%] hidden md:block" delay={0.5} duration={6.5}>
-        <CodeIcon />
-      </FloatingIcon>
-
-      {/* Chat bubble - top left */}
-      <FloatingIcon className="left-[8%] top-[18%] hidden md:block" delay={2} duration={7.5}>
+      <FloatingIcon className="left-[12%] bottom-[10%] hidden md:block" delay={2} duration={7}>
         <ChatIcon />
       </FloatingIcon>
-
-      {/* Chat bubble 2 - mid left */}
-      <FloatingIcon className="left-[18%] top-[50%] hidden lg:block" delay={1.5} duration={9}>
-        <ChatIcon />
-      </FloatingIcon>
-
-      {/* Pixel hearts */}
-      <FloatingIcon className="right-[20%] top-[22%] hidden lg:block" delay={3} duration={5}>
-        <PixelHeart />
-      </FloatingIcon>
-      <FloatingIcon className="left-[12%] bottom-[38%] hidden lg:block" delay={2.5} duration={6}>
+      <FloatingIcon className="right-[14%] bottom-[12%] hidden md:block" delay={3} duration={6}>
         <PixelHeart />
       </FloatingIcon>
 
-      {/* Diamonds */}
-      <FloatingIcon className="right-[30%] top-[16%] hidden md:block" delay={1} duration={8}>
-        <Diamond />
-      </FloatingIcon>
-      <FloatingIcon className="left-[25%] bottom-[22%] hidden md:block" delay={3.5} duration={7}>
-        <Diamond />
-      </FloatingIcon>
-      <FloatingIcon className="right-[15%] bottom-[40%] hidden lg:block" delay={2} duration={9}>
-        <Diamond />
-      </FloatingIcon>
-
-      {/* Dot grids */}
-      <FloatingIcon className="left-[3%] top-[38%] hidden lg:block" delay={0} duration={10}>
-        <DotGrid rows={3} cols={4} />
-      </FloatingIcon>
-      <FloatingIcon className="right-[3%] top-[45%] hidden lg:block" delay={1} duration={10}>
-        <DotGrid rows={4} cols={3} />
-      </FloatingIcon>
-
-      {/* === Main Content === */}
-      <div className="relative z-10 text-center px-6 max-w-[700px] mx-auto">
-        {/* Logo with enhanced glow */}
-        <div className="mb-7 flex justify-center">
-          <div className="relative">
-            <div className="absolute -inset-4 bg-blue/15 rounded-[32px] blur-2xl" />
-            <div className="relative w-[110px] h-[110px] rounded-[26px] overflow-hidden border-2 border-[rgba(100,150,255,0.25)] shadow-[0_0_50px_rgba(43,95,255,0.3),0_0_100px_rgba(43,95,255,0.1)]">
-              <img src="/logo.jpg" alt="แปลเกมสู่ฝัน" className="w-full h-full object-cover" />
+      {/* Main Content */}
+      <div className="relative z-10 text-center px-4 sm:px-6 max-w-[680px] mx-auto">
+        {/* Logo with cosmic glow */}
+        <div className="mb-3.5 flex justify-center">
+          <div className="relative group">
+            <div className="absolute -inset-2 bg-gradient-to-r from-blue via-cyan-400 to-indigo-500 rounded-3xl blur-xl opacity-60 group-hover:opacity-85 transition-opacity duration-500" />
+            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border border-cyan-400/50 shadow-[0_0_30px_rgba(43,95,255,0.4),0_0_60px_rgba(0,210,255,0.2)]">
+              <img src="/logo.jpg" alt="แปลเกมสู่ฝัน" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
             </div>
           </div>
         </div>
 
-        <h1 className="font-display text-[clamp(2.25rem,5.5vw,3.5rem)] font-bold text-white mb-2 leading-[1.2] tracking-[-0.02em]">
+        <h1 className="font-display text-[clamp(1.75rem,4.5vw,2.5rem)] font-black text-white mb-2 leading-[1.2] tracking-[-0.02em] drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
           แปลเกมสู่ฝัน
         </h1>
 
-        <p className="text-sm sm:text-base text-text2 leading-relaxed mb-2 max-w-[520px] mx-auto">
-          นักแปลเกม PC อิสระชาวไทย แปลเกมภาษาอังกฤษให้เป็นไทย
-          เพื่อให้ทุกคนได้สัมผัสเกมที่ตัวเองรักโดยไม่มีกำแพงภาษา
+        <p className="text-xs sm:text-sm text-text2 leading-relaxed mb-4 max-w-[480px] mx-auto font-normal">
+          แปลเกมที่ตัวเองชอบ เป็นงานอดิเรกค้าบ
         </p>
-       
-        {/* Chips */}
-        {/* <div className="flex gap-2.5 flex-wrap justify-center mb-6">
-          <span className="inline-flex items-center gap-[5px] px-4 py-2 rounded-full text-[13px] font-medium bg-blue-dim text-blue3 border border-[rgba(43,95,255,0.22)]">
-            ✦ แปลฟรี 100%
-          </span>
-          <span className="inline-flex items-center gap-[5px] px-4 py-2 rounded-full text-[13px] font-medium bg-[rgba(168,196,255,0.1)] text-star2 border border-[rgba(168,196,255,0.2)]">
-            ★ เกม PC เป็นหลัก
-          </span>
-          <span className="inline-flex items-center gap-[5px] px-4 py-2 rounded-full text-[13px] font-medium bg-blue-dim text-blue3 border border-[rgba(43,95,255,0.22)]">
-            ⟳ อัปเดตสม่ำเสมอ
-          </span>
-        </div> */}
 
-        {/* <div className="flex items-center justify-center gap-8 mt-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue3">6+</div>
-            <div className="text-[10px] text-text3 uppercase tracking-wider mt-0.5">เกมที่แปล</div>
+        {/* Social & Community Channel Links */}
+        <div className="flex gap-2.5 sm:gap-3 flex-wrap justify-center items-center pt-1">
+          {social.facebook && (
+            <a
+              href={social.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-text1 bg-bg1/70 hover:bg-white/10 border border-white/10 hover:border-[#1877F2]/60 hover:shadow-[0_0_15px_rgba(24,119,242,0.35)] transition-all group/btn"
+              title="ติดตามเพจ Facebook"
+            >
+              <FacebookIcon className="w-5 h-5" />
+              <span className="group-hover/btn:text-white transition-colors">Facebook</span>
+            </a>
+          )}
+
+          {social.nexusmods && (
+            <a
+              href={social.nexusmods}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-text1 bg-bg1/70 hover:bg-white/10 border border-white/10 hover:border-[#DA8E35]/60 hover:shadow-[0_0_15px_rgba(218,142,53,0.35)] transition-all group/btn"
+              title="Nexus Mods โปรไฟล์ม็อด"
+            >
+              <NexusModsIcon className="w-5 h-5" />
+              <span className="group-hover/btn:text-white transition-colors">Nexus Mods</span>
+            </a>
+          )}
+
+          {/* Discord (รอเปิดใช้งาน - เทาและกดไม่ได้) */}
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-text3/80 bg-bg1/40 border border-white/5 opacity-50 cursor-not-allowed select-none transition-all"
+            title="Discord (เร็ว ๆ นี้)"
+          >
+            <DiscordIcon className="w-5 h-5 grayscale opacity-60" />
+            <span className="text-text3">Discord</span>
           </div>
-          <div className="w-px h-8 bg-border-c" />
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue3">100%</div>
-            <div className="text-[10px] text-text3 uppercase tracking-wider mt-0.5">ฟรี</div>
-          </div>
-          <div className="w-px h-8 bg-border-c" />
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue3">3+</div>
-            <div className="text-[10px] text-text3 uppercase tracking-wider mt-0.5">ทีมงาน</div>
-          </div>
-        </div> */}
+        </div>
       </div>
-
-      {/* Scroll indicator */}
-      <a
-        href="#games"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-pulse text-text3 hover:text-white transition-colors cursor-pointer no-underline focus-visible:outline-none"
-      >
-        <span className="text-[11px] font-medium">เลื่อนลง</span>
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </a>
     </section>
   )
 }

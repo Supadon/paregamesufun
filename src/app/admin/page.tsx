@@ -6,14 +6,16 @@ import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, Plus, Edit2, Trash2, Check, X, 
   Loader2, Sparkles, Database, FileCode, CheckCircle, Info,
-  Users, UserPlus, Trash, Pencil, Link as LinkIcon, ExternalLink
+  Users, UserPlus, Trash, Pencil, Link as LinkIcon, ExternalLink,
+  Share2, Globe
 } from 'lucide-react'
-import { Game, GameStatus, TeamMember, DownloadLink, GameModule, InstructionStep } from '@/lib/types'
+import { Game, GameStatus, TeamMember, DownloadLink, GameModule, InstructionStep, SiteSettings } from '@/lib/types'
 import Sims4AdminManager from '@/components/admin/Sims4AdminManager'
 import { 
   getGames, createGame, updateGame, deleteGame, uploadLocalFile,
   checkAdminSession, verifyAdminPassword, logoutAdmin,
   getTeamPool, addTeamMemberToPool, updateTeamMemberInPool, deleteTeamMemberFromPool,
+  getSiteSettings, updateSiteSettings,
   TeamPoolMember
 } from '@/app/actions/games'
 
@@ -37,6 +39,19 @@ export default function AdminPage() {
   const [newMemberLink, setNewMemberLink] = useState('')
   const [editingMemberName, setEditingMemberName] = useState<string | null>(null)
   const [savingMember, setSavingMember] = useState(false)
+
+  // Social Links state
+  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false)
+  const [socialSettings, setSocialSettings] = useState<SiteSettings>({
+    socialLinks: {
+      facebook: '',
+      youtube: '',
+      nexusmods: '',
+      discord: '',
+      website: '',
+    }
+  })
+  const [savingSocial, setSavingSocial] = useState(false)
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -71,6 +86,8 @@ export default function AdminPage() {
   const [isMultiModule, setIsMultiModule] = useState(false)
   const [modules, setModules] = useState<GameModule[]>([{ name: '', progress: 0 }])
   const [instructions, setInstructions] = useState<InstructionStep[]>([{ text: '', image: '', aspectRatio: '1:1' }])
+  const [instructionsMac, setInstructionsMac] = useState<InstructionStep[]>([{ text: '', image: '', aspectRatio: '1:1' }])
+  const [instructionTab, setInstructionTab] = useState<'windows' | 'mac'>('windows')
   const [uploadingStepIdx, setUploadingStepIdx] = useState<number | null>(null)
   const [sheetUrl, setSheetUrl] = useState('')
   const [sheetCell, setSheetCell] = useState('')
@@ -93,6 +110,16 @@ export default function AdminPage() {
           
           // Load team pool
           const poolData = await getTeamPool()
+
+          // Load site settings & social links
+          try {
+            const settingsData = await getSiteSettings()
+            if (settingsData && settingsData.socialLinks) {
+              setSocialSettings(settingsData)
+            }
+          } catch (e) {
+            console.error('Error loading site settings:', e)
+          }
           
           // Merge poolData with unique members from games database
           const mergedPoolMap = new Map<string, TeamPoolMember>()
@@ -168,6 +195,16 @@ export default function AdminPage() {
         
         // Load team pool
         const poolData = await getTeamPool()
+
+        // Load site settings & social links
+        try {
+          const settingsData = await getSiteSettings()
+          if (settingsData && settingsData.socialLinks) {
+            setSocialSettings(settingsData)
+          }
+        } catch (e) {
+          console.error('Error loading site settings:', e)
+        }
         
         // Merge poolData with unique members from games database
         const mergedPoolMap = new Map<string, TeamPoolMember>()
@@ -318,6 +355,25 @@ export default function AdminPage() {
     }
   }
 
+  const handleSaveSocialSettings = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSavingSocial(true)
+    try {
+      const res = await updateSiteSettings(socialSettings)
+      if (res.success && res.data) {
+        setSocialSettings(res.data)
+        showToast('บันทึกข้อมูลลิงก์ช่องทางติดต่อเรียบร้อยแล้ว', 'success')
+        setIsSocialModalOpen(false)
+      } else {
+        throw new Error(res.error || 'ไม่สามารถบันทึกข้อมูลได้')
+      }
+    } catch (err: any) {
+      showToast(err.message || 'บันทึกไม่สำเร็จ', 'error')
+    } finally {
+      setSavingSocial(false)
+    }
+  }
+
   const handleDeleteMemberFromPool = async (name: string) => {
     if (!confirm(`คุณแน่ใจว่าต้องการลบ "${name}" ออกจากคลังรายชื่อทีมงาน?`)) return
     try {
@@ -396,6 +452,8 @@ export default function AdminPage() {
     setIsMultiModule(false)
     setModules([{ name: '', progress: 0 }])
     setInstructions([{ text: '', image: '', aspectRatio: '1:1' }])
+    setInstructionsMac([{ text: '', image: '', aspectRatio: '1:1' }])
+    setInstructionTab('windows')
     setSheetUrl('')
     setSheetCell('')
     setIsModalOpen(true)
@@ -445,6 +503,16 @@ export default function AdminPage() {
           }))
         : [{ text: '', image: '', aspectRatio: '1:1' }]
     )
+    setInstructionsMac(
+      game.instructionsMac && game.instructionsMac.length > 0
+        ? game.instructionsMac.map((s) => ({
+            text: s.text || '',
+            image: s.image || '',
+            aspectRatio: s.aspectRatio || '1:1',
+          }))
+        : [{ text: '', image: '', aspectRatio: '1:1' }]
+    )
+    setInstructionTab('windows')
     setSheetUrl(game.progress.sheetUrl || '')
     setSheetCell(game.progress.sheetCell || '')
     setIsModalOpen(true)
@@ -508,16 +576,19 @@ export default function AdminPage() {
   }
 
   const handleAddInstructionStep = () => {
-    setInstructions([...instructions, { text: '', image: '', aspectRatio: '1:1' }])
+    const setter = instructionTab === 'windows' ? setInstructions : setInstructionsMac
+    setter((prev) => [...prev, { text: '', image: '', aspectRatio: '1:1' }])
   }
 
   const handleRemoveInstructionStep = (index: number) => {
-    setInstructions(instructions.filter((_, i) => i !== index))
+    const setter = instructionTab === 'windows' ? setInstructions : setInstructionsMac
+    setter((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleInstructionStepChange = (index: number, field: keyof InstructionStep, value: string) => {
-    setInstructions(
-      instructions.map((step, i) => (i === index ? { ...step, [field]: value } : step))
+    const setter = instructionTab === 'windows' ? setInstructions : setInstructionsMac
+    setter((prev) =>
+      prev.map((step, i) => (i === index ? { ...step, [field]: value } : step))
     )
   }
 
@@ -525,6 +596,7 @@ export default function AdminPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    const setter = instructionTab === 'windows' ? setInstructions : setInstructionsMac
     setUploadingStepIdx(index)
     try {
       showToast('กำลังอัปโหลดรูปภาพวิธีการติดตั้ง...', 'success')
@@ -533,7 +605,7 @@ export default function AdminPage() {
 
       const res = await uploadLocalFile(formData)
       if (res.success && res.url) {
-        setInstructions((prev) =>
+        setter((prev) =>
           prev.map((step, i) =>
             i === index ? { ...step, image: res.url, aspectRatio: step.aspectRatio || '1:1' } : step
           )
@@ -660,6 +732,13 @@ export default function AdminPage() {
       team: cleanedTeam,
       downloads: cleanedDownloads,
       instructions: instructions
+        .filter((step) => (step.text && step.text.trim() !== '') || (step.image && step.image.trim() !== ''))
+        .map((step) => ({
+          text: step.text ? step.text.trim() : '',
+          image: step.image ? step.image.trim() : undefined,
+          aspectRatio: step.aspectRatio || '1:1',
+        })),
+      instructionsMac: instructionsMac
         .filter((step) => (step.text && step.text.trim() !== '') || (step.image && step.image.trim() !== ''))
         .map((step) => ({
           text: step.text ? step.text.trim() : '',
@@ -886,6 +965,18 @@ export default function AdminPage() {
         >
           <Users size={13} className="text-purple-300" />
           <span>👥 คลังรายชื่อทีมงาน ({teamPool.length})</span>
+        </button>
+
+        <button
+          onClick={() => setIsSocialModalOpen(true)}
+          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
+            isSocialModalOpen
+              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 scale-[1.02]'
+              : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
+          }`}
+        >
+          <Share2 size={13} className="text-cyan-400" />
+          <span>🌐 ลิงก์โซเชียล & ติดต่อ</span>
         </button>
       </div>
 
@@ -1614,22 +1705,52 @@ export default function AdminPage() {
 
                 {/* 13. Dynamic Installation Steps */}
                 <div className="md:col-span-2 bg-bg2/25 border border-white/5 rounded-2xl p-4 space-y-4">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <span className="text-[11px] font-bold text-text3 uppercase">วิธีการติดตั้งม็อด (Installation Steps)</span>
-                      <p className="text-[10px] text-text3/70 mt-0.5">ระบุขั้นตอนเป็นข้อ ๆ พร้อมแทรกรูปภาพประกอบ (รองรับแบบ 1:1 จัตุรัส, 16:9 แนวนอน หรือ Auto)</p>
+                      <p className="text-[10px] text-text3/70 mt-0.5">ระบุขั้นตอนเป็นข้อ ๆ พร้อมแทรกรูปภาพประกอบ (รองรับแยกแพลตฟอร์ม Windows และ Mac)</p>
                     </div>
-                    <button 
-                      type="button"
-                      onClick={handleAddInstructionStep}
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-blue3 hover:text-white"
-                    >
-                      <Plus size={11} /> เพิ่มขั้นตอน
-                    </button>
+
+                    <div className="flex items-center gap-2">
+                      {/* Platform Tabs: Windows vs Mac */}
+                      <div className="flex items-center gap-1 p-0.5 bg-bg0/60 rounded-xl border border-white/5">
+                        <button
+                          type="button"
+                          onClick={() => setInstructionTab('windows')}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 ${
+                            instructionTab === 'windows'
+                              ? 'bg-blue text-white shadow-sm'
+                              : 'text-text3 hover:text-white'
+                          }`}
+                        >
+                          <span>🪟 Windows ({instructions.length})</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setInstructionTab('mac')}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 ${
+                            instructionTab === 'mac'
+                              ? 'bg-purple-600 text-white shadow-sm'
+                              : 'text-text3 hover:text-white'
+                          }`}
+                        >
+                          <span>🍎 Mac ({instructionsMac.length})</span>
+                        </button>
+                      </div>
+
+                      <button 
+                        type="button"
+                        onClick={handleAddInstructionStep}
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-blue3 hover:text-white bg-blue/10 hover:bg-blue/20 px-2.5 py-1 rounded-lg border border-blue2/20 transition-colors"
+                      >
+                        <Plus size={11} /> เพิ่มขั้นตอน
+                      </button>
+                    </div>
                   </div>
-                  {instructions.map((step, idx) => {
+                  {(instructionTab === 'windows' ? instructions : instructionsMac).map((step, idx) => {
                     const ratio = step.aspectRatio || '1:1'
                     const isUploadingThis = uploadingStepIdx === idx
+                    const activeList = instructionTab === 'windows' ? instructions : instructionsMac
                     return (
                       <div key={idx} className="flex flex-col gap-3 bg-bg2/10 border border-white/5 p-3 rounded-xl w-full">
                         <div className="flex items-center justify-between">
@@ -1637,9 +1758,9 @@ export default function AdminPage() {
                             <span className="w-5 h-5 rounded-full bg-blue text-white text-[10px] flex items-center justify-center font-bold">
                               {idx + 1}
                             </span>
-                            <span className="text-[10px] text-text3 font-semibold uppercase">ขั้นตอนที่ {idx + 1}</span>
+                            <span className="text-[10px] text-text3 font-semibold uppercase">ขั้นตอนที่ {idx + 1} ({instructionTab === 'windows' ? 'Windows' : 'Mac'})</span>
                           </div>
-                          {instructions.length > 1 && (
+                          {activeList.length > 1 && (
                             <button 
                               type="button" 
                               onClick={() => handleRemoveInstructionStep(idx)}
@@ -2051,6 +2172,116 @@ export default function AdminPage() {
                 ปิดหน้าต่าง
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Social Links Management Modal */}
+      {isSocialModalOpen && (
+        <div className="fixed inset-0 z-[260] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-bg1 border border-border2 rounded-2xl w-full max-w-[550px] max-h-[85vh] overflow-hidden shadow-2xl relative flex flex-col animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="p-6 border-b border-white/5 flex justify-between items-center shrink-0">
+              <div>
+                <h3 className="font-display text-base font-bold text-white flex items-center gap-2">
+                  <Share2 size={18} className="text-cyan-400" /> จัดการลิงก์ช่องทางติดต่อ & โซเชียล
+                </h3>
+                <p className="text-[11px] text-text3 mt-0.5">ลิงก์ที่จะปรากฏบนส่วนบนสุดของหน้าหลักใต้ชื่อ "แปลเกมสู่ฝัน"</p>
+              </div>
+              <button 
+                onClick={() => setIsSocialModalOpen(false)}
+                className="p-2.5 rounded-full hover:bg-white/5 text-text3 hover:text-white transition-colors focus-visible:outline-none"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSaveSocialSettings} className="flex-1 overflow-y-auto p-6 space-y-4">
+              {/* Facebook */}
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-xs font-bold text-[#1877F2]">
+                  <svg className="w-3.5 h-3.5 fill-[#1877F2]" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  <span>Facebook Page URL</span>
+                </label>
+                <input 
+                  type="url"
+                  placeholder="https://www.facebook.com/..."
+                  value={socialSettings.socialLinks.facebook || ''}
+                  onChange={(e) => setSocialSettings({
+                    ...socialSettings,
+                    socialLinks: { ...socialSettings.socialLinks, facebook: e.target.value }
+                  })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-[#1877F2]/50 focus:outline-none text-xs text-text1 transition-colors"
+                />
+              </div>
+
+              {/* Nexus Mods */}
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-xs font-bold text-[#DA8E35]">
+                  <img src="/nexusmods-logo.png" alt="Nexus Mods" className="w-4 h-4 object-contain" />
+                  <span>Nexus Mods</span>
+                </label>
+                <input 
+                  type="url"
+                  placeholder="https://www.nexusmods.com/users/..."
+                  value={socialSettings.socialLinks.nexusmods || ''}
+                  onChange={(e) => setSocialSettings({
+                    ...socialSettings,
+                    socialLinks: { ...socialSettings.socialLinks, nexusmods: e.target.value }
+                  })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-[#DA8E35]/50 focus:outline-none text-xs text-text1 transition-colors"
+                />
+              </div>
+
+              {/* Discord */}
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-xs font-bold text-[#5865F2]">
+                  <svg className="w-3.5 h-3.5 fill-[#5865F2]" viewBox="0 0 24 24">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                  </svg>
+                  <span>Discord Community</span>
+                </label>
+                <input 
+                  type="url"
+                  placeholder="https://discord.gg/..."
+                  value={socialSettings.socialLinks.discord || ''}
+                  onChange={(e) => setSocialSettings({
+                    ...socialSettings,
+                    socialLinks: { ...socialSettings.socialLinks, discord: e.target.value }
+                  })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-[#5865F2]/50 focus:outline-none text-xs text-text1 transition-colors"
+                />
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="pt-4 border-t border-white/5 flex justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsSocialModalOpen(false)}
+                  disabled={savingSocial}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-text2 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingSocial}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue via-blue2 to-cyan-500 hover:scale-[1.02] shadow-[0_0_15px_rgba(43,95,255,0.4)] transition-all disabled:opacity-50"
+                >
+                  {savingSocial ? (
+                    <>
+                      <Loader2 size={12} className="animate-spin" />
+                      <span>กำลังบันทึก...</span>
+                    </>
+                  ) : (
+                    <span>✓ บันทึกการเปลี่ยนแปลง</span>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

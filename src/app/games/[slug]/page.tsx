@@ -6,6 +6,8 @@ import ProgressBar from '@/components/ProgressBar'
 import DownloadSection from '@/components/DownloadSection'
 import TeamSection from '@/components/TeamSection'
 import Sims4PageLayout from '@/components/sims4/Sims4PageLayout'
+import InzoiPageLayout from '@/components/inzoi/InzoiPageLayout'
+import DonateSection from '@/components/DonateSection'
 import sims4PacksData from '@/data/sims4-packs.json'
 import { Sims4Pack } from '@/lib/types'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
@@ -131,6 +133,11 @@ export default async function GameDetailPage({ params }: PageProps) {
   if (game.slug === 'the-sims-4') {
     const packs = await getSims4Packs()
     return <Sims4PageLayout game={game} packs={packs.length > 0 ? packs : (sims4PacksData as Sims4Pack[])} />
+  }
+
+  // 🐱 inZOI: Dedicated In-Game Installation Experience
+  if (game.slug === 'inzoi') {
+    return <InzoiPageLayout game={game} />
   }
 
   // Standard Game: 2-Column Sidebar Layout
@@ -465,6 +472,9 @@ export default async function GameDetailPage({ params }: PageProps) {
                 </div>
               </div>
             )}
+
+            {/* Donate / Supporter Section */}
+            <DonateSection />
           </div>
         </div>
       </div>

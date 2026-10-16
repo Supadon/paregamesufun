@@ -35,7 +35,7 @@
     "downloads": [
       {
         "label": "เข้าสู่หน้าดาวน์โหลด",
-        "url": "https://www.nexusmods.com",
+        "url": "https://www.facebook.com/share/p/1A1rzSKXmD/",
         "type": "primary"
       }
     ],
@@ -104,10 +104,10 @@
     "overview": "inZOI คือเกมจำลองชีวิตสไตล์แซนด์บ็อกซ์เจเนอเรชันใหม่ที่ขับเคลื่อนด้วย Unreal Engine 5 คุณจะสวมบทบาทเป็นผู้สร้างที่คอยบริหารเมือง ควบคุมสิ่งแวดล้อม และสัมผัสเรื่องราวชีวิตอันหลากหลายของ Zois ผู้มีจิตใจและทางเลือกเป็นของตัวเอง",
     "translationScope": [],
     "videoUrl": "",
-    "coverImage": "",
+    "coverImage": "/uploads/1792175444077-wp15223775.webp",
     "posterImage": "/uploads/1791993390248-images.jpg",
     "fileSize": "20 MB",
-    "updatedAt": "2026-10-14",
+    "updatedAt": "2026-10-16",
     "team": [
       {
         "name": "แปลเกมสู่ฝัน",
@@ -121,7 +121,13 @@
         "avatar": ""
       }
     ],
-    "downloads": [],
+    "downloads": [
+      {
+        "label": "ดาวน์โหลดม็อดภาษาไทยสำหรับ Mac (Nexus Mods)",
+        "url": "https://www.nexusmods.com",
+        "type": "primary"
+      }
+    ],
     "instructions": [
       {
         "text": "",
@@ -183,7 +189,8 @@
         "image": "/uploads/1791997807376-24.jpg",
         "aspectRatio": "1:1"
       }
-    ]
+    ],
+    "instructionsMac": []
   },
   {
     "id": 5,
@@ -290,7 +297,7 @@
     "id": 7,
     "slug": "detroit-become-human",
     "title": "Detroit: Become Human",
-    "genre": "แอคชั่น",
+    "genre": "Drama / Interactive Story",
     "emoji": "🎮",
     "status": "done",
     "progress": {
@@ -310,7 +317,7 @@
     "coverImage": "/uploads/1791994280543-thumb-1920-920991.jpg",
     "posterImage": "/uploads/1791994278384-co2228_7_.webp",
     "fileSize": "16.6 MB",
-    "updatedAt": "2026-10-14",
+    "updatedAt": "2026-10-16",
     "team": [
       {
         "name": "แปลเกมสู่ฝัน",
@@ -331,6 +338,111 @@
         "type": "primary"
       }
     ],
-    "instructions": []
+    "instructions": [],
+    "instructionsMac": []
+  },
+  {
+    "id": 8,
+    "slug": "heavy-rain",
+    "title": "Heavy Rain",
+    "genre": "Drama / Interactive Story",
+    "emoji": "🎮",
+    "status": "done",
+    "progress": {
+      "isMultiModule": false,
+      "translate": 100,
+      "proofread": 100,
+      "test": 100
+    },
+    "version": "",
+    "client": "Steam",
+    "translationVersion": "1.0",
+    "shortDescription": "เกมแนว Interactive Drama ระทึกขวัญระดับตำนาน ตามล่าตัวฆาตกรพับกระดาษ \"Origami Killer\" ผ่าน 4 ตัวละครหลัก ที่ทุกการตัดสินใจและการกดปุ่มส่งผลต่อความเป็นความตายและฉากจบที่แตกแขนงอย่างแท้จริง",
+    "description": "แปลคำบรรยาย 100%\nแปลข้อความระบบ 90%\n(มีบางจุดที่แก้เป็นไทยไม่ได้)\n\nแปลมือ 100%",
+    "overview": "Heavy Rain เป็นเกมแนวสืบสวนสอบสวนแนวจิตวิทยา (Psychological Thriller) สไตล์ภาพยนตร์ปฏิสัมพันธ์ (Interactive Drama) จากค่าย Quantic Dream เล่าเรื่องราวท่ามกลางเมืองที่ฝนตกชุกอย่างต่อเนื่อง กับคดีสะเทือนขวัญของ \"Origami Killer\" ฆาตกรต่อเนื่องที่จับเด็กไปขังให้จมน้ำฝน พร้อมทิ้งกระดาษพับรูปสัตว์ไว้ข้างศพ\n\nผู้เล่นจะได้สลับมุมมองควบคุมตัวละครหลัก 4 คนที่มีเป้าหมายและเส้นทางชีวิตต่างกัน ได้แก่ Ethan Mars พ่อผู้ยอมทำทุกอย่างเพื่อช่วยลูกชาย, Norman Jayden เจ้าหน้าที่ FBI ผู้วิเคราะห์พฤติกรรมอาชญากร, Scott Shelby นักสืบเอกชนที่ตามสืบเบาะแสคดีเก่า และ Madison Paige นักข่าวสาวที่บังเอิญเข้ามาพัวพันกับความจริงสุดอันตราย\n\nจุดเด่นของเกมเพลย์เน้นการกดปุ่มตอบสนองตามสถานการณ์ (Quick-Time Events) และระบบทางเลือกแตกแขนงที่ไม่มีคำว่า Game Over หากตัวละครใดตัวละครหนึ่งเสียชีวิต เรื่องราวจะยังดำเนินต่อไปจนถึงบทสรุปที่แตกต่างกันตามการตัดสินใจของคุณ",
+    "translationScope": [],
+    "videoUrl": "",
+    "coverImage": "/uploads/1792173975957-37273759-8149-4fd4-a925-c3989c70dcf3.png",
+    "posterImage": "/uploads/1792173863921-bzbFEyekkbOzChcaWQXk2koL.avif",
+    "fileSize": "918.16 MB",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "แปลเนื้อเรื่อง",
+        "avatar": "/logo.jpg",
+        "link": "https://www.facebook.com/profile.php?id=61559423189253"
+      },
+      {
+        "name": "มาม่าทอด",
+        "role": "จัดทำไฟล์ม็อดและภาพปก",
+        "avatar": "/uploads/1791993643942-641273574_122288276924221306_1276774401788696491_n.jpg",
+        "link": "https://www.facebook.com/profile.php?id=61556639203732"
+      },
+      {
+        "name": "อาบะป้ง",
+        "role": "แปลเนื้อเรื่อง",
+        "avatar": "/uploads/1792174516245-490743783_1012642777632411_1166359486084352373_n.jpg",
+        "link": "https://www.facebook.com/Abaponnaja"
+      }
+    ],
+    "downloads": [
+      {
+        "label": "Download",
+        "url": "https://sites.google.com/view/abaranger/mod/heavy-rain?authuser=0",
+        "type": "primary"
+      }
+    ],
+    "instructions": [],
+    "instructionsMac": [],
+    "updatedAt": "2026-10-16"
+  },
+  {
+    "id": 9,
+    "slug": "directive-8020",
+    "title": "Directive 8020",
+    "genre": "Horror / Interactive Story",
+    "emoji": "🎮",
+    "status": "done",
+    "progress": {
+      "isMultiModule": false,
+      "translate": 100,
+      "proofread": 100,
+      "test": 100
+    },
+    "version": "",
+    "client": "Steam",
+    "translationVersion": "1.0",
+    "shortDescription": "เกมแนว Interactive Sci-Fi Horror เอาชีวิตรอดจากซีรีส์ The Dark Pictures เมื่อลูกเรือยานสำรวจต้องเผชิญหน้ากับสิ่งมีชีวิตต่างดาวที่สามารถ \"เลียนแบบ\" มนุษย์ได้อย่างสมบูรณ์แบบ ท่ามกลางความหวาดระแวงที่ทุกการตัดสินใจกำหนดความเป็นความตาย",
+    "description": "แปลเนื้อเรื่อง ข้อความระบบ 95%",
+    "overview": "Directive 8020 เป็นเกมแนวภาพยนตร์สยองขวัญไซไฟ (Cinematic Survival Horror) จากซีรีส์ The Dark Pictures Anthology โดยผู้พัฒนา Supermassive Games เล่าเรื่องราวในยุคอนาคตที่โลกกำลังจะดับสูญ มนุษยชาติจึงส่งยานสำรวจ \"Cassiopeia\" ออกเดินทางข้ามอวกาศมุ่งหน้าสู่ดาวเคราะห์ Tau Ceti f เพื่อค้นหาความหวังและบ้านหลังใหม่\n\nทว่าหลังเกิดเหตุยานตกและขาดการติดต่อกับโลก ลูกเรือกลับต้องเผชิญกับฝันร้ายสุดสะพรึง เมื่อดาวดวงนี้มีสิ่งมีชีวิตปรสิตต่างดาวที่สามารถเปลี่ยนรูปร่างและ \"ลอกเลียนแบบ\" มนุษย์ได้อย่างแนบเนียน ทั้งหน้าตา เสียง และพฤติกรรม ก่อให้เกิดความตึงเครียดและความหวาดระแวงขั้นสุด เมื่อคุณไม่อาจแน่ใจได้เลยว่าคนที่ยืนอยู่ข้างกายคือเพื่อนร่วมทีมตัวจริงหรือตัวประหลาดที่รอจังหวะล่า\n\nตัวเกมยกระดับเกมเพลย์จากภาคก่อนๆ ด้วยการเพิ่มระบบลอบเร้น (Stealth), อุปกรณ์เทคโนโลยีสำหรับตรวจจับและเอาตัวรอด, การควบคุมมุมกล้องแบบเรียลไทม์ และระบบการตัดสินใจแตกแขนงอันเข้มข้น ซึ่งส่งผลต่อความสัมพันธ์และชะตากรรมของลูกเรือทุกคน โดยทุกคนสามารถรอดชีวิตหรือตายได้ตามการกระทำของคุณ",
+    "translationScope": [],
+    "videoUrl": "",
+    "coverImage": "/uploads/1792174763175-f316e728cc177e84347f91175c00822f8822f7f5c66dfe1a.avif",
+    "posterImage": "/uploads/1792174760938-MV5BY2EzMDIyZWYtOWEyMi00NzJiLTkxMDQtYzlkYzIyZDM5ZmIyXkEyXkFqcGc___V1_.jpg",
+    "fileSize": "94.1 MB",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "แปลเนื้อเรื่อง",
+        "avatar": "/logo.jpg",
+        "link": "https://www.facebook.com/profile.php?id=61559423189253"
+      },
+      {
+        "name": "ไม่พร้อมไม่แจก",
+        "role": "จัดทำไฟล์ม็อด",
+        "avatar": "/uploads/1792174904506-images.png",
+        "link": "https://www.facebook.com/notreadynotgive/"
+      }
+    ],
+    "downloads": [
+      {
+        "label": "Download",
+        "url": "https://www.nexusmods.com/directive8020/mods/14",
+        "type": "primary"
+      }
+    ],
+    "instructions": [],
+    "instructionsMac": [],
+    "updatedAt": "2026-10-16"
   }
 ]

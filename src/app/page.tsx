@@ -1,9 +1,14 @@
 import HeroBanner from '@/components/HeroBanner'
+import FeaturedShowcase from '@/components/FeaturedShowcase'
 import GameGrid from '@/components/GameGrid'
-import { getGames } from '@/app/actions/games'
+import CosmicAtmosphere from '@/components/CosmicAtmosphere'
+import { getGames, getSiteSettings } from '@/app/actions/games'
 
 export default async function HomePage() {
-  const games = await getGames()
+  const [games, settings] = await Promise.all([
+    getGames(),
+    getSiteSettings(),
+  ])
 
   // Sort games by updatedAt descending (most recent first)
   const sortedGames = [...games].sort((a, b) => {
@@ -13,9 +18,17 @@ export default async function HomePage() {
   })
 
   return (
-    <>
-      <HeroBanner />
-      <GameGrid games={sortedGames} title="ม็อดแปลภาษาไทยทั้งหมด" />
-    </>
+    <div className="relative min-h-screen text-text1 overflow-x-hidden">
+      {/* Background Atmosphere & Decorative Glowing Colors */}
+      <CosmicAtmosphere />
+
+      {/* Main Content Sections */}
+      <div className="relative z-10">
+        <HeroBanner settings={settings} />
+        {/* ปิดส่วนของ ม็อดเกมยอดนิยม ไว้ชั่วคราว (สามารถนำกลับมาเปิดใช้ได้ในอนาคต): */}
+        {/* <FeaturedShowcase games={sortedGames} /> */}
+        <GameGrid games={sortedGames} title="ม็อดแปลภาษาไทยทั้งหมด" />
+      </div>
+    </div>
   )
 }

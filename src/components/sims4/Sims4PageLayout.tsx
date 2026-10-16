@@ -7,9 +7,10 @@ import DownloadSection from '@/components/DownloadSection'
 import TeamSection from '@/components/TeamSection'
 import Sims4Showcase from '@/components/sims4/Sims4Showcase'
 import ThemedCard from '@/components/ThemedCard'
+import DonateSection from '@/components/DonateSection'
 import { 
   ArrowLeft, Download, Layers, BookOpen, Copy, Check, 
-  Sparkles, ShieldCheck, HelpCircle, FolderOpen, Users, ExternalLink 
+  Sparkles, ShieldCheck, HelpCircle, FolderOpen, Users, ExternalLink, Heart 
 } from 'lucide-react'
 
 interface Sims4PageLayoutProps {
@@ -161,6 +162,13 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
           >
             <Users size={13} className="text-purple-300" />
             ทีมงานผู้แปล
+          </a>
+          <a
+            href="#donate"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 text-pink-300 hover:text-white font-bold transition-all shrink-0 shadow-[0_0_15px_rgba(244,114,182,0.15)]"
+          >
+            <Heart size={13} className="fill-current text-pink-400" />
+            สนับสนุนผู้แปล
           </a>
         </div>
 
@@ -325,6 +333,11 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
               </div>
 
             </div>
+          </section>
+
+          {/* Section 5.3: Eye-catching Supporter / Donate Section */}
+          <section id="donate" className="scroll-mt-28">
+            <DonateSection />
           </section>
 
         </div>

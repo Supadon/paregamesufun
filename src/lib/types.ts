@@ -51,6 +51,7 @@ export interface Game {
   team: TeamMember[]
   downloads: DownloadLink[]
   instructions?: InstructionStep[]
+  instructionsMac?: InstructionStep[]
   updatedAt?: string
 }
 
@@ -79,5 +80,17 @@ export interface Sims4Pack {
   downloadUrl?: string
   badgeText?: string
   releaseOrder?: number
+}
+
+export interface SocialLinks {
+  facebook?: string
+  youtube?: string
+  nexusmods?: string
+  discord?: string
+  website?: string
+}
+
+export interface SiteSettings {
+  socialLinks: SocialLinks
 }
 

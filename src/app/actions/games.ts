@@ -2,16 +2,18 @@
 
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { Game, Sims4Pack } from '@/lib/types'
+import { Game, Sims4Pack, SiteSettings } from '@/lib/types'
 import fs from 'fs'
 import path from 'path'
 import defaultGames from '@/data/games.json'
 import defaultTeamPool from '@/data/team-pool.json'
 import defaultSims4Packs from '@/data/sims4-packs.json'
+import defaultSettings from '@/data/settings.json'
 
 const GAMES_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'games.json')
 const TEAM_POOL_PATH = path.join(process.cwd(), 'src', 'data', 'team-pool.json')
 const SIMS4_PACKS_PATH = path.join(process.cwd(), 'src', 'data', 'sims4-packs.json')
+const SETTINGS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'settings.json')
 
 // Helper: Check authentication
 async function verifyAuthOrThrow() {
@@ -422,6 +424,51 @@ export async function deleteTeamMemberFromPool(name: string): Promise<{ success:
   } catch (err: any) {
     console.error('Local deleteTeamMemberFromPool error:', err)
     return { success: false, error: err.message || 'Failed to delete from local team pool' }
+  }
+}
+
+// ==========================================
+// 🌐 5. SITE SETTINGS & SOCIAL CHANNELS
+// ==========================================
+
+function getLocalSettings(): SiteSettings {
+  try {
+    if (!fs.existsSync(SETTINGS_FILE_PATH)) {
+      fs.mkdirSync(path.dirname(SETTINGS_FILE_PATH), { recursive: true })
+      fs.writeFileSync(SETTINGS_FILE_PATH, JSON.stringify(defaultSettings, null, 2), 'utf-8')
+      return defaultSettings as SiteSettings
+    }
+    const data = fs.readFileSync(SETTINGS_FILE_PATH, 'utf-8')
+    return JSON.parse(data) as SiteSettings
+  } catch (error) {
+    console.error('Error reading settings:', error)
+    return defaultSettings as SiteSettings
+  }
+}
+
+function writeLocalSettings(settings: SiteSettings) {
+  try {
+    fs.mkdirSync(path.dirname(SETTINGS_FILE_PATH), { recursive: true })
+    fs.writeFileSync(SETTINGS_FILE_PATH, JSON.stringify(settings, null, 2), 'utf-8')
+  } catch (error) {
+    console.error('Error writing settings:', error)
+  }
+}
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  return getLocalSettings()
+}
+
+export async function updateSiteSettings(settings: SiteSettings): Promise<{ success: boolean; data?: SiteSettings; error?: string }> {
+  await verifyAuthOrThrow()
+  try {
+    writeLocalSettings(settings)
+    revalidatePath('/')
+    revalidatePath('/admin')
+    return { success: true, data: settings }
+  } catch (err: any) {
+    console.error('Error updating site settings:', err)
+    return { success: false, error: err.message || 'Failed to update site settings' }
   }
 }
 
