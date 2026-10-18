@@ -236,12 +236,14 @@ export default function HeroBanner({ settings }: { settings?: SiteSettings }) {
 
       {/* Main Content */}
       <div className="relative z-10 text-center px-4 sm:px-6 max-w-[680px] mx-auto">
-        {/* Logo with cosmic glow */}
+        {/* Logo encased in a Liquid Glass Prism */}
         <div className="mb-3.5 flex justify-center">
           <div className="relative group">
-            <div className="absolute -inset-2 bg-gradient-to-r from-blue via-cyan-400 to-indigo-500 rounded-3xl blur-xl opacity-60 group-hover:opacity-85 transition-opacity duration-500" />
-            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border border-cyan-400/50 shadow-[0_0_30px_rgba(43,95,255,0.4),0_0_60px_rgba(0,210,255,0.2)]">
-              <img src="/logo.jpg" alt="แปลเกมสู่ฝัน" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <div className="absolute -inset-2.5 bg-gradient-to-r from-blue via-cyan-400 to-indigo-500 rounded-3xl blur-xl opacity-55 group-hover:opacity-85 transition-opacity duration-500" />
+            <div className="liquid-glass-panel relative p-1.5 rounded-2xl shadow-[0_12px_32px_rgba(43,95,255,0.35),inset_0_1.5px_0_rgba(255,255,255,0.45)]">
+              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-[12px] overflow-hidden border border-white/20">
+                <img src="/logo.jpg" alt="แปลเกมสู่ฝัน" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              </div>
             </div>
           </div>
         </div>
@@ -250,22 +252,22 @@ export default function HeroBanner({ settings }: { settings?: SiteSettings }) {
           แปลเกมสู่ฝัน
         </h1>
 
-        <p className="text-xs sm:text-sm text-text2 leading-relaxed mb-4 max-w-[480px] mx-auto font-normal">
+        <p className="text-xs sm:text-sm text-text2 leading-relaxed mb-5 max-w-[480px] mx-auto font-normal">
           แปลเกมที่ตัวเองชอบ เป็นงานอดิเรกค้าบ
         </p>
 
-        {/* Social & Community Channel Links */}
+        {/* Social & Community Channel Links — Tactile Liquid Glass Capsules */}
         <div className="flex gap-2.5 sm:gap-3 flex-wrap justify-center items-center pt-1">
           {social.facebook && (
             <a
               href={social.facebook}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-text1 bg-bg1/70 hover:bg-white/10 border border-white/10 hover:border-[#1877F2]/60 hover:shadow-[0_0_15px_rgba(24,119,242,0.35)] transition-all group/btn"
+              className="liquid-glass-pill inline-flex items-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-text1 hover:border-[#1877F2]/70 hover:shadow-[0_8px_24px_rgba(24,119,242,0.38),inset_0_1.5px_0_rgba(255,255,255,0.48)] hover:-translate-y-0.5 group/btn"
               title="ติดตามเพจ Facebook"
             >
-              <FacebookIcon className="w-5 h-5" />
-              <span className="group-hover/btn:text-white transition-colors">Facebook</span>
+              <FacebookIcon className="w-5 h-5 relative z-10 transition-transform duration-300 group-hover/btn:scale-110" />
+              <span className="relative z-10 group-hover/btn:text-white transition-colors">Facebook</span>
             </a>
           )}
 
@@ -274,21 +276,21 @@ export default function HeroBanner({ settings }: { settings?: SiteSettings }) {
               href={social.nexusmods}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-text1 bg-bg1/70 hover:bg-white/10 border border-white/10 hover:border-[#DA8E35]/60 hover:shadow-[0_0_15px_rgba(218,142,53,0.35)] transition-all group/btn"
+              className="liquid-glass-pill inline-flex items-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-text1 hover:border-[#DA8E35]/70 hover:shadow-[0_8px_24px_rgba(218,142,53,0.38),inset_0_1.5px_0_rgba(255,255,255,0.48)] hover:-translate-y-0.5 group/btn"
               title="Nexus Mods โปรไฟล์ม็อด"
             >
-              <NexusModsIcon className="w-5 h-5" />
-              <span className="group-hover/btn:text-white transition-colors">Nexus Mods</span>
+              <NexusModsIcon className="w-5 h-5 relative z-10 transition-transform duration-300 group-hover/btn:scale-110" />
+              <span className="relative z-10 group-hover/btn:text-white transition-colors">Nexus Mods</span>
             </a>
           )}
 
           {/* Discord (รอเปิดใช้งาน - เทาและกดไม่ได้) */}
           <div
-            className="inline-flex items-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-text3/80 bg-bg1/40 border border-white/5 opacity-50 cursor-not-allowed select-none transition-all"
+            className="liquid-glass-pill inline-flex items-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-text3/80 opacity-55 cursor-not-allowed select-none"
             title="Discord (เร็ว ๆ นี้)"
           >
-            <DiscordIcon className="w-5 h-5 grayscale opacity-60" />
-            <span className="text-text3">Discord</span>
+            <DiscordIcon className="w-5 h-5 grayscale opacity-60 relative z-10" />
+            <span className="text-text3 relative z-10">Discord</span>
           </div>
         </div>
       </div>

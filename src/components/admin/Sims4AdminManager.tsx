@@ -240,58 +240,75 @@ export default function Sims4AdminManager() {
       )}
 
       {/* Top Controls & Category Tabs */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-bg1/60 p-4 rounded-2xl border border-white/10 backdrop-blur-md">
-        {/* Category Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none text-xs font-bold">
-          {[
-            { id: 'all', label: 'ทั้งหมด', count: counts.all, icon: Sparkles },
-            { id: 'expansion', label: 'ภาคเสริมใหญ่ (EP)', count: counts.expansion, icon: Layers },
-            { id: 'gamepack', label: 'ชุดเกมเสริม (GP)', count: counts.gamepack, icon: Package },
-            { id: 'stuffpack', label: 'ชุดไอเท็มเสริม (SP)', count: counts.stuffpack, icon: Sparkle },
-            { id: 'mod', label: 'ม็อดภายนอก (Mod)', count: counts.mod, icon: Wrench },
-          ].map((tab) => {
-            const Icon = tab.icon
-            const isActive = selectedCategory === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedCategory(tab.id as any)}
-                className={`shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all ${
-                  isActive
-                    ? 'bg-blue text-white shadow-lg border border-blue2/50 font-black'
-                    : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
-                }`}
-              >
-                <Icon size={12} />
-                <span>{tab.label}</span>
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-text3'}`}>
-                  {tab.count}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Action: Add Button & Search */}
-        <div className="flex items-center gap-3">
-          <div className="relative min-w-[200px] flex-1">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-text3" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ค้นหาชื่อภาค / ม็อด..."
-              className="w-full bg-bg2/60 border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-text3 focus:outline-none focus:border-blue2"
-            />
+      <div className="bg-bg1/60 p-4 rounded-2xl border border-white/10 backdrop-blur-md space-y-3.5">
+        {/* Row 1: Category Filter Tabs & Add Button */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Category Tabs */}
+          <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
+            {[
+              { id: 'all', label: 'ทั้งหมด', count: counts.all, icon: Sparkles },
+              { id: 'expansion', label: 'ภาคเสริมใหญ่ (EP)', count: counts.expansion, icon: Layers },
+              { id: 'gamepack', label: 'ชุดเกมเสริม (GP)', count: counts.gamepack, icon: Package },
+              { id: 'stuffpack', label: 'ชุดไอเท็มเสริม (SP)', count: counts.stuffpack, icon: Sparkle },
+              { id: 'mod', label: 'ม็อดสคริปต์ (Script Mod)', count: counts.mod, icon: Wrench },
+            ].map((tab) => {
+              const Icon = tab.icon
+              const isActive = selectedCategory === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedCategory(tab.id as any)}
+                  className={`shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all ${
+                    isActive
+                      ? 'bg-blue text-white shadow-lg border border-blue2/50 font-black'
+                      : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
+                  }`}
+                >
+                  <Icon size={12} />
+                  <span>{tab.label}</span>
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-text3'}`}>
+                    {tab.count}
+                  </span>
+                </button>
+              )
+            })}
           </div>
 
+          {/* Add Button */}
           <button
             onClick={handleOpenAdd}
-            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-blue to-blue2 hover:scale-105 transition-all shadow-lg"
+            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-blue via-blue2 to-blue3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_14px_rgba(43,95,255,0.3)] ml-auto"
           >
             <Plus size={14} />
             <span>เพิ่มภาคเสริม / ม็อดใหม่</span>
           </button>
+        </div>
+
+        {/* Row 2: Search Bar & Results Counter */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/5">
+          <div className="relative flex-1 max-w-md">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text3" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ค้นหาชื่อภาค / รหัส EP, GP, SP / ม็อด / ผู้พัฒนา..."
+              className="w-full bg-bg2/60 border border-white/10 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder:text-text3/60 focus:outline-none focus:border-blue2 transition-colors"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text3 hover:text-white p-0.5"
+                title="ล้างคำค้นหา"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+
+          <div className="text-[11px] text-text3 shrink-0">
+            แสดง <span className="text-white font-bold">{filteredPacks.length}</span> จากทั้งหมด {packs.length} รายการ
+          </div>
         </div>
       </div>
 
@@ -480,7 +497,7 @@ export default function Sims4AdminManager() {
                     <option value="expansion">💎 Expansion Pack (ภาคเสริมใหญ่)</option>
                     <option value="gamepack">🎮 Game Pack (ชุดเกมเสริม)</option>
                     <option value="stuffpack">📦 Stuff Pack (ชุดไอเท็มเสริม)</option>
-                    <option value="mod">⚡ Script / System Mod (ม็อดภายนอก)</option>
+                    <option value="mod">⚡ Script Mod (ม็อดสคริปต์ & ระบบ)</option>
                   </select>
                 </div>
 

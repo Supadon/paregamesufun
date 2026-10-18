@@ -57,6 +57,7 @@ export default function ThemedCard({
     >
       {children}
       <span className="themed-card__spot" aria-hidden />
+      <span className="themed-card__rim" aria-hidden />
       <span className="themed-card__shine" aria-hidden />
     </div>
   )

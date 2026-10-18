@@ -39,32 +39,33 @@ export default function GameCard({ game }: GameCardProps) {
           />
         </div>
 
-        {/* Bottom info panel — always visible so every card is readable at a glance */}
-        <div className="relative z-10 mt-auto">
-          <div className="absolute inset-x-0 bottom-0 h-[150%] bg-gradient-to-t from-black/95 via-black/70 to-transparent pointer-events-none" />
+        {/* Bottom Liquid Glass Info Dock — refracts poster colors while preserving crisp readability */}
+        <div className="relative z-10 mt-auto p-2 sm:p-2.5">
+          {/* Soft ambient gradient behind the dock so upper transition is seamless */}
+          <div className="absolute inset-x-0 bottom-0 h-[140%] bg-gradient-to-t from-bg0/90 via-bg0/45 to-transparent pointer-events-none" />
 
-          <div className="relative p-3.5 pt-8 flex flex-col gap-1.5">
+          <div className="relative rounded-xl p-2.5 sm:p-3 flex flex-col gap-1.5 bg-[linear-gradient(165deg,rgba(18,29,84,0.62)_0%,rgba(6,11,34,0.82)_100%)] backdrop-blur-md backdrop-saturate-[185%] border border-white/15 shadow-[0_8px_24px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(111,160,255,0.14)] transition-all duration-300 group-hover:border-white/25 group-hover:bg-[linear-gradient(165deg,rgba(24,38,104,0.68)_0%,rgba(8,14,42,0.86)_100%)]">
             <span
-              className="text-[10px] font-extrabold uppercase tracking-[0.12em] truncate"
+              className="text-[10px] font-extrabold uppercase tracking-[0.12em] truncate drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
               style={{ color: accent }}
             >
               {game.genre}
             </span>
 
-            <h3 className="font-display text-[15px] sm:text-base font-black text-white leading-snug line-clamp-2 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+            <h3 className="font-display text-[14.5px] sm:text-[15.5px] font-black text-white leading-snug line-clamp-2 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
               {game.title}
             </h3>
 
-            <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-white/10">
+            <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-white/12">
               <span
-                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold border whitespace-nowrap ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border whitespace-nowrap shadow-[inset_0_1px_0_rgba(255,255,255,0.28)] ${
                   isDone
-                    ? 'bg-blue/25 text-star2 border-blue2/50'
-                    : 'bg-[rgba(168,196,255,0.14)] text-star border-[rgba(168,196,255,0.35)]'
+                    ? 'bg-blue/30 text-star2 border-blue3/45'
+                    : 'bg-[rgba(168,196,255,0.16)] text-star border-[rgba(168,196,255,0.38)]'
                 }`}
               >
                 <span
-                  className={`w-1.5 h-1.5 rounded-full ${isDone ? 'bg-blue3' : 'bg-star animate-pulse'}`}
+                  className={`w-1.5 h-1.5 rounded-full ${isDone ? 'bg-blue3 shadow-[0_0_6px_#6FA0FF]' : 'bg-star animate-pulse shadow-[0_0_6px_#A8C4FF]'}`}
                 />
                 {isDone ? 'เสร็จสิ้น' : 'กำลังแปล'}
               </span>

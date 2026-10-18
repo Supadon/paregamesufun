@@ -54,7 +54,7 @@
       "proofread": 55,
       "test": 55
     },
-    "version": "v1.107",
+    "version": "V1.127.41.1030",
     "client": "EA App, Steam",
     "translationVersion": "1.0",
     "shortDescription": "แปลภาษาไทยสำหรับตัวเกมหลัก The Sims 4 (55%) และส่วนเสริม DLC ต่าง ๆ",
@@ -65,7 +65,7 @@
     "coverImage": "/uploads/1791987577654-The_Sims_4_banner.webp",
     "posterImage": "/uploads/1787192535261-Sims_4_cover2.webp",
     "fileSize": "32 MB",
-    "updatedAt": "2026-10-14",
+    "updatedAt": "2026-10-17",
     "team": [
       {
         "name": "แปลเกมสู่ฝัน",
@@ -81,7 +81,8 @@
         "type": "primary"
       }
     ],
-    "instructions": []
+    "instructions": [],
+    "instructionsMac": []
   },
   {
     "id": 4,

@@ -60,12 +60,12 @@ export default function Sims4PackCard({ pack, onSelect }: Sims4PackCardProps) {
     },
     mod: {
       label: 'SCRIPT MOD',
-      thLabel: 'ม็อดภายนอก',
+      thLabel: 'ม็อดสคริปต์',
       icon: Wrench,
-      color: 'amber',
-      badgeBg: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-      borderGlow: 'hover:border-amber-400/50 hover:shadow-[0_8px_30px_rgba(245,158,11,0.2)]',
-      accentColor: '#F59E0B',
+      color: 'cyan',
+      badgeBg: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
+      borderGlow: 'hover:border-cyan-400/50 hover:shadow-[0_8px_30px_rgba(6,182,212,0.25)]',
+      accentColor: '#06B6D4',
     },
   }[pack.category]
 
@@ -130,8 +130,8 @@ export default function Sims4PackCard({ pack, onSelect }: Sims4PackCardProps) {
         )}
       </div>
 
-      {/* Card Info Area — every badge gets its own row, so nothing can overlap */}
-      <div className="p-3 flex-1 flex flex-col gap-2.5 bg-bg1/90">
+      {/* Card Info Area — Liquid Glass Dock with Specular Top Rim */}
+      <div className="p-3 flex-1 flex flex-col gap-2.5 bg-[linear-gradient(180deg,rgba(15,24,72,0.78)_0%,rgba(6,11,34,0.92)_100%)] backdrop-blur-md backdrop-saturate-150 border-t border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.24)]">
         {/* Row 1: category eyebrow */}
         <div
           className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider"
@@ -147,17 +147,17 @@ export default function Sims4PackCard({ pack, onSelect }: Sims4PackCardProps) {
             {pack.name}
           </h4>
           {pack.author && (
-            <p className="text-[10px] text-text3 font-medium mt-1 line-clamp-1">
+            <p className="text-[10px] text-text2 font-medium mt-1 line-clamp-1">
               ผู้สร้าง: {pack.author}
             </p>
           )}
         </div>
 
-        {/* Row 3: release status + progress */}
+        {/* Row 3: release status + cylindrical glass progress tube */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between gap-2">
             <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border whitespace-nowrap ${statusConfig.badgeClass}`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border whitespace-nowrap shadow-[inset_0_1px_0_rgba(255,255,255,0.28)] ${statusConfig.badgeClass}`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotClass}`} />
               {isReleased ? 'ปล่อยแล้ว' : 'ยังไม่ปล่อย'}
@@ -166,12 +166,12 @@ export default function Sims4PackCard({ pack, onSelect }: Sims4PackCardProps) {
               {pack.progress ?? 0}%
             </span>
           </div>
-          <div className="h-1.5 rounded-full bg-black/50 overflow-hidden">
+          <div className="liquid-glass-tube h-2 rounded-full p-[1.5px] overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 isReleased
-                  ? 'bg-gradient-to-r from-emerald-400 to-blue-400'
-                  : 'bg-gradient-to-r from-amber-400 to-yellow-300'
+                  ? 'bg-gradient-to-r from-emerald-400 to-cyan-300 shadow-[0_0_8px_rgba(52,211,153,0.5),inset_0_1px_0_rgba(255,255,255,0.5)]'
+                  : 'bg-gradient-to-r from-amber-400 to-yellow-300 shadow-[0_0_8px_rgba(251,191,36,0.45),inset_0_1px_0_rgba(255,255,255,0.5)]'
               }`}
               style={{ width: `${pack.progress ?? 0}%` }}
             />
@@ -179,8 +179,8 @@ export default function Sims4PackCard({ pack, onSelect }: Sims4PackCardProps) {
         </div>
 
         {/* Row 4: footer info & actions */}
-        <div className="mt-auto pt-2 border-t border-white/5 flex items-center justify-between gap-2 text-[11px]">
-          <span className="text-[10px] text-text3 font-medium">
+        <div className="mt-auto pt-2 border-t border-white/10 flex items-center justify-between gap-2 text-[11px]">
+          <span className="text-[10px] text-text2 font-medium">
             {isInteractive ? 'ม็อดเสริม' : 'ไฟล์แปลไทย'}
           </span>
 
@@ -192,14 +192,14 @@ export default function Sims4PackCard({ pack, onSelect }: Sims4PackCardProps) {
                     e.stopPropagation()
                     window.open(pack.downloadUrl, '_blank')
                   }}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-blue/80 hover:bg-blue transition-colors cursor-pointer"
+                  className="liquid-glass-cta inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white cursor-pointer"
                   title="ดาวน์โหลดม็อดนี้"
                 >
-                  <Download size={10} />
-                  โหลด
+                  <Download size={10} className="relative z-10" />
+                  <span className="relative z-10">โหลด</span>
                 </span>
               ) : (
-                <span className="text-[10.5px] font-semibold text-text3 group-hover:text-emerald-400 transition-colors">
+                <span className="text-[10.5px] font-semibold text-text2 group-hover:text-emerald-300 transition-colors">
                   ดูข้อมูล →
                 </span>
               )

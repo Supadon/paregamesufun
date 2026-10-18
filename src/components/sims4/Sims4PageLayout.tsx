@@ -63,7 +63,7 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
         </div>
 
         {/* 2. Majestic Hero Banner */}
-        <div className="relative rounded-3xl border border-white/10 bg-gradient-to-b from-bg1/70 via-bg1/50 to-bg2/40 p-6 sm:p-10 shadow-2xl backdrop-blur-md overflow-hidden">
+        <div className="liquid-glass-panel relative rounded-2xl p-6 sm:p-10 overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
@@ -81,17 +81,17 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
             {/* Right Column: Hero Content & Specs */}
             <div className="lg:col-span-8 space-y-5 text-center lg:text-left">
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
-                <span className="bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                <span className="bg-amber-500/18 border border-amber-400/40 text-amber-200 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
                   <Sparkles size={11} />
                   กำลังแปลภาษาไทย (Base Game: 55%)
                 </span>
-                <span className="bg-blue-dim border border-blue2/30 text-blue3 text-[11px] font-bold px-3 py-1 rounded-full">
+                <span className="liquid-glass-pill text-star2 text-[11px] font-bold px-3 py-1 rounded-full">
                   เวอร์ชันเกม: {game.version}
                 </span>
-                <span className="bg-white/5 border border-white/10 text-text2 text-[11px] font-bold px-3 py-1 rounded-full">
+                <span className="liquid-glass-pill text-text2 text-[11px] font-bold px-3 py-1 rounded-full">
                   แพลตฟอร์ม: {game.client}
                 </span>
-                <span className="bg-white/5 border border-white/10 text-text3 text-[11px] font-bold px-3 py-1 rounded-full">
+                <span className="liquid-glass-pill text-text2 text-[11px] font-bold px-3 py-1 rounded-full">
                   ขนาดไฟล์: {game.fileSize}
                 </span>
               </div>
@@ -109,24 +109,24 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
                 <a
                   href="#base-download"
-                  className="inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-blue via-blue2 to-blue3 hover:scale-105 transition-all shadow-[0_6px_25px_rgba(43,95,255,0.35)]"
+                  className="liquid-glass-cta inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-full text-xs sm:text-sm font-bold text-white hover:scale-105"
                 >
-                  <Download size={16} />
-                  ดาวน์โหลดม็อดตัวหลัก (55%)
+                  <Download size={16} className="relative z-10" />
+                  <span className="relative z-10">ดาวน์โหลดม็อดตัวหลัก (55%)</span>
                 </a>
                 <a
                   href="#packs-catalog"
-                  className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-text2 hover:text-white bg-white/5 border border-white/15 hover:bg-white/10 hover:border-emerald-400/40 transition-all"
+                  className="liquid-glass-pill inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-text1 hover:text-white hover:border-emerald-400/50 hover:-translate-y-0.5"
                 >
-                  <Layers size={16} className="text-emerald-400" />
-                  ค้นหาภาคเสริม & ม็อด ({packs.length} รายการ)
+                  <Layers size={16} className="text-emerald-400 relative z-10" />
+                  <span className="relative z-10">ค้นหาภาคเสริม & ม็อด ({packs.length} รายการ)</span>
                 </a>
                 <a
                   href="#install-guide"
-                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-3 rounded-full text-xs sm:text-sm font-bold text-text3 hover:text-white hover:bg-white/5 transition-all"
+                  className="liquid-glass-pill inline-flex items-center gap-2 px-4 sm:px-5 py-3 rounded-full text-xs sm:text-sm font-bold text-text2 hover:text-white hover:-translate-y-0.5"
                 >
-                  <BookOpen size={15} />
-                  วิธีติดตั้ง
+                  <BookOpen size={15} className="relative z-10" />
+                  <span className="relative z-10">วิธีติดตั้ง</span>
                 </a>
               </div>
             </div>
@@ -137,35 +137,35 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
         <div className="flex items-center justify-center sm:justify-start gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
           <a
             href="#packs-catalog"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/40 text-text2 hover:text-white font-bold transition-all shrink-0"
+            className="liquid-glass-pill inline-flex items-center gap-1.5 px-4 py-2 rounded-full hover:border-emerald-400/50 text-text2 hover:text-white font-bold shrink-0"
           >
             <Layers size={13} className="text-emerald-400" />
             คลังภาคเสริม & ม็อด
           </a>
           <a
             href="#base-download"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue2/40 text-text2 hover:text-white font-bold transition-all shrink-0"
+            className="liquid-glass-pill inline-flex items-center gap-1.5 px-4 py-2 rounded-full hover:border-blue3/50 text-text2 hover:text-white font-bold shrink-0"
           >
             <Download size={13} className="text-blue3" />
             ดาวน์โหลดตัวหลัก
           </a>
           <a
             href="#install-guide"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-400/40 text-text2 hover:text-white font-bold transition-all shrink-0"
+            className="liquid-glass-pill inline-flex items-center gap-1.5 px-4 py-2 rounded-full hover:border-amber-400/50 text-text2 hover:text-white font-bold shrink-0"
           >
             <BookOpen size={13} className="text-amber-300" />
             คู่มือการติดตั้ง
           </a>
           <a
             href="#team-credits"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-400/40 text-text2 hover:text-white font-bold transition-all shrink-0"
+            className="liquid-glass-pill inline-flex items-center gap-1.5 px-4 py-2 rounded-full hover:border-purple-400/50 text-text2 hover:text-white font-bold shrink-0"
           >
             <Users size={13} className="text-purple-300" />
             ทีมงานผู้แปล
           </a>
           <a
             href="#donate"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 hover:border-pink-500/50 text-pink-300 hover:text-white font-bold transition-all shrink-0 shadow-[0_0_15px_rgba(244,114,182,0.15)]"
+            className="liquid-glass-pill inline-flex items-center gap-1.5 px-4 py-2 rounded-full border-pink-400/35 hover:border-pink-400/65 text-pink-200 hover:text-white font-bold shrink-0 shadow-[0_0_15px_rgba(244,114,182,0.18),inset_0_1px_0_rgba(255,255,255,0.35)]"
           >
             <Heart size={13} className="fill-current text-pink-400" />
             สนับสนุนผู้แปล
@@ -190,7 +190,7 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
                   ไฟล์แปลภาษาไทยสำหรับตัวเกมหลัก The Sims 4 ครอบคลุมเมนูพื้นฐาน อารมณ์ ปณิธาน และระบบในเกม
                 </p>
               </div>
-              <span className="hidden sm:inline-block text-xs font-bold px-3 py-1 rounded-full bg-blue-dim border border-blue2/30 text-blue3">
+              <span className="liquid-glass-pill hidden sm:inline-block text-xs font-bold px-3.5 py-1 rounded-full text-star2">
                 ความคืบหน้า 55% · ฟรี 100%
               </span>
             </div>
@@ -201,12 +201,12 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
                 <DownloadSection downloads={game.downloads} />
                 
                 {/* Security & Reliability Box */}
-                <div className="rounded-2xl border border-white/10 bg-bg1/40 p-5 space-y-3">
-                  <div className="text-xs font-bold text-text1 flex items-center gap-2">
+                <div className="liquid-glass-panel rounded-2xl p-5 space-y-3">
+                  <div className="relative z-10 text-xs font-bold text-text1 flex items-center gap-2">
                     <ShieldCheck size={16} className="text-emerald-400" />
                     ข้อควรทราบในการใช้งาน
                   </div>
-                  <ul className="text-xs text-text2 space-y-1.5 list-disc pl-5 leading-relaxed">
+                  <ul className="relative z-10 text-xs text-text2 space-y-1.5 list-disc pl-5 leading-relaxed">
                     <li>ม็อดแปลภาษานี้ใช้งานได้กับทั้งตัวเกมแท้บน <strong>EA App, Steam</strong> และแพลตฟอร์มที่รองรับ</li>
                     <li>ไม่มีการแก้ไขไฟล์แกนระบบของเกม จึงไม่ส่งผลเสียต่อการเซฟหรือประสิทธิภาพของเกม</li>
                     <li>เมื่อเกม The Sims 4 มีการอัปเดตแพตช์ใหญ่ แนะนำให้ติดตามตัวอัปเดตภาษาไทยล่าสุดเพื่อความเข้ากันได้</li>
@@ -233,11 +233,11 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
               </p>
             </div>
 
-            <div className="bg-bg1/70 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8">
+            <div className="liquid-glass-panel rounded-2xl p-6 sm:p-8 space-y-8">
               
               {/* Step 1 */}
-              <div className="flex gap-4 sm:gap-5 items-start">
-                <div className="shrink-0 w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-sm font-black text-emerald-400 shadow-md">
+              <div className="relative z-10 flex gap-4 sm:gap-5 items-start">
+                <div className="shrink-0 w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] flex items-center justify-center text-sm font-black text-emerald-300">
                   1
                 </div>
                 <div className="flex-1 space-y-1.5">
@@ -249,8 +249,8 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
               </div>
 
               {/* Step 2: With Copyable Folder Path Button! */}
-              <div className="flex gap-4 sm:gap-5 items-start">
-                <div className="shrink-0 w-8 h-8 rounded-full bg-blue/20 border border-blue/40 flex items-center justify-center text-sm font-black text-blue3 shadow-md">
+              <div className="relative z-10 flex gap-4 sm:gap-5 items-start">
+                <div className="shrink-0 w-8 h-8 rounded-full bg-blue/25 border border-blue3/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] flex items-center justify-center text-sm font-black text-star2">
                   2
                 </div>
                 <div className="flex-1 space-y-3">
@@ -262,7 +262,7 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
                   </div>
 
                   {/* Interactive Copyable Path Box */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-3 sm:px-4 sm:py-3 rounded-2xl bg-black/60 border border-white/10 shadow-inner">
+                  <div className="liquid-glass-well flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-3 sm:px-4 sm:py-3 rounded-2xl">
                     <div className="flex items-center gap-2 overflow-x-auto text-xs font-mono text-emerald-300">
                       <FolderOpen size={16} className="text-emerald-400 shrink-0" />
                       <span className="select-all">{modsPath}</span>
@@ -270,10 +270,10 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
 
                     <button
                       onClick={handleCopyPath}
-                      className={`inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 ${
+                      className={`inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
                         copiedPath
-                          ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] scale-105'
-                          : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
+                          ? 'bg-emerald-500 text-white border border-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.5),inset_0_1px_0_rgba(255,255,255,0.5)] scale-105'
+                          : 'liquid-glass-pill text-white hover:border-emerald-400/50'
                       }`}
                       title="คัดลอกโฟลเดอร์ไปยังคลิปบอร์ด"
                     >
@@ -290,15 +290,15 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
                       )}
                     </button>
                   </div>
-                  <p className="text-[11px] text-text3">
-                    💡 <em>คำแนะนำ:</em> สามารถสร้างโฟลเดอร์ย่อยข้างใน เช่น <code>Mods/Thai_Mod/</code> เพื่อความเป็นระเบียบได้
+                  <p className="text-[11px] text-text2">
+                    💡 <em>คำแนะนำ:</em> สามารถสร้างโฟลเดอร์ย่อยข้างใน เช่น <code className="text-star2 font-mono">Mods/Thai_Mod/</code> เพื่อความเป็นระเบียบได้
                   </p>
                 </div>
               </div>
 
               {/* Step 3 */}
-              <div className="flex gap-4 sm:gap-5 items-start">
-                <div className="shrink-0 w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-sm font-black text-purple-300 shadow-md">
+              <div className="relative z-10 flex gap-4 sm:gap-5 items-start">
+                <div className="shrink-0 w-8 h-8 rounded-full bg-purple-500/20 border border-purple-400/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] flex items-center justify-center text-sm font-black text-purple-300">
                   3
                 </div>
                 <div className="flex-1 space-y-2">
@@ -306,7 +306,7 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
                   <p className="text-xs text-text2 leading-relaxed">
                     เปิดเกม The Sims 4 &gt; เข้าเมนู <strong>Options (การตั้งค่า)</strong> &gt; เลือก <strong>Game Options</strong> &gt; ไปที่แท็บ <strong>Other (อื่นๆ)</strong>
                   </p>
-                  <div className="p-3.5 rounded-2xl bg-white/5 border border-white/5 text-xs text-text2 space-y-1.5 font-medium">
+                  <div className="liquid-glass-well p-3.5 rounded-2xl text-xs text-text2 space-y-1.5 font-medium">
                     <div className="flex items-center gap-2 text-white">
                       <span className="text-emerald-400 font-bold">☑️</span>
                       <span>ติ๊กถูกที่: <strong>Enable Custom Content and Mods</strong> (เปิดใช้งานเนื้อหาปรับแต่งและม็อด)</span>
@@ -320,8 +320,8 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
               </div>
 
               {/* Step 4 */}
-              <div className="flex gap-4 sm:gap-5 items-start">
-                <div className="shrink-0 w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-sm font-black text-amber-300 shadow-md">
+              <div className="relative z-10 flex gap-4 sm:gap-5 items-start">
+                <div className="shrink-0 w-8 h-8 rounded-full bg-amber-500/20 border border-amber-400/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] flex items-center justify-center text-sm font-black text-amber-300">
                   4
                 </div>
                 <div className="flex-1 space-y-1">

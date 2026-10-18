@@ -73,8 +73,243 @@ body {
 }
 
 /* ============================================================
-   THEMED CARD — one signature interaction shared by every card
-   (cursor spotlight · HUD corner brackets · shine sweep · glow ring)
+   LIQUID GLASS DESIGN SYSTEM
+   (Optical refraction · Dual specular rims · Convex droplets ·
+    Cursor-reactive edge dispersion)
+   ============================================================ */
+
+/* 1. Floating Navigation Bar Material */
+.liquid-glass-nav {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(17, 28, 78, 0.62) 0%,
+    rgba(7, 13, 40, 0.50) 50%,
+    rgba(14, 24, 68, 0.60) 100%
+  );
+  backdrop-filter: blur(28px) saturate(190%) brightness(1.06);
+  -webkit-backdrop-filter: blur(28px) saturate(190%) brightness(1.06);
+  border: 1px solid rgba(168, 196, 255, 0.18);
+  box-shadow:
+    0 16px 48px -10px rgba(0, 0, 0, 0.68),
+    0 0 32px -6px rgba(43, 95, 255, 0.20),
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.34),
+    inset 0 -1px 0 0 rgba(111, 160, 255, 0.18),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.12);
+}
+.liquid-glass-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.02) 38%,
+    transparent 60%
+  );
+}
+
+/* 2. Content Panels & Elevated Glass Containers */
+.liquid-glass-panel {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(
+    160deg,
+    rgba(19, 30, 88, 0.44) 0%,
+    rgba(7, 13, 40, 0.58) 52%,
+    rgba(12, 20, 66, 0.48) 100%
+  );
+  backdrop-filter: blur(22px) saturate(175%);
+  -webkit-backdrop-filter: blur(22px) saturate(175%);
+  border: 1px solid rgba(168, 196, 255, 0.13);
+  box-shadow:
+    0 16px 40px -12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 0 rgba(74, 127, 255, 0.14),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.08);
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.liquid-glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    80% 50% at 15% 0%,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 70%
+  );
+  z-index: 0;
+}
+.liquid-glass-panel:hover {
+  border-color: rgba(168, 196, 255, 0.22);
+  box-shadow:
+    0 20px 48px -12px rgba(0, 0, 0, 0.68),
+    0 0 28px -8px rgba(43, 95, 255, 0.18),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.32),
+    inset 0 -1px 0 0 rgba(111, 160, 255, 0.20);
+}
+
+/* 3. Recessed Liquid Glass Well (for sub-cards, specs, modules) */
+.liquid-glass-well {
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 13, 40, 0.65) 0%,
+    rgba(12, 19, 64, 0.45) 100%
+  );
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(168, 196, 255, 0.10);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+.liquid-glass-well:hover {
+  border-color: rgba(111, 160, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 6px 18px -4px rgba(0, 0, 0, 0.45),
+    0 0 16px -4px rgba(43, 95, 255, 0.20);
+}
+
+/* 4. Tactile Convex Liquid Glass Pill (Social buttons, Secondary CTAs, Filter track) */
+.liquid-glass-pill {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(15, 25, 76, 0.56) 42%,
+    rgba(7, 13, 40, 0.72) 100%
+  );
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(168, 196, 255, 0.20);
+  box-shadow:
+    0 6px 20px -4px rgba(0, 0, 0, 0.55),
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.34),
+    inset 0 -1px 1px 0 rgba(111, 160, 255, 0.18);
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+.liquid-glass-pill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.22),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition: left 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.liquid-glass-pill:hover::after {
+  left: 135%;
+}
+
+/* 5. Primary Liquid Cobalt Capsule (Donate CTA, Primary Download, Active Filter Droplet) */
+.liquid-glass-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(130, 185, 255, 0.52) 0%,
+    rgba(43, 95, 255, 0.88) 32%,
+    rgba(29, 72, 216, 0.95) 75%,
+    rgba(56, 189, 248, 0.75) 100%
+  );
+  backdrop-filter: blur(16px) saturate(190%);
+  -webkit-backdrop-filter: blur(16px) saturate(190%);
+  border: 1px solid rgba(190, 225, 255, 0.45);
+  box-shadow:
+    0 8px 26px -4px rgba(43, 95, 255, 0.50),
+    0 0 16px -2px rgba(6, 182, 212, 0.30),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.62),
+    inset 0 -2px 4px 0 rgba(4, 7, 26, 0.45);
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    filter 0.3s ease;
+}
+.liquid-glass-cta::before {
+  content: '';
+  position: absolute;
+  inset: 1px 6% auto 6%;
+  height: 42%;
+  border-radius: 9999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.38) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  pointer-events: none;
+}
+.liquid-glass-cta:hover {
+  border-color: rgba(224, 242, 254, 0.75);
+  box-shadow:
+    0 12px 32px -4px rgba(43, 95, 255, 0.68),
+    0 0 24px 0 rgba(56, 189, 248, 0.42),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.78),
+    inset 0 -2px 4px 0 rgba(4, 7, 26, 0.35);
+}
+
+/* 6. Cylindrical Liquid Glass Tube (Progress Bar Conduit) */
+.liquid-glass-tube {
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    rgba(2, 5, 20, 0.82) 0%,
+    rgba(10, 18, 54, 0.62) 60%,
+    rgba(16, 28, 78, 0.70) 100%
+  );
+  border: 1px solid rgba(168, 196, 255, 0.20);
+  box-shadow:
+    inset 0 3px 7px rgba(0, 0, 0, 0.85),
+    inset 0 -1px 1px rgba(168, 196, 255, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.liquid-glass-tube::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 8px;
+  right: 8px;
+  height: 38%;
+  border-radius: 9999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ============================================================
+   THEMED CARD — Liquid Glass Edition
+   (cursor spotlight · cursor-reactive specular glass rim ·
+    shine sweep · inner glass bevel)
    Per-card color comes from --card-accent (set by <ThemedCard accent>).
    ============================================================ */
 .themed-card {
@@ -85,16 +320,22 @@ body {
   isolation: isolate;
   transform-style: preserve-3d;
   will-change: transform;
+  box-shadow:
+    0 10px 30px -8px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 0 rgba(111, 160, 255, 0.14);
   transition:
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.35s ease,
     border-color 0.35s ease;
 }
 .themed-card:hover {
-  border-color: color-mix(in srgb, var(--card-accent) 75%, transparent);
+  border-color: color-mix(in srgb, var(--card-accent) 65%, rgba(255, 255, 255, 0.35));
   box-shadow:
-    0 16px 42px -6px rgba(0, 0, 0, 0.65),
-    0 0 32px color-mix(in srgb, var(--card-accent) 38%, transparent);
+    0 18px 44px -6px rgba(0, 0, 0, 0.72),
+    0 0 34px color-mix(in srgb, var(--card-accent) 36%, transparent),
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.48),
+    inset 0 -1px 0 0 color-mix(in srgb, var(--card-accent) 45%, transparent);
 }
 
 /* Cursor-following spotlight */
@@ -107,20 +348,49 @@ body {
   transition: opacity 0.3s ease;
   background: radial-gradient(
     240px circle at var(--mx) var(--my),
-    color-mix(in srgb, var(--card-accent) 32%, transparent),
+    color-mix(in srgb, var(--card-accent) 30%, rgba(255, 255, 255, 0.08)),
     transparent 65%
   );
   mix-blend-mode: screen;
 }
 .themed-card:hover .themed-card__spot { opacity: 1; }
 
+/* Cursor-reactive Specular Glass Rim (lights up the card border near cursor) */
+.themed-card__rim {
+  position: absolute;
+  inset: 0;
+  z-index: 27;
+  border-radius: inherit;
+  padding: 1.5px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    210px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.92) 0%,
+    color-mix(in srgb, var(--card-accent) 85%, #ffffff) 32%,
+    transparent 72%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+.themed-card:hover .themed-card__rim { opacity: 1; }
+
 /* Diagonal shine sweep */
 .themed-card__shine {
   position: absolute;
   inset: 0;
   z-index: 26;
+  border-radius: inherit;
   pointer-events: none;
   overflow: hidden;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
 }
 .themed-card__shine::before {
   content: '';
@@ -129,7 +399,7 @@ body {
   bottom: 0;
   width: 45%;
   left: -60%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
   transform: skewX(-14deg);
   transition: left 0.9s ease;
 }

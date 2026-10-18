@@ -32,8 +32,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" data-scroll-behavior="smooth" className={`${sarabun.variable} ${notoSansThai.variable}`}>
-      <body className="min-h-screen flex flex-col">
+    <html lang="th" data-scroll-behavior="smooth" className={`${sarabun.variable} ${notoSansThai.variable}`} suppressHydrationWarning>
+      <body className="min-h-screen flex flex-col" suppressHydrationWarning>
         <StarField />
         <Navbar />
         <main className="flex-1 relative">{children}</main>

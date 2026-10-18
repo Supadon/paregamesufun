@@ -105,7 +105,7 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
         </div>
 
         {/* 3. Hero Header Banner */}
-        <div className="relative rounded-3xl border border-purple-500/25 bg-gradient-to-b from-bg1/80 via-bg1/60 to-bg2/40 p-6 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_40px_rgba(168,85,247,0.12)] backdrop-blur-xl overflow-hidden">
+        <div className="liquid-glass-panel relative rounded-2xl border-purple-400/30 p-6 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_40px_rgba(168,85,247,0.14),inset_0_1.5px_0_rgba(255,255,255,0.34)] overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
@@ -123,21 +123,21 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
             {/* Hero Specs & Summary */}
             <div className="lg:col-span-8 space-y-5 text-center lg:text-left">
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
-                <span className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
-                  <CheckCircle2 size={12} className="text-emerald-400" />
+                <span className="bg-emerald-500/18 border border-emerald-400/40 text-emerald-200 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
+                  <CheckCircle2 size={12} className="text-emerald-300" />
                   แปลเสร็จสมบูรณ์ 100%
                 </span>
-                <span className="bg-blue-dim border border-blue2/30 text-cyan-300 text-[11px] font-bold px-3 py-1 rounded-full">
+                <span className="liquid-glass-pill text-cyan-200 text-[11px] font-bold px-3 py-1 rounded-full">
                   Unreal Engine 5 • PC
                 </span>
-                <span className="bg-white/5 border border-white/10 text-text2 text-[11px] font-bold px-3 py-1 rounded-full">
+                <span className="liquid-glass-pill text-text2 text-[11px] font-bold px-3 py-1 rounded-full">
                   เวอร์ชัน: {game.version || 'Early Access'}
                 </span>
               </div>
 
               <div>
                 <h1 className="font-display text-[clamp(2.2rem,5vw,3.5rem)] font-black text-white leading-[1.15] drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] tracking-tight">
-                  {game.title} <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-pink-300 to-cyan-300 font-extrabold text-[0.8em]">ภาษาไทย</span>
+                  {game.title} <span className="text-purple-200 drop-shadow-[0_0_18px_rgba(192,132,252,0.5)] font-extrabold text-[0.8em]">ภาษาไทย</span>
                 </h1>
                 <p className="text-sm sm:text-base text-text2 leading-relaxed mt-3 max-w-2xl font-normal">
                   {game.description || game.shortDescription}
@@ -148,24 +148,24 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
                 <a
                   href="#platform-selector"
-                  className="inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:scale-105 transition-all shadow-[0_6px_25px_rgba(168,85,247,0.35)]"
+                  className="liquid-glass-cta inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-full text-xs sm:text-sm font-bold text-white hover:scale-105"
                 >
-                  <BookOpen size={16} />
-                  เลือกวิธีติดตั้ง (Windows / Mac)
+                  <BookOpen size={16} className="relative z-10" />
+                  <span className="relative z-10">เลือกวิธีติดตั้ง (Windows / Mac)</span>
                 </a>
                 <a
                   href="#team-credits"
-                  className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-text2 hover:text-white bg-white/5 border border-white/15 hover:bg-white/10 hover:border-purple-400/40 transition-all"
+                  className="liquid-glass-pill inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-text2 hover:text-white hover:border-purple-400/50 hover:-translate-y-0.5"
                 >
-                  <Users size={16} className="text-purple-300" />
-                  ทีมงานผู้แปล
+                  <Users size={16} className="text-purple-300 relative z-10" />
+                  <span className="relative z-10">ทีมงานผู้แปล</span>
                 </a>
                 <a
                   href="#donate"
-                  className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-pink-300 hover:text-white bg-pink-500/10 border border-pink-500/30 hover:bg-pink-500/20 hover:border-pink-500/50 transition-all shadow-[0_0_15px_rgba(244,114,182,0.15)]"
+                  className="liquid-glass-pill inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-pink-200 hover:text-white border-pink-400/35 hover:border-pink-400/65 hover:-translate-y-0.5 shadow-[0_0_15px_rgba(244,114,182,0.18),inset_0_1px_0_rgba(255,255,255,0.35)]"
                 >
-                  <Heart size={16} className="fill-pink-400 text-pink-400" />
-                  สนับสนุนผู้แปล
+                  <Heart size={16} className="fill-pink-400 text-pink-400 relative z-10" />
+                  <span className="relative z-10">สนับสนุนผู้แปล</span>
                 </a>
               </div>
             </div>
@@ -175,7 +175,7 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
         {/* 4. Prominent OS Selection Section (เลือกระบบปฏิบัติการของคุณก่อนอันดับแรก) */}
         <section id="platform-selector" className="scroll-mt-28 space-y-6">
           <div className="text-center space-y-2">
-            <span className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
+            <span className="text-[11px] font-black uppercase tracking-[0.22em] text-cyan-300 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
               SELECT YOUR OPERATING SYSTEM · เลือกแพลตฟอร์มของคุณ
             </span>
             <h2 className="font-display text-2xl sm:text-3xl font-black text-white">
@@ -189,30 +189,30 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
             <button
               type="button"
               onClick={() => handlePlatformChange('windows')}
-              className={`p-6 rounded-3xl border text-left transition-all duration-300 relative overflow-hidden group ${
+              className={`liquid-glass-panel p-6 rounded-2xl text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${
                 platform === 'windows'
-                  ? 'bg-gradient-to-br from-cyan-950/60 via-bg1 to-bg2 border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.35)] scale-[1.02]'
-                  : 'bg-bg1/60 hover:bg-bg1/90 border-white/10 hover:border-white/25 opacity-75 hover:opacity-100'
+                  ? 'border-cyan-400/80 shadow-[0_14px_38px_rgba(6,182,212,0.28),inset_0_1.5px_0_rgba(255,255,255,0.45)] scale-[1.02]'
+                  : 'opacity-75 hover:opacity-100 hover:border-white/25'
               }`}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
+              <div className="relative z-10 flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] ${
                   platform === 'windows'
-                    ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.5)]'
-                    : 'bg-white/5 text-text3 group-hover:text-white'
+                    ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.5),inset_0_1px_0_rgba(255,255,255,0.5)]'
+                    : 'bg-white/5 text-text2 group-hover:text-white'
                 }`}>
                   <WindowsIcon className="w-6 h-6" />
                 </div>
                 {platform === 'windows' && (
-                  <span className="flex items-center gap-1 text-[11px] font-black text-cyan-300 bg-cyan-400/20 px-2.5 py-1 rounded-full border border-cyan-400/30">
+                  <span className="flex items-center gap-1 text-[11px] font-black text-cyan-200 bg-cyan-400/20 px-2.5 py-1 rounded-full border border-cyan-400/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
                     <CheckCircle2 size={12} /> กำลังเลือก
                   </span>
                 )}
               </div>
-              <h3 className="font-display text-lg font-black text-white mb-1">
+              <h3 className="relative z-10 font-display text-lg font-black text-white mb-1">
                 Windows PC
               </h3>
-              <p className="text-xs text-text2 leading-relaxed">
+              <p className="relative z-10 text-xs text-text2 leading-relaxed">
                 ติดตั้งง่ายโดยตรงจากเมนูในเกม (ผ่าน Canvas & Mod Browser) ไม่ต้องโหลดไฟล์แยก
               </p>
             </button>
@@ -221,30 +221,30 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
             <button
               type="button"
               onClick={() => handlePlatformChange('mac')}
-              className={`p-6 rounded-3xl border text-left transition-all duration-300 relative overflow-hidden group ${
+              className={`liquid-glass-panel p-6 rounded-2xl text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${
                 platform === 'mac'
-                  ? 'bg-gradient-to-br from-purple-950/60 via-bg1 to-bg2 border-purple-400 shadow-[0_0_30px_rgba(168,85,247,0.35)] scale-[1.02]'
-                  : 'bg-bg1/60 hover:bg-bg1/90 border-white/10 hover:border-white/25 opacity-75 hover:opacity-100'
+                  ? 'border-purple-400/80 shadow-[0_14px_38px_rgba(168,85,247,0.28),inset_0_1.5px_0_rgba(255,255,255,0.45)] scale-[1.02]'
+                  : 'opacity-75 hover:opacity-100 hover:border-white/25'
               }`}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
+              <div className="relative z-10 flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] ${
                   platform === 'mac'
-                    ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.5)]'
-                    : 'bg-white/5 text-text3 group-hover:text-white'
+                    ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.5),inset_0_1px_0_rgba(255,255,255,0.5)]'
+                    : 'bg-white/5 text-text2 group-hover:text-white'
                 }`}>
                   <AppleIcon className="w-6 h-6" />
                 </div>
                 {platform === 'mac' && (
-                  <span className="flex items-center gap-1 text-[11px] font-black text-purple-300 bg-purple-400/20 px-2.5 py-1 rounded-full border border-purple-400/30">
+                  <span className="flex items-center gap-1 text-[11px] font-black text-purple-200 bg-purple-400/20 px-2.5 py-1 rounded-full border border-purple-400/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
                     <CheckCircle2 size={12} /> กำลังเลือก
                   </span>
                 )}
               </div>
-              <h3 className="font-display text-lg font-black text-white mb-1">
+              <h3 className="relative z-10 font-display text-lg font-black text-white mb-1">
                 macOS (Mac)
               </h3>
-              <p className="text-xs text-text2 leading-relaxed">
+              <p className="relative z-10 text-xs text-text2 leading-relaxed">
                 ดาวน์โหลดไฟล์ม็อดผ่าน Nexus Mods แล้วนำไปติดตั้งในโฟลเดอร์เกม
               </p>
             </button>
@@ -254,15 +254,16 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
         {/* 5. Platform Specific Callout */}
         {platform === 'windows' ? (
           /* WINDOWS BANNER: In-Game Installation */
-          <div className="rounded-2xl border border-cyan-400/30 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-purple-950/40 p-5 sm:p-6 shadow-xl relative overflow-hidden backdrop-blur-md animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(6,182,212,0.25)] text-cyan-300">
+          <div className="liquid-glass-panel rounded-2xl border-cyan-400/35 p-5 sm:p-6 relative overflow-hidden animate-in fade-in duration-300">
+            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-cyan-500/15 blur-2xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="liquid-glass-well w-12 h-12 rounded-2xl border-cyan-400/35 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(6,182,212,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] text-cyan-300">
                 <Gamepad2 className="w-6 h-6" />
               </div>
               <div className="flex-1 space-y-1">
-                <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-black text-white flex flex-wrap items-center gap-2">
                   <span>สำหรับ Windows: ไม่ต้องดาวน์โหลดไฟล์แยก! ติดตั้งได้ทันทีจากเมนูในเกม</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
                     Easy Setup
                   </span>
                 </h3>
@@ -274,18 +275,19 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
           </div>
         ) : (
           /* MAC BANNER: Nexus Mods Download Box */
-          <div className="rounded-2xl border border-[#DA8E35]/40 bg-gradient-to-r from-[#DA8E35]/15 via-bg1 to-purple-950/30 p-6 sm:p-7 shadow-xl relative overflow-hidden backdrop-blur-md space-y-5 animate-in fade-in duration-300">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="liquid-glass-panel rounded-2xl border-[#DA8E35]/45 p-6 sm:p-7 relative overflow-hidden space-y-5 animate-in fade-in duration-300">
+            <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-[#DA8E35]/15 blur-3xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#DA8E35]/20 border border-[#DA8E35]/40 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(218,142,53,0.3)]">
+                <div className="liquid-glass-well w-12 h-12 rounded-2xl border-[#DA8E35]/45 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(218,142,53,0.3),inset_0_1px_0_rgba(255,255,255,0.35)]">
                   <NexusModsIcon className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#DA8E35] bg-[#DA8E35]/15 px-2 py-0.5 rounded-full border border-[#DA8E35]/30">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-200 bg-[#DA8E35]/25 px-2.5 py-0.5 rounded-full border border-[#DA8E35]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
                       Nexus Mods Official
                     </span>
-                    <span className="text-xs font-bold text-text3">สำหรับ macOS</span>
+                    <span className="text-xs font-bold text-text2">สำหรับ macOS</span>
                   </div>
                   <h3 className="text-base sm:text-lg font-black text-white">
                     ดาวน์โหลดม็อดภาษาไทยสำหรับ Mac ผ่าน Nexus Mods
@@ -302,7 +304,7 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
                   href={macDownloadLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-[#DA8E35] to-[#B36F22] hover:scale-105 transition-all shadow-[0_6px_25px_rgba(218,142,53,0.4)] no-underline"
+                  className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full text-xs sm:text-sm font-black text-white bg-gradient-to-b from-[#F3A84E] via-[#DA8E35] to-[#B36F22] border border-amber-200/45 hover:scale-105 transition-all shadow-[0_8px_26px_rgba(218,142,53,0.45),inset_0_1.5px_1px_rgba(255,255,255,0.55)] no-underline"
                 >
                   <NexusModsIcon className="w-5 h-5 fill-white" />
                   <span>ดาวน์โหลดบน Nexus Mods</span>
@@ -312,7 +314,7 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
             </div>
 
             {/* Quick Mac tips */}
-            <div className="pt-3 border-t border-white/5 flex items-center gap-2 text-xs text-text3 font-medium">
+            <div className="relative z-10 pt-3 border-t border-white/10 flex items-center gap-2 text-xs text-text2 font-medium">
               <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
               <span>ไฟล์ปลอดภัย 100% ตรวจสอบแล้วผ่านระบบ Nexus Mods</span>
             </div>
@@ -323,13 +325,13 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
         <section id="install-guide" className="scroll-mt-28 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-400/30 text-[10.5px] font-black uppercase tracking-widest text-purple-300 mb-2">
-                <Sparkles size={11} className="text-cyan-400" />
+              <div className="liquid-glass-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full border-purple-400/35 text-[10.5px] font-black uppercase tracking-widest text-purple-200 mb-2">
+                <Sparkles size={11} className="text-cyan-300" />
                 {platform === 'windows' ? 'WINDOWS INSTALLATION GUIDE' : 'MAC INSTALLATION GUIDE'}
               </div>
               <h2 className="font-display text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
                 <span>ภาพวิธีการลงม็อด ({platform === 'windows' ? 'Windows' : 'macOS'})</span>
-                <span className="text-xs font-bold text-text3 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
+                <span className="liquid-glass-pill text-xs font-bold text-star2 px-3 py-0.5 rounded-full">
                   {currentInstructions.length} ภาพ
                 </span>
               </h2>
@@ -337,30 +339,30 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
 
             {/* View Switcher: Grid vs Walkthrough (Only if there are instructions) */}
             {currentInstructions.length > 0 && (
-              <div className="flex items-center gap-1.5 bg-bg1/70 backdrop-blur-md p-1 rounded-full border border-white/10 self-start sm:self-auto">
+              <div className="liquid-glass-nav flex items-center gap-1.5 p-1.5 rounded-full self-start sm:self-auto">
                 <button
                   type="button"
                   onClick={() => setViewMode('grid')}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black transition-all ${
+                  className={`relative z-10 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer ${
                     viewMode === 'grid'
-                      ? 'bg-purple-600 text-white shadow-[0_0_12px_rgba(168,85,247,0.4)]'
-                      : 'text-text3 hover:text-white hover:bg-white/5'
+                      ? 'liquid-glass-cta text-white'
+                      : 'text-text2 hover:text-white'
                   }`}
                 >
-                  <LayoutGrid size={13} />
-                  ดูทั้งหมด ({currentInstructions.length})
+                  <LayoutGrid size={13} className="relative z-10" />
+                  <span className="relative z-10">ดูทั้งหมด ({currentInstructions.length})</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('walkthrough')}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black transition-all ${
+                  className={`relative z-10 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer ${
                     viewMode === 'walkthrough'
-                      ? 'bg-purple-600 text-white shadow-[0_0_12px_rgba(168,85,247,0.4)]'
-                      : 'text-text3 hover:text-white hover:bg-white/5'
+                      ? 'liquid-glass-cta text-white'
+                      : 'text-text2 hover:text-white'
                   }`}
                 >
-                  <SlidersHorizontal size={13} />
-                  ดูทีละขั้นตอน
+                  <SlidersHorizontal size={13} className="relative z-10" />
+                  <span className="relative z-10">ดูทีละขั้นตอน</span>
                 </button>
               </div>
             )}
@@ -368,14 +370,14 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
 
           {/* If No Instructions available yet (e.g. for Mac before user uploads pictures) */}
           {currentInstructions.length === 0 ? (
-            <div className="rounded-3xl border border-white/10 bg-bg1/60 p-10 sm:p-14 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-purple-500/15 border border-purple-400/30 flex items-center justify-center mx-auto text-purple-300">
+            <div className="liquid-glass-panel rounded-2xl p-10 sm:p-14 text-center space-y-4">
+              <div className="liquid-glass-pill w-16 h-16 rounded-full border-purple-400/35 flex items-center justify-center mx-auto text-purple-200">
                 <BookOpen size={28} />
               </div>
-              <h3 className="font-display text-lg font-black text-white">
+              <h3 className="relative z-10 font-display text-lg font-black text-white">
                 กำลังเตรียมรูปภาพขั้นตอนการติดตั้งสำหรับ {platform === 'mac' ? 'macOS (Mac)' : 'Windows'}
               </h3>
-              <p className="text-xs sm:text-sm text-text2 max-w-md mx-auto leading-relaxed">
+              <p className="relative z-10 text-xs sm:text-sm text-text2 max-w-md mx-auto leading-relaxed">
                 {platform === 'mac' 
                   ? 'ทีมงานกำลังอัปเดตภาพขั้นตอนโดยละเอียดเร็ว ๆ นี้'
                   : 'ยังไม่มีรูปภาพขั้นตอน กรุณาเพิ่มรูปภาพผ่านระบบ Admin Panel'}
@@ -391,26 +393,26 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
                     return (
                       <div
                         key={idx}
-                        className="group relative rounded-2xl border border-white/10 hover:border-purple-400/50 bg-bg1/70 backdrop-blur-md p-4 sm:p-5 shadow-xl transition-all duration-300 hover:shadow-[0_15px_35px_rgba(0,0,0,0.7),0_0_25px_rgba(168,85,247,0.2)] flex flex-col space-y-3.5"
+                        className="liquid-glass-panel group relative rounded-2xl hover:border-purple-400/50 p-4 sm:p-5 flex flex-col space-y-3.5"
                       >
                         {/* Step Header */}
-                        <div className="flex items-center justify-between gap-2 border-b border-white/5 pb-2.5">
-                          <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-300 text-xs font-black flex items-center justify-center shrink-0">
+                        <div className="relative z-10 flex items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-6 h-6 rounded-full bg-purple-500/25 border border-purple-400/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] text-purple-200 text-xs font-black flex items-center justify-center shrink-0">
                               {stepNum}
                             </span>
                             <span className="text-xs sm:text-sm font-extrabold text-white">
                               ขั้นตอนที่ {stepNum}
                             </span>
                           </div>
-                          <span className="text-[11px] font-mono text-text3">
+                          <span className="liquid-glass-pill px-2.5 py-0.5 rounded-full text-[10px] font-mono text-text2">
                             {stepNum} / {currentInstructions.length}
                           </span>
                         </div>
 
                         {/* Step Description text (if any) */}
                         {step.text && (
-                          <p className="text-xs sm:text-sm text-text2 leading-relaxed whitespace-pre-line font-medium">
+                          <p className="relative z-10 text-xs sm:text-sm text-text2 leading-relaxed whitespace-pre-line font-medium">
                             {step.text}
                           </p>
                         )}
@@ -419,15 +421,15 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
                         {step.image && (
                           <div 
                             onClick={() => setSelectedImage(step.image!)}
-                            className="relative w-full aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden bg-black/40 border border-white/10 cursor-pointer group/img transition-all"
+                            className="liquid-glass-well relative z-10 w-full aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group/img"
                           >
                             <img
                               src={step.image}
                               alt={`ขั้นตอนที่ ${stepNum}`}
                               className="w-full h-full object-contain transition-transform duration-500 group-hover/img:scale-[1.03]"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end justify-between p-3">
-                              <span className="text-xs font-bold text-white flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/20">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end justify-between p-3">
+                              <span className="liquid-glass-pill text-xs font-bold text-white flex items-center gap-1.5 px-3 py-1 rounded-full">
                                 <ZoomIn size={13} className="text-cyan-300" />
                                 คลิกดูรูปขยายเต็มจอ
                               </span>
@@ -442,11 +444,11 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
 
               {/* VIEW MODE 2: Single Step Walkthrough Viewer */}
               {viewMode === 'walkthrough' && (
-                <div className="rounded-3xl border border-purple-400/30 bg-bg1/80 backdrop-blur-xl p-6 sm:p-8 shadow-2xl space-y-6">
+                <div className="liquid-glass-panel rounded-2xl border-purple-400/35 p-6 sm:p-8 space-y-6">
                   {/* Stepper Header Navigation */}
-                  <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                  <div className="relative z-10 flex items-center justify-between gap-4 border-b border-white/10 pb-4">
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-full bg-purple-500/25 border border-purple-400 text-purple-300 text-sm font-black flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(168,85,247,0.4)]">
+                      <span className="w-8 h-8 rounded-full bg-purple-500/25 border border-purple-400/55 text-purple-200 text-sm font-black flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(168,85,247,0.4),inset_0_1px_0_rgba(255,255,255,0.4)]">
                         {activeStepIndex + 1}
                       </span>
                       <div>
@@ -466,7 +468,7 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
                       <button
                         onClick={handlePrev}
                         disabled={activeStepIndex === 0}
-                        className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 text-white transition-colors"
+                        className="liquid-glass-pill p-2.5 rounded-full disabled:opacity-35 text-white cursor-pointer disabled:cursor-not-allowed"
                         title="ขั้นตอนก่อนหน้า"
                       >
                         <ChevronLeft size={18} />
@@ -474,10 +476,10 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
                       <button
                         onClick={handleNext}
                         disabled={activeStepIndex === currentInstructions.length - 1}
-                        className="p-2.5 rounded-full bg-purple-600 hover:bg-purple-500 disabled:opacity-30 disabled:hover:bg-purple-600 text-white transition-colors shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                        className="liquid-glass-cta p-2.5 rounded-full disabled:opacity-35 text-white cursor-pointer disabled:cursor-not-allowed"
                         title="ขั้นตอนถัดไป"
                       >
-                        <ChevronRight size={18} />
+                        <ChevronRight size={18} className="relative z-10" />
                       </button>
                     </div>
                   </div>
@@ -486,14 +488,14 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
                   {currentInstructions[activeStepIndex]?.image && (
                     <div 
                       onClick={() => setSelectedImage(currentInstructions[activeStepIndex].image!)}
-                      className="relative w-full max-w-[800px] mx-auto aspect-square sm:aspect-[16/10] rounded-2xl overflow-hidden bg-black/60 border border-white/10 cursor-pointer shadow-2xl group/zoom"
+                      className="liquid-glass-well relative z-10 w-full max-w-[800px] mx-auto aspect-square sm:aspect-[16/10] rounded-2xl overflow-hidden cursor-pointer group/zoom"
                     >
                       <img
                         src={currentInstructions[activeStepIndex].image!}
                         alt={`ขั้นตอนที่ ${activeStepIndex + 1}`}
                         className="w-full h-full object-contain transition-transform duration-500 group-hover/zoom:scale-[1.02]"
                       />
-                      <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-xs font-bold text-white shadow-lg">
+                      <div className="liquid-glass-pill absolute bottom-3 right-3 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-white">
                         <ZoomIn size={13} className="text-cyan-300" />
                         <span>คลิกเพื่อดูภาพขยาย</span>
                       </div>
@@ -501,25 +503,25 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
                   )}
 
                   {/* Thumbnail Strip */}
-                  <div className="pt-2 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                  <div className="relative z-10 pt-2 flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
                     {currentInstructions.map((step, idx) => (
                       <button
                         key={idx}
                         onClick={() => setActiveStepIndex(idx)}
-                        className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${
+                        className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border transition-all cursor-pointer ${
                           activeStepIndex === idx
-                            ? 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.5)] scale-105'
-                            : 'border-white/10 opacity-60 hover:opacity-100 hover:border-white/30'
+                            ? 'border-purple-300 shadow-[0_0_16px_rgba(168,85,247,0.55),inset_0_1px_0_rgba(255,255,255,0.5)] scale-105'
+                            : 'border-white/15 opacity-60 hover:opacity-100 hover:border-white/35'
                         }`}
                       >
                         {step.image ? (
                           <img src={step.image} alt={`Step ${idx + 1}`} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-bg2 flex items-center justify-center text-xs font-bold text-text3">
+                          <div className="w-full h-full bg-bg2 flex items-center justify-center text-xs font-bold text-text2">
                             {idx + 1}
                           </div>
                         )}
-                        <span className="absolute bottom-1 right-1 text-[9px] font-black bg-black/80 px-1 rounded text-white">
+                        <span className="absolute bottom-1 right-1 text-[9px] font-black bg-black/80 px-1.5 py-0.2 rounded text-white border border-white/15">
                           {idx + 1}
                         </span>
                       </button>
@@ -547,11 +549,11 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
       {selectedImage && (
         <div 
           onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 z-[300] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[300] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200"
         >
           <button
             onClick={() => setSelectedImage(null)}
-            className="absolute top-5 right-5 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
+            className="liquid-glass-pill absolute top-5 right-5 p-3 rounded-full text-white z-10 cursor-pointer"
             title="ปิดภาพขยาย"
           >
             <X size={20} />
@@ -564,7 +566,7 @@ export default function InzoiPageLayout({ game }: InzoiPageLayoutProps) {
             <img
               src={selectedImage}
               alt="ภาพขยายวิธีการลง"
-              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl border border-white/20"
+              className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.85)] border border-white/20"
             />
           </div>
         </div>

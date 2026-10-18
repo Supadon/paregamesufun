@@ -30,15 +30,15 @@ export default function DonateSection({
       <div className="absolute -inset-1 bg-gradient-to-r from-pink-500/20 via-purple-600/20 to-blue/20 rounded-3xl blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
       {/* Main Container Card */}
-      <div className="relative rounded-3xl border border-white/15 bg-gradient-to-b from-bg1/90 via-bg2/85 to-bg1/95 backdrop-blur-xl p-6 sm:p-8 shadow-2xl overflow-hidden">
+      <div className="liquid-glass-panel relative rounded-2xl p-6 sm:p-8 overflow-hidden">
         
         {/* Decorative corner light accents */}
         <div className="absolute top-0 right-0 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Header Header */}
+        {/* Header */}
         <div className="text-center max-w-xl mx-auto space-y-3 mb-8 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-300 text-xs font-bold shadow-[0_0_15px_rgba(244,114,182,0.2)]">
+          <div className="liquid-glass-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border-pink-400/35 text-pink-200 text-xs font-bold shadow-[0_0_18px_rgba(244,114,182,0.22),inset_0_1px_0_rgba(255,255,255,0.35)]">
             <Heart size={14} className="fill-pink-400 text-pink-400 animate-pulse" />
             <span>ร่วมเป็นส่วนหนึ่งในการขับเคลื่อนม็อด</span>
             <Sparkles size={13} className="text-pink-300" />
@@ -48,7 +48,7 @@ export default function DonateSection({
             {title.includes('แปลเกมสู่ฝัน') ? (
               <>
                 สนับสนุนผู้แปล{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300">
+                <span className="text-star2 drop-shadow-[0_0_18px_rgba(111,160,255,0.45)]">
                   แปลเกมสู่ฝัน
                 </span>
               </>
@@ -72,27 +72,27 @@ export default function DonateSection({
               title: 'MAKE by KBank',
               subtitle: 'สแกนผ่านแอปธนาคาร / พร้อมเพย์'
             })}
-            className="group/card cursor-pointer rounded-2xl border border-emerald-500/30 hover:border-emerald-400/80 bg-gradient-to-b from-emerald-950/20 via-bg1 to-bg2 p-4 transition-all duration-300 hover:shadow-[0_12px_35px_rgba(16,185,129,0.25)] hover:-translate-y-1"
+            className="liquid-glass-well group/card cursor-pointer rounded-2xl border-emerald-400/30 hover:border-emerald-400/75 p-4 transition-all duration-300 hover:shadow-[0_14px_36px_rgba(16,185,129,0.22),inset_0_1.5px_0_rgba(255,255,255,0.38)] hover:-translate-y-1"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                 <span className="text-xs font-black text-emerald-300 tracking-wide">MAKE by KBank</span>
               </div>
-              <span className="text-[10px] text-text3 flex items-center gap-1 group-hover/card:text-emerald-300 transition-colors">
+              <span className="text-[10px] text-text2 flex items-center gap-1 group-hover/card:text-emerald-300 transition-colors">
                 <Maximize2 size={11} />
                 แตะเพื่อขยาย
               </span>
             </div>
 
-            <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden border border-white/10 bg-black/40 shadow-inner">
+            <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden border border-white/15 bg-black/40 shadow-inner">
               <img
                 src="/kbank-qr.jpg"
                 alt="MAKE by KBank QR Code"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex items-end justify-center pb-3">
-                <span className="text-xs font-bold text-white bg-black/80 px-3 py-1 rounded-full border border-white/20 backdrop-blur-md flex items-center gap-1.5 shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex items-end justify-center pb-3">
+                <span className="liquid-glass-pill text-xs font-bold text-white px-3.5 py-1 rounded-full flex items-center gap-1.5">
                   <Maximize2 size={12} />
                   คลิกเพื่อดูภาพเต็ม
                 </span>
@@ -100,7 +100,7 @@ export default function DonateSection({
             </div>
 
             <div className="mt-3 text-center">
-              <p className="text-[11px] text-text3">รองรับทุกแอปธนาคาร / พร้อมเพย์</p>
+              <p className="text-[11px] text-text2">รองรับทุกแอปธนาคาร / พร้อมเพย์</p>
             </div>
           </div>
 
@@ -111,27 +111,27 @@ export default function DonateSection({
               title: 'TrueMoney Wallet',
               subtitle: 'สแกนผ่านแอป TrueMoney Wallet'
             })}
-            className="group/card cursor-pointer rounded-2xl border border-amber-500/30 hover:border-amber-400/80 bg-gradient-to-b from-amber-950/20 via-bg1 to-bg2 p-4 transition-all duration-300 hover:shadow-[0_12px_35px_rgba(245,158,11,0.25)] hover:-translate-y-1"
+            className="liquid-glass-well group/card cursor-pointer rounded-2xl border-amber-400/30 hover:border-amber-400/75 p-4 transition-all duration-300 hover:shadow-[0_14px_36px_rgba(245,158,11,0.22),inset_0_1.5px_0_rgba(255,255,255,0.38)] hover:-translate-y-1"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
                 <span className="text-xs font-black text-amber-300 tracking-wide">TrueMoney Wallet</span>
               </div>
-              <span className="text-[10px] text-text3 flex items-center gap-1 group-hover/card:text-amber-300 transition-colors">
+              <span className="text-[10px] text-text2 flex items-center gap-1 group-hover/card:text-amber-300 transition-colors">
                 <Maximize2 size={11} />
                 แตะเพื่อขยาย
               </span>
             </div>
 
-            <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden border border-white/10 bg-black/40 shadow-inner">
+            <div className="relative aspect-[2/3] w-full rounded-xl overflow-hidden border border-white/15 bg-black/40 shadow-inner">
               <img
                 src="/truemoney-qr.jpg"
                 alt="TrueMoney Wallet QR Code"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex items-end justify-center pb-3">
-                <span className="text-xs font-bold text-white bg-black/80 px-3 py-1 rounded-full border border-white/20 backdrop-blur-md flex items-center gap-1.5 shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex items-end justify-center pb-3">
+                <span className="liquid-glass-pill text-xs font-bold text-white px-3.5 py-1 rounded-full flex items-center gap-1.5">
                   <Maximize2 size={12} />
                   คลิกเพื่อดูภาพเต็ม
                 </span>
@@ -139,7 +139,7 @@ export default function DonateSection({
             </div>
 
             <div className="mt-3 text-center">
-              <p className="text-[11px] text-text3">สแกนชำระด้วยแอปทรูมันนี่ วอลเล็ท</p>
+              <p className="text-[11px] text-text2">สแกนชำระด้วยแอปทรูมันนี่ วอลเล็ท</p>
             </div>
           </div>
 
@@ -147,7 +147,7 @@ export default function DonateSection({
 
         {/* Reassurance & Terms Footer */}
         <div className="mt-8 pt-6 border-t border-white/10 max-w-xl mx-auto relative z-10">
-          <div className="flex items-center justify-center gap-2 text-xs font-bold text-text3 uppercase tracking-wider mb-2">
+          <div className="flex items-center justify-center gap-2 text-xs font-bold text-text2 uppercase tracking-wider mb-2">
             <ShieldCheck size={14} className="text-cyan-400" />
             <span>ข้อตกลงและเจตนารมณ์</span>
           </div>
@@ -167,11 +167,11 @@ export default function DonateSection({
       {activeQr && (
         <div 
           onClick={() => setActiveQr(null)}
-          className="fixed inset-0 z-[400] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[400] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200"
         >
           <button
             onClick={() => setActiveQr(null)}
-            className="absolute top-5 right-5 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
+            className="liquid-glass-pill absolute top-5 right-5 p-3 rounded-full text-white z-10"
             title="ปิดหน้าต่างสแกน"
           >
             <X size={20} />
@@ -179,14 +179,14 @@ export default function DonateSection({
 
           <div 
             onClick={(e) => e.stopPropagation()} 
-            className="relative max-w-sm w-full bg-bg1 border border-white/20 rounded-3xl p-6 shadow-2xl space-y-4 text-center"
+            className="liquid-glass-panel relative max-w-sm w-full rounded-2xl p-6 space-y-4 text-center"
           >
-            <div>
+            <div className="relative z-10">
               <h3 className="text-lg font-black text-white">{activeQr.title}</h3>
               <p className="text-xs text-text2">{activeQr.subtitle}</p>
             </div>
 
-            <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden border border-white/15 bg-black shadow-lg">
+            <div className="relative z-10 aspect-[2/3] w-full rounded-xl overflow-hidden border border-white/15 bg-black shadow-lg">
               <img
                 src={activeQr.src}
                 alt={activeQr.title}
@@ -194,13 +194,13 @@ export default function DonateSection({
               />
             </div>
 
-            <p className="text-xs text-text3">
+            <p className="relative z-10 text-xs text-text2">
               สามารถแคปหน้าจอหรือเปิดแอปธนาคาร / ทรูมันนี่ เพื่อสแกนภาพนี้ได้ทันที
             </p>
 
             <button
               onClick={() => setActiveQr(null)}
-              className="w-full py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-colors"
+              className="liquid-glass-pill relative z-10 w-full py-2.5 rounded-full text-xs font-bold text-white cursor-pointer"
             >
               ปิดหน้าต่าง
             </button>

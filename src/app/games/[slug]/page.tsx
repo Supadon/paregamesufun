@@ -92,7 +92,9 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
+  console.log('[DEBUG] generateStaticParams called')
   const games = await getGames()
+  console.log('[DEBUG] games found:', games.length, games.map(g => g.slug))
   return games.map((game) => ({
     slug: game.slug,
   }))
@@ -100,6 +102,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
+  console.log('[DEBUG] generateMetadata called with slug:', slug)
   const game = await getGameBySlug(slug)
   if (!game) return {}
   return {
@@ -109,10 +112,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function GameDetailPage({ params }: PageProps) {
-  const { slug } = await params
+  const resolvedParams = await params
+  console.log('[DEBUG] GameDetailPage called with resolvedParams:', resolvedParams)
+  const slug = resolvedParams?.slug
   const rawGame = await getGameBySlug(slug)
+  console.log('[DEBUG] rawGame found for slug', slug, ':', !!rawGame)
 
   if (!rawGame) {
+    console.log('[DEBUG] Calling notFound() for slug:', slug)
     notFound()
   }
 
@@ -155,10 +162,8 @@ export default async function GameDetailPage({ params }: PageProps) {
   if (liveProgress.isMultiModule && liveProgress.modules && liveProgress.modules.length > 0) {
     const total = liveProgress.modules.reduce((sum, m) => sum + m.progress, 0)
     overallProgress = Math.round(total / liveProgress.modules.length)
-  } else if (isGoogleSheetSync) {
-    overallProgress = liveProgress.translate
   } else {
-    overallProgress = Math.round((liveProgress.translate + (liveProgress.proofread || 0) + (liveProgress.test || 0)) / 3)
+    overallProgress = liveProgress.translate ?? 0
   }
 
   return (
@@ -247,27 +252,27 @@ export default async function GameDetailPage({ params }: PageProps) {
               {/* Status Chips */}
               <div className="flex gap-[6px] flex-wrap">
                 <span
-                  className={`inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold ${
+                  className={`inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] backdrop-blur-md ${
                     game.status === 'done'
-                      ? 'bg-blue-dim text-blue3 border border-[rgba(43,95,255,0.22)]'
-                      : 'bg-[rgba(168,196,255,0.1)] text-star2 border border-[rgba(168,196,255,0.2)]'
+                      ? 'bg-blue/25 text-star2 border border-blue3/40'
+                      : 'bg-[rgba(168,196,255,0.14)] text-star2 border border-[rgba(168,196,255,0.32)]'
                   }`}
                 >
                   {game.status === 'done' ? '✦ เสร็จแล้ว' : '⟳ กำลังพัฒนา'}
                 </span>
-                <span className="inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold bg-[rgba(168,196,255,0.1)] text-star2 border border-[rgba(168,196,255,0.2)]">
+                <span className="liquid-glass-pill inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold text-star2">
                   v{game.translationVersion}
                 </span>
-                <span className="inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold bg-[rgba(255,255,255,0.04)] text-text3 border border-border2">
+                <span className="liquid-glass-pill inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold text-text2">
                   {game.client}
                 </span>
                 {game.fileSize && (
-                  <span className="inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold bg-[rgba(255,255,255,0.04)] text-text3 border border-border2">
+                  <span className="liquid-glass-pill inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold text-text2">
                     📦 {game.fileSize}
                   </span>
                 )}
                 {game.updatedAt && (
-                  <span className="inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold bg-[rgba(255,255,255,0.04)] text-text3 border border-border2">
+                  <span className="liquid-glass-pill inline-flex items-center gap-[5px] px-3 py-1 rounded-full text-[11px] font-bold text-text2">
                     📅 อัปเดต {game.updatedAt}
                   </span>
                 )}
@@ -275,122 +280,57 @@ export default async function GameDetailPage({ params }: PageProps) {
             </div>
 
             {/* Overview */}
-            <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-              <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
+            <div className="liquid-glass-panel rounded-2xl p-6">
+              <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
                 เกี่ยวกับเกม (Overview)
               </div>
-              <p className="text-[14px] text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.overview}</p>
+              <p className="relative z-10 text-[14px] text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.overview}</p>
             </div>
 
             {/* Specifications */}
-            <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-              <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-4 flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
+            <div className="liquid-glass-panel rounded-2xl p-6">
+              <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-4 flex items-center gap-1.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
                 ข้อมูลทางเทคนิค (Specifications)
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-bg2/60 border border-border2/80 rounded-lg p-[14px_16px] flex flex-col justify-between hover:border-blue2/20 transition-colors">
-                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">SUPPORTED GAME</div>
+              <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="liquid-glass-well rounded-xl p-[14px_16px] flex flex-col justify-between">
+                  <div className="text-[9px] text-text2 uppercase tracking-[1px] mb-1 font-bold">SUPPORTED GAME</div>
                   <div className="text-[14px] text-white font-black leading-tight">{game.version}</div>
                 </div>
-                <div className="bg-bg2/60 border border-border2/80 rounded-lg p-[14px_16px] flex flex-col justify-between hover:border-blue2/20 transition-colors">
-                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">PLATFORM</div>
+                <div className="liquid-glass-well rounded-xl p-[14px_16px] flex flex-col justify-between">
+                  <div className="text-[9px] text-text2 uppercase tracking-[1px] mb-1 font-bold">PLATFORM</div>
                   <div className="text-[14px] text-white font-black leading-tight">{game.client}</div>
                 </div>
-                <div className="bg-bg2/60 border border-border2/80 rounded-lg p-[14px_16px] flex flex-col justify-between hover:border-blue2/20 transition-colors">
-                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">TRANSLATION v</div>
+                <div className="liquid-glass-well rounded-xl p-[14px_16px] flex flex-col justify-between">
+                  <div className="text-[9px] text-text2 uppercase tracking-[1px] mb-1 font-bold">TRANSLATION v</div>
                   <div className="text-[14px] text-white font-black leading-tight">v{game.translationVersion}</div>
                 </div>
-                <div className="bg-bg2/60 border border-border2/80 rounded-lg p-[14px_16px] flex flex-col justify-between hover:border-blue2/20 transition-colors">
-                  <div className="text-[9px] text-text3 uppercase tracking-[1px] mb-1 font-bold">FILE SIZE</div>
+                <div className="liquid-glass-well rounded-xl p-[14px_16px] flex flex-col justify-between">
+                  <div className="text-[9px] text-text2 uppercase tracking-[1px] mb-1 font-bold">FILE SIZE</div>
                   <div className="text-[14px] text-white font-black leading-tight">{game.fileSize || 'N/A'}</div>
                 </div>
               </div>
             </div>
 
             {/* Progress / ความคืบหน้า */}
-            <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center justify-between gap-4 mb-4">
-                <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase flex items-center gap-1.5">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
-                  ความคืบหน้า
-                </div>
-                {isGoogleSheetSync && (
-                  <span className="inline-flex items-center gap-1.5 text-[9px] bg-blue/10 border border-blue2/20 text-blue3 px-2.5 py-0.5 rounded-full font-bold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    LIVE SYNCED
-                  </span>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-baseline justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
-                        overallProgress >= 100
-                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                          : 'bg-blue/15 text-blue3 border-blue2/30'
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          overallProgress >= 100 ? 'bg-emerald-400' : 'bg-blue3 animate-pulse'
-                        }`}
-                      />
-                      {overallProgress >= 100
-                        ? 'แปลภาษาไทยเสร็จสิ้นสมบูรณ์'
-                        : 'กำลังดำเนินการแปลภาษาไทย'}
-                    </span>
-                  </div>
-
-                  <div className="text-right flex items-baseline gap-1">
-                    <span className="font-display text-3xl sm:text-4xl font-black text-white tracking-tight">
-                      {overallProgress}
-                    </span>
-                    <span className="text-base font-bold text-blue3">%</span>
-                  </div>
-                </div>
-
-                {/* Horizontal Progress Bar */}
-                <div className="w-full h-3 rounded-full bg-bg2/80 border border-white/10 p-0.5 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-1000 ease-out shadow-sm ${
-                      overallProgress >= 100
-                        ? 'bg-gradient-to-r from-blue via-emerald-400 to-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.4)]'
-                        : 'bg-gradient-to-r from-blue via-blue2 to-blue3 shadow-[0_0_12px_rgba(43,95,255,0.4)]'
-                    }`}
-                    style={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
-                  />
-                </div>
-
-                {game.progress?.sheetUrl && (
-                  <div className="pt-2 flex justify-end">
-                    <a
-                      href={game.progress.sheetUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-blue3 hover:text-white transition-colors font-semibold"
-                    >
-                      เปิดดู Google Sheet ตารางแปลภาษา
-                      <ExternalLink size={12} />
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
+            <ProgressBar
+              overallProgress={overallProgress}
+              progress={liveProgress}
+              isGoogleSheetSync={isGoogleSheetSync}
+            />
 
             {/* Video Section */}
             {game.videoUrl && (
-              <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-                <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
+              <div className="liquid-glass-panel rounded-2xl p-6">
+                <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
                   <svg className="w-3.5 h-3.5 text-blue3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                   </svg>
                   วิดีโอตัวอย่างการแปล
                 </div>
-                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border2 bg-bg2 shadow-inner">
+                <div className="relative z-10 w-full aspect-video rounded-xl overflow-hidden border border-white/15 bg-bg2 shadow-[0_8px_28px_rgba(0,0,0,0.6)]">
                   <iframe
                     src={game.videoUrl}
                     title={`${game.title} — ตัวอย่างการแปลไทย`}
@@ -403,35 +343,35 @@ export default async function GameDetailPage({ params }: PageProps) {
             )}
 
             {/* Details */}
-            <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-              <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
+            <div className="liquid-glass-panel rounded-2xl p-6">
+              <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
                 รายละเอียดการแปล
               </div>
               {game.shortDescription && (
-                <p className="text-sm font-semibold text-blue3 leading-relaxed mb-2.5 max-w-[70ch]">
+                <p className="relative z-10 text-sm font-semibold text-star2 leading-relaxed mb-2.5 max-w-[70ch]">
                   {game.shortDescription}
                 </p>
               )}
-              <p className="text-xs text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.description}</p>
+              <p className="relative z-10 text-xs text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.description}</p>
             </div>
 
             {/* Installation Guide */}
             {game.instructions && game.instructions.length > 0 && (
-              <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
-                <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-5 flex items-center gap-1.5">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
+              <div className="liquid-glass-panel rounded-2xl p-6">
+                <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-5 flex items-center gap-1.5">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
                   วิธีการลงม็อด (Installation Guide)
                 </div>
                 
-                <div className="relative pl-2 sm:pl-4 space-y-6">
+                <div className="relative z-10 pl-2 sm:pl-4 space-y-6">
                   {game.instructions.length > 1 && (
-                    <div className="absolute left-[20px] sm:left-[28px] top-4 bottom-4 w-[1px] bg-gradient-to-b from-blue/40 via-blue2/10 to-transparent border-l border-dashed border-white/5 pointer-events-none" />
+                    <div className="absolute left-[20px] sm:left-[28px] top-4 bottom-4 w-[1px] bg-gradient-to-b from-blue3/50 via-blue2/20 to-transparent pointer-events-none" />
                   )}
                   
                   {game.instructions.map((step, idx) => (
                     <div key={idx} className="relative flex gap-4 sm:gap-5 items-start">
-                      <div className="z-10 shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-bg2 border border-blue2/25 flex items-center justify-center text-xs sm:text-sm font-bold text-blue3 shadow-lg">
+                      <div className="liquid-glass-pill z-10 shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold text-star2">
                         {idx + 1}
                       </div>
                       
@@ -440,7 +380,7 @@ export default async function GameDetailPage({ params }: PageProps) {
                           <p className="text-[13px] text-text2 leading-relaxed font-normal whitespace-pre-line">{step.text}</p>
                         )}
                         {step.image && (
-                          <div className={`relative rounded-2xl overflow-hidden border border-white/10 bg-bg2/40 shadow-xl group/stepimg ${
+                          <div className={`relative rounded-2xl overflow-hidden border border-white/15 bg-bg2/40 shadow-[0_12px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] group/stepimg ${
                             step.aspectRatio === '1:1'
                               ? 'max-w-[420px] aspect-square'
                               : step.aspectRatio === 'auto'
@@ -458,7 +398,7 @@ export default async function GameDetailPage({ params }: PageProps) {
                               href={step.image}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/75 hover:bg-black/90 backdrop-blur-md text-[11px] text-white font-medium opacity-0 group-hover/stepimg:opacity-100 transition-opacity flex items-center gap-1.5 shadow-lg border border-white/10"
+                              className="liquid-glass-pill absolute bottom-2.5 right-2.5 px-3 py-1 rounded-full text-[11px] text-white font-medium opacity-0 group-hover/stepimg:opacity-100 transition-opacity flex items-center gap-1.5"
                               title="คลิกเพื่อดูรูปภาพขนาดเต็ม"
                             >
                               <ExternalLink size={12} />

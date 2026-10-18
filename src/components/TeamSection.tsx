@@ -21,12 +21,12 @@ export default function TeamSection({ team }: TeamSectionProps) {
   if (!team || team.length === 0) return null
 
   return (
-    <div className="bg-bg1/40 backdrop-blur-md border border-white/5 rounded-2xl p-5 mb-4 shadow-xl">
-      <div className="text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-2.5 flex items-center gap-1.5">
-        <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue" />
+    <div className="liquid-glass-panel rounded-2xl p-5 mb-4">
+      <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-2.5 flex items-center gap-1.5">
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
         ทีมงานผู้แปล (Credits)
       </div>
-      <div className="flex gap-2 flex-wrap mt-2.5">
+      <div className="relative z-10 flex gap-2 flex-wrap mt-2.5">
         {team.map((member, idx) => {
           const memberUrl = getSafeUrl(member.link || member.url)
 
@@ -36,21 +36,21 @@ export default function TeamSection({ team }: TeamSectionProps) {
                 <img 
                   src={member.avatar} 
                   alt={member.name} 
-                  className="w-8 h-8 rounded-full object-cover border border-[rgba(100,150,255,0.25)] shrink-0"
+                  className="relative z-10 w-8 h-8 rounded-full object-cover border border-white/25 shadow-[0_2px_8px_rgba(0,0,0,0.4)] shrink-0"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-blue-dim text-blue3 text-[11px] font-bold flex items-center justify-center shrink-0">
+                <div className="relative z-10 w-8 h-8 rounded-full bg-blue/25 border border-white/20 text-star2 text-[11px] font-bold flex items-center justify-center shrink-0 shadow-inner">
                   {member.name ? member.name.slice(0, 2) : '??'}
                 </div>
               )}
-              <div className="min-w-0 pr-0.5">
-                <div className="text-xs text-text2 font-bold leading-tight flex items-center gap-1">
+              <div className="relative z-10 min-w-0 pr-0.5">
+                <div className="text-xs text-text1 font-bold leading-tight flex items-center gap-1">
                   <span className="truncate">{member.name}</span>
                   {memberUrl && (
-                    <ExternalLink size={10} className="text-blue3 shrink-0 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                    <ExternalLink size={10} className="text-blue3 shrink-0 opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                   )}
                 </div>
-                <div className="text-[10px] text-text3 mt-0.5 leading-none truncate">{member.role}</div>
+                <div className="text-[10px] text-text2 mt-0.5 leading-none truncate">{member.role}</div>
               </div>
             </>
           )
@@ -63,7 +63,7 @@ export default function TeamSection({ team }: TeamSectionProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={`ดูโปรไฟล์ / ช่องทางของ ${member.name}`}
-                className="group inline-flex items-center gap-2.5 p-1 pr-3 rounded-full bg-bg2 border border-border2 hover:border-blue2/50 hover:bg-white/5 hover:-translate-y-0.5 transition-all duration-200 no-underline shadow-sm"
+                className="liquid-glass-pill group inline-flex items-center gap-2.5 p-1 pr-3.5 rounded-full hover:border-blue3/55 hover:-translate-y-0.5 no-underline"
               >
                 {content}
               </a>
@@ -73,7 +73,7 @@ export default function TeamSection({ team }: TeamSectionProps) {
           return (
             <div
               key={idx}
-              className="inline-flex items-center gap-2.5 p-1 pr-3.5 rounded-full bg-bg2 border border-border2"
+              className="liquid-glass-pill inline-flex items-center gap-2.5 p-1 pr-3.5 rounded-full"
             >
               {content}
             </div>

@@ -7,7 +7,7 @@ import {
   ArrowLeft, Plus, Edit2, Trash2, Check, X, 
   Loader2, Sparkles, Database, FileCode, CheckCircle, Info,
   Users, UserPlus, Trash, Pencil, Link as LinkIcon, ExternalLink,
-  Share2, Globe
+  Share2, Globe, Gamepad2
 } from 'lucide-react'
 import { Game, GameStatus, TeamMember, DownloadLink, GameModule, InstructionStep, SiteSettings } from '@/lib/types'
 import Sims4AdminManager from '@/components/admin/Sims4AdminManager'
@@ -713,8 +713,8 @@ export default function AdminPage() {
         : {
             isMultiModule: false,
             translate: Number(translateProgress),
-            proofread: Number(proofreadProgress),
-            test: Number(testProgress),
+            proofread: Number(translateProgress),
+            test: Number(translateProgress),
             sheetUrl: sheetUrl.trim() || undefined,
             sheetCell: sheetCell.trim() || undefined,
           },
@@ -934,49 +934,50 @@ export default function AdminPage() {
       <div className="flex items-center gap-2 mb-6 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
         <button
           onClick={() => setAdminTab('games')}
-          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
+          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
             adminTab === 'games'
               ? 'bg-blue text-white shadow-[0_0_18px_rgba(43,95,255,0.35)] scale-[1.02]'
               : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
           }`}
         >
-          <span>🎮 จัดการการ์ดเกมทั่วไป ({games.length})</span>
+          <Gamepad2 size={13} className={adminTab === 'games' ? 'text-white' : 'text-blue3'} />
+          <span>จัดการการ์ดเกมทั่วไป ({games.length})</span>
         </button>
 
         <button
           onClick={() => setAdminTab('sims4')}
-          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
+          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
             adminTab === 'sims4'
               ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-[0_0_18px_rgba(16,185,129,0.25)] scale-[1.02]'
               : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
           }`}
         >
-          <span className="w-1.5 h-1.5 rotate-45 bg-emerald-400 inline-block" />
-          <span>💎 จัดการ The Sims 4 (ภาคเสริม & ม็อด)</span>
+          <span className="w-1.5 h-1.5 rotate-45 bg-emerald-400 inline-block shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+          <span>จัดการ The Sims 4 (ภาคเสริม & ม็อด)</span>
         </button>
 
         <button
           onClick={() => setIsPoolModalOpen(true)}
-          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
+          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
             isPoolModalOpen
               ? 'bg-purple-500/20 text-purple-300 border border-purple-500/50 scale-[1.02]'
               : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
           }`}
         >
           <Users size={13} className="text-purple-300" />
-          <span>👥 คลังรายชื่อทีมงาน ({teamPool.length})</span>
+          <span>คลังรายชื่อทีมงาน ({teamPool.length})</span>
         </button>
 
         <button
           onClick={() => setIsSocialModalOpen(true)}
-          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
+          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black transition-all ${
             isSocialModalOpen
               ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 scale-[1.02]'
               : 'bg-white/5 hover:bg-white/10 text-text3 hover:text-white border border-white/5'
           }`}
         >
           <Share2 size={13} className="text-cyan-400" />
-          <span>🌐 ลิงก์โซเชียล & ติดต่อ</span>
+          <span>ลิงก์โซเชียล & ติดต่อ</span>
         </button>
       </div>
 
@@ -1014,7 +1015,7 @@ export default function AdminPage() {
                   <th className="py-4 px-6">เกม</th>
                   <th className="py-4 px-6">หมวดหมู่</th>
                   <th className="py-4 px-6">สถานะการแปล</th>
-                  <th className="py-4 px-6">ความคืบหน้า (T/P/Test)</th>
+                  <th className="py-4 px-6">ความคืบหน้า</th>
                   <th className="py-4 px-6">เวอร์ชันแปล</th>
                   <th className="py-4 px-6 text-center">จัดการ</th>
                 </tr>
@@ -1056,7 +1057,7 @@ export default function AdminPage() {
                       ) : (
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <div>
-                            <span className="text-blue3 font-bold">{game.progress.translate}%</span> / <span className="text-star font-bold">{game.progress.proofread}%</span> / <span className="text-text3 font-bold">{game.progress.test}%</span>
+                            <span className="text-blue3 font-bold">{game.progress.translate}%</span>
                           </div>
                           {game.progress.sheetUrl && (
                             <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold shrink-0" title={`ดึงความคืบหน้าจากเซลล์ ${game.progress.sheetCell || 'C1'} ในตารางอัตโนมัติ`}>
@@ -1385,54 +1386,25 @@ export default function AdminPage() {
 
                   {!isMultiModule ? (
                     <div className="grid grid-cols-1 gap-4 pt-1">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-text3 uppercase">งานแปล (Translate):</span>
-                            <span className="text-xs font-bold text-blue3">{translateProgress}%</span>
-                          </div>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            value={translateProgress}
-                            disabled={!!sheetUrl}
-                            onChange={(e) => setTranslateProgress(Number(e.target.value))}
-                            className="w-full accent-blue hover:accent-blue2 cursor-pointer disabled:opacity-50"
-                          />
+                      <div>
+                        <div className="flex justify-between items-center mb-1.5">
+                          <span className="text-[11px] font-bold text-text3 uppercase">เปอร์เซ็นต์ความคืบหน้า (Progress):</span>
+                          <span className="text-sm font-bold text-blue3 font-mono">{translateProgress}%</span>
                         </div>
-
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-text3 uppercase">งานตรวจทาน (Proofread):</span>
-                            <span className="text-xs font-bold text-star">{proofreadProgress}%</span>
-                          </div>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            value={proofreadProgress}
-                            disabled={!!sheetUrl}
-                            onChange={(e) => setProofreadProgress(Number(e.target.value))}
-                            className="w-full accent-blue hover:accent-blue2 cursor-pointer disabled:opacity-50"
-                          />
-                        </div>
-
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-text3 uppercase">ทดสอบในเกม (Test):</span>
-                            <span className="text-xs font-bold text-text2">{testProgress}%</span>
-                          </div>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            value={testProgress}
-                            disabled={!!sheetUrl}
-                            onChange={(e) => setTestProgress(Number(e.target.value))}
-                            className="w-full accent-blue hover:accent-blue2 cursor-pointer disabled:opacity-50"
-                          />
-                        </div>
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="100" 
+                          value={translateProgress}
+                          disabled={!!sheetUrl}
+                          onChange={(e) => {
+                            const val = Number(e.target.value)
+                            setTranslateProgress(val)
+                            setProofreadProgress(val)
+                            setTestProgress(val)
+                          }}
+                          className="w-full accent-blue hover:accent-blue2 cursor-pointer disabled:opacity-50"
+                        />
                       </div>
 
                       {/* Google Sheets URL & Cell */}
