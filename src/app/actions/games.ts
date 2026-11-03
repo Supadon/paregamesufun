@@ -5,6 +5,10 @@ import { revalidatePath } from 'next/cache'
 import { Game, Sims4Pack, SiteSettings } from '@/lib/types'
 import fs from 'fs'
 import path from 'path'
+import { execFile } from 'child_process'
+import { promisify } from 'util'
+
+const execFileAsync = promisify(execFile)
 import defaultGames from '@/data/games.json'
 import defaultTeamPool from '@/data/team-pool.json'
 import defaultSims4Packs from '@/data/sims4-packs.json'
@@ -15,8 +19,16 @@ const TEAM_POOL_PATH = path.join(process.cwd(), 'src', 'data', 'team-pool.json')
 const SIMS4_PACKS_PATH = path.join(process.cwd(), 'src', 'data', 'sims4-packs.json')
 const SETTINGS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'settings.json')
 
+// Helper: Check if running in production / Vercel
+function isProductionEnv(): boolean {
+  return process.env.NODE_ENV === 'production' || process.env.VERCEL === '1'
+}
+
 // Helper: Check authentication
 async function verifyAuthOrThrow() {
+  if (isProductionEnv()) {
+    throw new Error('Forbidden: Admin actions are disabled in production')
+  }
   const cookieStore = await cookies()
   const session = cookieStore.get('admin_session')
   if (!session || session.value !== 'authenticated') {
@@ -26,12 +38,18 @@ async function verifyAuthOrThrow() {
 
 // Action: Check if admin session cookie exists and is valid
 export async function checkAdminSession(): Promise<boolean> {
+  if (isProductionEnv()) {
+    return false
+  }
   const cookieStore = await cookies()
   return cookieStore.get('admin_session')?.value === 'authenticated'
 }
 
 // Action: Verify password and set httpOnly session cookie
 export async function verifyAdminPassword(password: string): Promise<{ success: boolean; error?: string }> {
+  if (isProductionEnv()) {
+    return { success: false, error: 'ระบบจัดการเปิดใช้งานเฉพาะบนเครื่อง Localhost เท่านั้น' }
+  }
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'gamesufun2026'
   if (password === ADMIN_PASSWORD) {
     const cookieStore = await cookies()
@@ -471,4 +489,161 @@ export async function updateSiteSettings(settings: SiteSettings): Promise<{ succ
     return { success: false, error: err.message || 'Failed to update site settings' }
   }
 }
+
+// ==========================================
+// 🚀 6. GIT DEPLOYMENT ACTIONS (LOCAL -> GITHUB -> VERCEL)
+// ==========================================
+
+export interface GitStatusFile {
+  status: string
+  path: string
+  label: string
+}
+
+export async function getGitDeployStatus(): Promise<{
+  success: boolean
+  branch: string
+  changedFiles: GitStatusFile[]
+  unpushedCount: number
+  isVercel: boolean
+  error?: string
+}> {
+  await verifyAuthOrThrow()
+
+  if (process.env.VERCEL === '1') {
+    return {
+      success: true,
+      branch: 'main',
+      changedFiles: [],
+      unpushedCount: 0,
+      isVercel: true,
+    }
+  }
+
+  const cwd = process.cwd()
+
+  try {
+    const { stdout: branchOut } = await execFileAsync('git', ['branch', '--show-current'], { cwd })
+    const branch = branchOut.trim() || 'main'
+
+    const { stdout: statusOut } = await execFileAsync('git', ['status', '--porcelain', '-uall'], { cwd })
+    const changedFiles: GitStatusFile[] = statusOut
+      .split(/\r?\n/)
+      .filter((line) => line.trim().length > 0)
+      .map((line) => {
+        const code = line.slice(0, 2).trim()
+        const filePath = line.slice(3).trim().replace(/^"(.*)"$/, '$1')
+        let label = 'แก้ไขแล้ว'
+        if (code === '??' || code === 'A') label = 'ไฟล์ใหม่'
+        else if (code === 'D') label = 'ลบไฟล์'
+        else if (code === 'R') label = 'เปลี่ยนชื่อ'
+        return {
+          status: code,
+          path: filePath,
+          label,
+        }
+      })
+
+    let unpushedCount = 0
+    try {
+      const { stdout: unpushedOut } = await execFileAsync('git', ['rev-list', '--count', '@{u}..HEAD'], { cwd })
+      unpushedCount = parseInt(unpushedOut.trim(), 10) || 0
+    } catch {
+      unpushedCount = 0
+    }
+
+    return {
+      success: true,
+      branch,
+      changedFiles,
+      unpushedCount,
+      isVercel: false,
+    }
+  } catch (err: any) {
+    console.error('Error checking git status:', err)
+    return {
+      success: false,
+      branch: 'main',
+      changedFiles: [],
+      unpushedCount: 0,
+      isVercel: false,
+      error: err.message || 'ไม่สามารถตรวจสอบสถานะ Git ได้',
+    }
+  }
+}
+
+export async function deployToGitHub(customMessage?: string): Promise<{
+  success: boolean
+  message?: string
+  details?: string
+  error?: string
+}> {
+  await verifyAuthOrThrow()
+
+  if (process.env.VERCEL === '1') {
+    return {
+      success: false,
+      error: 'ปุ่ม Deploy ใช้งานได้เมื่อรันโปรเจกต์บนเครื่องคอมพิวเตอร์ของคุณ (localhost:3000) เท่านั้น',
+    }
+  }
+
+  const cwd = process.cwd()
+
+  try {
+    // 1. Check current status
+    const { stdout: statusOut } = await execFileAsync('git', ['status', '--porcelain'], { cwd })
+    const hasUncommittedChanges = statusOut.trim().length > 0
+
+    let unpushedCount = 0
+    try {
+      const { stdout: unpushedOut } = await execFileAsync('git', ['rev-list', '--count', '@{u}..HEAD'], { cwd })
+      unpushedCount = parseInt(unpushedOut.trim(), 10) || 0
+    } catch {
+      unpushedCount = 0
+    }
+
+    if (!hasUncommittedChanges && unpushedCount === 0) {
+      return {
+        success: false,
+        error: 'ไม่มีข้อมูลใหม่ให้ Deploy (ไฟล์ทั้งหมดบน GitHub เป็นปัจจุบันอยู่แล้ว)',
+      }
+    }
+
+    let commitOutput = ''
+
+    // 2. Stage and commit if there are uncommitted changes
+    if (hasUncommittedChanges) {
+      await execFileAsync('git', ['add', '-A'], { cwd })
+
+      const nowStr = new Date().toLocaleString('th-TH', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      })
+      const commitMessage =
+        customMessage && customMessage.trim().length > 0
+          ? customMessage.trim()
+          : `update content via Admin (${nowStr})`
+
+      const { stdout: commitStdout } = await execFileAsync('git', ['commit', '-m', commitMessage], { cwd })
+      commitOutput = commitStdout.trim()
+    }
+
+    // 3. Push to GitHub origin
+    const { stdout: pushStdout, stderr: pushStderr } = await execFileAsync('git', ['push', 'origin', 'HEAD'], { cwd })
+
+    return {
+      success: true,
+      message: 'อัปโหลดขึ้น GitHub สำเร็จ! Vercel กำลังเริ่ม Deploy เว็บจริงอัตโนมัติ (ใช้เวลาประมาณ 1 นาที)',
+      details: [commitOutput, pushStdout, pushStderr].filter(Boolean).join('\n').trim(),
+    }
+  } catch (err: any) {
+    console.error('Error deploying to GitHub:', err)
+    const stderrMsg = err.stderr || err.stdout || err.message || 'ไม่สามารถ Push ข้อมูลขึ้น GitHub ได้'
+    return {
+      success: false,
+      error: `เกิดข้อผิดพลาดในการ Deploy: ${stderrMsg}`,
+    }
+  }
+}
+
 

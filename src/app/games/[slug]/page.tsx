@@ -91,10 +91,10 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+export const dynamicParams = true
+
 export async function generateStaticParams() {
-  console.log('[DEBUG] generateStaticParams called')
   const games = await getGames()
-  console.log('[DEBUG] games found:', games.length, games.map(g => g.slug))
   return games.map((game) => ({
     slug: game.slug,
   }))
@@ -102,7 +102,6 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  console.log('[DEBUG] generateMetadata called with slug:', slug)
   const game = await getGameBySlug(slug)
   if (!game) return {}
   return {
@@ -112,14 +111,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function GameDetailPage({ params }: PageProps) {
-  const resolvedParams = await params
-  console.log('[DEBUG] GameDetailPage called with resolvedParams:', resolvedParams)
-  const slug = resolvedParams?.slug
+  const { slug } = await params
   const rawGame = await getGameBySlug(slug)
-  console.log('[DEBUG] rawGame found for slug', slug, ':', !!rawGame)
 
   if (!rawGame) {
-    console.log('[DEBUG] Calling notFound() for slug:', slug)
     notFound()
   }
 

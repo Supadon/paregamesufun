@@ -7,7 +7,7 @@ import {
   ArrowLeft, Plus, Edit2, Trash2, Check, X, 
   Loader2, Sparkles, Database, FileCode, CheckCircle, Info,
   Users, UserPlus, Trash, Pencil, Link as LinkIcon, ExternalLink,
-  Share2, Globe, Gamepad2
+  Share2, Globe, Gamepad2, Rocket, RefreshCw, GitBranch, FileText, AlertCircle
 } from 'lucide-react'
 import { Game, GameStatus, TeamMember, DownloadLink, GameModule, InstructionStep, SiteSettings } from '@/lib/types'
 import Sims4AdminManager from '@/components/admin/Sims4AdminManager'
@@ -16,6 +16,7 @@ import {
   checkAdminSession, verifyAdminPassword, logoutAdmin,
   getTeamPool, addTeamMemberToPool, updateTeamMemberInPool, deleteTeamMemberFromPool,
   getSiteSettings, updateSiteSettings,
+  getGitDeployStatus, deployToGitHub, GitStatusFile,
   TeamPoolMember
 } from '@/app/actions/games'
 
@@ -52,6 +53,24 @@ export default function AdminPage() {
     }
   })
   const [savingSocial, setSavingSocial] = useState(false)
+
+  // Git Deploy state
+  const [isDeployModalOpen, setIsDeployModalOpen] = useState(false)
+  const [gitStatus, setGitStatus] = useState<{
+    branch: string
+    changedFiles: GitStatusFile[]
+    unpushedCount: number
+    isVercel: boolean
+  }>({
+    branch: 'main',
+    changedFiles: [],
+    unpushedCount: 0,
+    isVercel: false,
+  })
+  const [loadingGitStatus, setLoadingGitStatus] = useState(false)
+  const [deploying, setDeploying] = useState(false)
+  const [commitMessage, setCommitMessage] = useState('')
+  const [deploySuccessDetails, setDeploySuccessDetails] = useState<string | null>(null)
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -94,7 +113,55 @@ export default function AdminPage() {
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type })
-    setTimeout(() => setToast(null), 3000)
+    setTimeout(() => setToast(null), 3500)
+  }
+
+  const refreshGitStatus = async () => {
+    setLoadingGitStatus(true)
+    try {
+      const res = await getGitDeployStatus()
+      if (res.success) {
+        setGitStatus({
+          branch: res.branch,
+          changedFiles: res.changedFiles,
+          unpushedCount: res.unpushedCount,
+          isVercel: res.isVercel,
+        })
+      }
+    } catch (e) {
+      console.error('Error refreshing git status:', e)
+    } finally {
+      setLoadingGitStatus(false)
+    }
+  }
+
+  const openDeployModal = async () => {
+    setDeploySuccessDetails(null)
+    setIsDeployModalOpen(true)
+    await refreshGitStatus()
+  }
+
+  const handleDeployToGitHub = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (deploying) return
+    setDeploying(true)
+    setDeploySuccessDetails(null)
+
+    try {
+      const res = await deployToGitHub(commitMessage)
+      if (res.success) {
+        showToast(res.message || 'ส่งข้อมูลขึ้น GitHub สำเร็จ!', 'success')
+        setDeploySuccessDetails(res.message || 'อัปโหลดขึ้น GitHub สำเร็จ! Vercel กำลังเริ่ม Deploy เว็บจริงอัตโนมัติ')
+        setCommitMessage('')
+        await refreshGitStatus()
+      } else {
+        showToast(res.error || 'ไม่สามารถ Deploy ข้อมูลได้', 'error')
+      }
+    } catch (err: any) {
+      showToast(err.message || 'เกิดข้อผิดพลาดในการ Deploy', 'error')
+    } finally {
+      setDeploying(false)
+    }
   }
 
   // Check auth and load games on mount
@@ -163,6 +230,7 @@ export default function AdminPage() {
           
           const finalPool = Array.from(mergedPoolMap.values()).sort((a, b) => a.name.localeCompare(b.name))
           setTeamPool(finalPool)
+          await refreshGitStatus()
         }
       } catch (err) {
         console.error('Failed to load initial data:', err)
@@ -768,6 +836,7 @@ export default function AdminPage() {
       }
       setIsModalOpen(false)
       router.refresh()
+      await refreshGitStatus()
     } catch (err: any) {
       console.error(err)
       showToast(err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error')
@@ -786,6 +855,7 @@ export default function AdminPage() {
         setGames(games.filter((g) => g.id !== id))
         showToast('ลบการ์ดเกมเรียบร้อยแล้ว', 'success')
         router.refresh()
+        await refreshGitStatus()
       } else {
         throw new Error(res.error)
       }
@@ -907,11 +977,19 @@ export default function AdminPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Database indicator */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border bg-blue-dim text-blue3 border-blue2/30">
-            <FileCode size={13} />
-            <span>โหมด: JSON Data (ไม่ต้องใช้ Database)</span>
-          </div>
+          {/* Deploy to GitHub / Vercel Button */}
+          <button
+            onClick={openDeployModal}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-extrabold text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:scale-[1.02] shadow-[0_4px_18px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_26px_rgba(16,185,129,0.5)] transition-all focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
+          >
+            <Rocket size={14} />
+            <span>Deploy ขึ้นเว็บจริง</span>
+            {(gitStatus.changedFiles.length > 0 || gitStatus.unpushedCount > 0) && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-black/30 border border-white/25 text-emerald-100">
+                {gitStatus.changedFiles.length || gitStatus.unpushedCount}
+              </span>
+            )}
+          </button>
 
           <button 
             onClick={openAddModal}
@@ -983,7 +1061,7 @@ export default function AdminPage() {
 
       {/* Conditionally Render: Sims 4 Hub vs General Games */}
       {adminTab === 'sims4' ? (
-        <Sims4AdminManager />
+        <Sims4AdminManager onChanged={refreshGitStatus} />
       ) : (
         <>
           {/* Notice alert */}
@@ -2252,6 +2330,175 @@ export default function AdminPage() {
                     <span>✓ บันทึกการเปลี่ยนแปลง</span>
                   )}
                 </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Deploy to GitHub / Vercel Modal */}
+      {isDeployModalOpen && (
+        <div className="fixed inset-0 z-[270] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-bg1 border border-border2 rounded-2xl w-full max-w-[580px] max-h-[85vh] overflow-hidden shadow-2xl relative flex flex-col animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="p-6 border-b border-white/5 flex justify-between items-center shrink-0">
+              <div>
+                <h3 className="font-display text-base font-bold text-white flex items-center gap-2">
+                  <Rocket size={18} className="text-emerald-400" /> อัปเดตข้อมูลขึ้นเว็บจริง (GitHub → Vercel)
+                </h3>
+                <p className="text-[11px] text-text3 mt-0.5">
+                  บันทึกไฟล์ JSON และรูปภาพทั้งหมดขึ้น GitHub เพื่อให้ Vercel Deploy เว็บจริงอัตโนมัติ
+                </p>
+              </div>
+              <button
+                onClick={() => setIsDeployModalOpen(false)}
+                disabled={deploying}
+                className="p-2.5 rounded-full hover:bg-white/5 text-text3 hover:text-white transition-colors focus-visible:outline-none"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleDeployToGitHub} className="flex-1 overflow-y-auto p-6 space-y-4">
+              {/* Branch & Status Bar */}
+              <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-bg2/50 border border-white/5">
+                <div className="flex items-center gap-2 text-xs text-text2">
+                  <GitBranch size={14} className="text-emerald-400" />
+                  <span>กิ่งหลัก (Branch):</span>
+                  <span className="font-mono font-bold text-white px-2 py-0.5 rounded bg-white/5 border border-white/10">
+                    origin/{gitStatus.branch}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={refreshGitStatus}
+                  disabled={loadingGitStatus || deploying}
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue3 hover:text-white transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={12} className={loadingGitStatus ? 'animate-spin' : ''} />
+                  <span>รีเฟรชรายการ</span>
+                </button>
+              </div>
+
+              {gitStatus.isVercel ? (
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3 text-xs text-amber-200 leading-relaxed">
+                  <AlertCircle size={18} className="shrink-0 mt-0.5 text-amber-400" />
+                  <div>
+                    <strong>กำลังเปิดใช้งานบนเซิร์ฟเวอร์ Vercel:</strong> ปุ่มสั่ง Git Push ออกแบบมาสำหรับใช้งานเวลาที่คุณรันโปรเจกต์แก้ไขบนเครื่องคอมพิวเตอร์ของคุณ (<code>localhost:3000</code>) แล้วกดส่งขึ้นเว็บจริง
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Success Banner if just deployed */}
+                  {deploySuccessDetails && (
+                    <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-start gap-3 text-xs text-emerald-200 leading-relaxed">
+                      <CheckCircle size={18} className="shrink-0 mt-0.5 text-emerald-400" />
+                      <div>
+                        <div className="font-bold text-emerald-300 mb-0.5">ส่งข้อมูลขึ้น GitHub เรียบร้อยแล้ว!</div>
+                        <div>{deploySuccessDetails}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Changed Files List */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-text2">
+                      <span>รายการไฟล์ที่เปลี่ยนแปลง ({gitStatus.changedFiles.length} ไฟล์)</span>
+                      {gitStatus.unpushedCount > 0 && (
+                        <span className="text-[11px] text-emerald-400 font-semibold">
+                          มี {gitStatus.unpushedCount} Commit รอส่งขึ้น GitHub
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="rounded-xl bg-bg2/40 border border-white/5 max-h-[210px] overflow-y-auto divide-y divide-white/5">
+                      {loadingGitStatus ? (
+                        <div className="py-10 flex flex-col items-center justify-center gap-2 text-xs text-text3">
+                          <Loader2 size={18} className="animate-spin text-blue3" />
+                          <span>กำลังตรวจสอบไฟล์ที่เปลี่ยนแปลง...</span>
+                        </div>
+                      ) : gitStatus.changedFiles.length === 0 ? (
+                        <div className="py-8 px-4 text-center text-xs text-text3">
+                          {gitStatus.unpushedCount > 0
+                            ? `ไม่มีไฟล์แก้ไขค้างอยู่ แต่มี ${gitStatus.unpushedCount} รายการที่ Commit แล้วรอ Push ขึ้น GitHub`
+                            : '✨ ข้อมูลทั้งหมดเป็นปัจจุบันแล้ว ยังไม่มีไฟล์ที่ถูกแก้ไขเพิ่มเติม'}
+                        </div>
+                      ) : (
+                        gitStatus.changedFiles.map((file, idx) => (
+                          <div key={idx} className="px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <FileText size={13} className="text-text3 shrink-0" />
+                              <span className="font-mono text-[11px] text-text1 truncate" title={file.path}>
+                                {file.path}
+                              </span>
+                            </div>
+                            <span
+                              className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-bold border ${
+                                file.label === 'ไฟล์ใหม่'
+                                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                                  : file.label === 'ลบไฟล์'
+                                  ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+                                  : 'bg-blue/15 text-blue3 border-blue2/30'
+                              }`}
+                            >
+                              {file.label}
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Commit Message Input */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-text2">
+                      ข้อความกำกับการอัปเดต (เว้นว่างไว้เพื่อใช้ข้อความอัตโนมัติได้)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="เช่น อัปเดตม็อด The Sims 4 และความคืบหน้าเกม..."
+                      value={commitMessage}
+                      onChange={(e) => setCommitMessage(e.target.value)}
+                      disabled={deploying}
+                      className="w-full px-4 py-2.5 rounded-xl bg-bg2/40 border border-white/5 focus:border-emerald-400/50 focus:outline-none text-xs text-text1 transition-colors"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Footer Buttons */}
+              <div className="pt-4 border-t border-white/5 flex justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsDeployModalOpen(false)}
+                  disabled={deploying}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-text2 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                  ปิดหน้าต่าง
+                </button>
+                {!gitStatus.isVercel && (
+                  <button
+                    type="submit"
+                    disabled={
+                      deploying ||
+                      loadingGitStatus ||
+                      (gitStatus.changedFiles.length === 0 && gitStatus.unpushedCount === 0)
+                    }
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-extrabold text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:scale-[1.02] shadow-[0_0_18px_rgba(16,185,129,0.4)] transition-all disabled:opacity-40 disabled:pointer-events-none"
+                  >
+                    {deploying ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>กำลังส่งข้อมูลขึ้น GitHub...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Rocket size={14} />
+                        <span>ยืนยันการ Deploy ขึ้นเว็บจริง</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </form>
           </div>

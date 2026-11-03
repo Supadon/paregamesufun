@@ -10,7 +10,7 @@ import {
   Package, Sparkle, Wrench, Search, Upload, ExternalLink, Image as ImageIcon 
 } from 'lucide-react'
 
-export default function Sims4AdminManager() {
+export default function Sims4AdminManager({ onChanged }: { onChanged?: () => void }) {
   const [packs, setPacks] = useState<Sims4Pack[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -132,6 +132,7 @@ export default function Sims4AdminManager() {
           setPacks((prev) => prev.map((p) => (p.id === editingPack.id ? res.data! : p)))
           showToast(`บันทึกการแก้ไข "${res.data.name}" เรียบร้อยแล้ว`, 'success')
           setModalOpen(false)
+          onChanged?.()
         } else {
           showToast(res.error || 'ไม่สามารถบันทึกข้อมูลได้', 'error')
         }
@@ -165,6 +166,7 @@ export default function Sims4AdminManager() {
           setPacks((prev) => [...prev, res.data!])
           showToast(`เพิ่มภาคเสริม "${res.data.name}" เรียบร้อยแล้ว`, 'success')
           setModalOpen(false)
+          onChanged?.()
         } else {
           showToast(res.error || 'ไม่สามารถเพิ่มข้อมูลได้', 'error')
         }
@@ -187,6 +189,7 @@ export default function Sims4AdminManager() {
       if (res.success) {
         setPacks((prev) => prev.filter((p) => p.id !== pack.id))
         showToast(`ลบ "${pack.name}" เรียบร้อยแล้ว`, 'success')
+        onChanged?.()
       } else {
         showToast(res.error || 'ไม่สามารถลบข้อมูลได้', 'error')
       }
