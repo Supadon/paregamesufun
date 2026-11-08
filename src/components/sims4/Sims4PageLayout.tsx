@@ -10,7 +10,7 @@ import ThemedCard from '@/components/ThemedCard'
 import DonateSection from '@/components/DonateSection'
 import { 
   ArrowLeft, Download, Layers, BookOpen, Copy, Check, 
-  Sparkles, ShieldCheck, HelpCircle, FolderOpen, Users, ExternalLink, Heart 
+  Sparkles, ShieldCheck, HelpCircle, FolderOpen, Users, ExternalLink, Heart, Type 
 } from 'lucide-react'
 
 interface Sims4PageLayoutProps {
@@ -141,6 +141,13 @@ export default function Sims4PageLayout({ game, packs }: Sims4PageLayoutProps) {
           >
             <Layers size={13} className="text-emerald-400" />
             คลังภาคเสริม & ม็อด
+          </a>
+          <a
+            href="#thai-fonts"
+            className="liquid-glass-pill inline-flex items-center gap-1.5 px-4 py-2 rounded-full hover:border-purple-400/50 text-text2 hover:text-white font-bold shrink-0"
+          >
+            <Type size={13} className="text-purple-400" />
+            ฟอนต์ภาษาไทย (เร็ว ๆ นี้)
           </a>
           <a
             href="#base-download"

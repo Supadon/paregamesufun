@@ -6,7 +6,7 @@ import Sims4PackCard from './Sims4PackCard'
 import { 
   Sparkles, Layers, Package, Sparkle, Wrench, 
   X, Download, ArrowRight, Heart, Search, LayoutGrid, List,
-  CheckCircle2, Clock, Check, RotateCcw, ExternalLink
+  CheckCircle2, Clock, Check, RotateCcw, ExternalLink, Type
 } from 'lucide-react'
 
 interface Sims4ShowcaseProps {
@@ -15,6 +15,39 @@ interface Sims4ShowcaseProps {
 
 type ViewMode = 'grid' | 'list'
 type ReleaseStatusFilter = 'all' | 'released' | 'unreleased'
+
+const UPCOMING_FONTS = [
+  {
+    id: 'font-style-1',
+    name: 'ฟอนต์สไตล์มาตรฐาน (Modern Clean)',
+    tag: 'รูปแบบที่ 1 · อ่านง่ายสบายตา',
+    description: 'ฟอนต์มีหัวแบบทันสมัย อ่านง่ายทุกขนาดหน้าจอ เหมาะสำหรับผู้ที่ชอบอ่านเนื้อเรื่องและการแจ้งเตือนยาว ๆ ในเกม',
+    previewImage: '/uploads/1791987577654-The_Sims_4_banner.webp',
+    sampleTitle: 'ซิมของคุณกำลังรู้สึกมีแรงบันดาลใจ!',
+    sampleBody: 'การวาดภาพหรือเขียนหนังสือในตอนนี้จะได้คุณภาพที่ยอดเยี่ยมเป็นพิเศษ',
+    fontClass: 'font-sans',
+  },
+  {
+    id: 'font-style-2',
+    name: 'ฟอนต์สไตล์มินิมอล (Minimal Sans)',
+    tag: 'รูปแบบที่ 2 · เรียบหรูทันสมัย',
+    description: 'ฟอนต์ไม่มีหัวดีไซน์คลีน เข้ากับหน้าต่างเมนู UI ของ The Sims 4 ให้ความรู้สึกโมเดิร์นและสบายตา',
+    previewImage: '/uploads/1787192535261-Sims_4_cover2.webp',
+    sampleTitle: 'ออกเดินทางไปยังพื้นที่ส่วนกลาง',
+    sampleBody: 'เลือกสถานที่และเพื่อนร่วมทางที่คุณต้องการชวนไปทำกิจกรรมวันหยุด',
+    fontClass: 'font-display tracking-wide',
+  },
+  {
+    id: 'font-style-3',
+    name: 'ฟอนต์สไตล์น่ารัก (Playful Sims)',
+    tag: 'รูปแบบที่ 3 · สดใสมีเอกลักษณ์',
+    description: 'ฟอนต์ลายมือโค้งมนสุดน่ารัก เพิ่มความมีชีวิตชีวาและบรรยากาศอบอุ่นให้กับการเล่นชีวิตซิมส์',
+    previewImage: '/uploads/1791986861105-Sims_4_cover.webp',
+    sampleTitle: 'งานเทศกาลแห่งความรักเริ่มขึ้นแล้ว!',
+    sampleBody: 'ชวนคนพิเศษของคุณไปดื่มชาซากุระและขอพรจากกูรูความรักกันเถอะ',
+    fontClass: 'font-sans italic',
+  },
+]
 
 export default function Sims4Showcase({ initialPacks }: Sims4ShowcaseProps) {
   const [packs] = useState<Sims4Pack[]>(initialPacks)
@@ -424,7 +457,7 @@ export default function Sims4Showcase({ initialPacks }: Sims4ShowcaseProps) {
           )}
 
           {/* Section C: Unreleased / In Progress Packs with Divider Header Banner */}
-          {unreleasedOfficialPacks.length > 0 && (
+          {(!isFilteredView || unreleasedOfficialPacks.length > 0) && (
             <div className="space-y-4 pt-2">
               {/* Themed Divider & Section Header */}
               <div className="liquid-glass-panel rounded-2xl border-amber-400/35 p-4 sm:p-5 overflow-hidden">
@@ -457,11 +490,17 @@ export default function Sims4Showcase({ initialPacks }: Sims4ShowcaseProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5">
-                {unreleasedOfficialPacks.map((pack) => (
-                  <Sims4PackCard key={pack.id} pack={pack} onSelect={setActiveModalPack} />
-                ))}
-              </div>
+              {unreleasedOfficialPacks.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5">
+                  {unreleasedOfficialPacks.map((pack) => (
+                    <Sims4PackCard key={pack.id} pack={pack} onSelect={setActiveModalPack} />
+                  ))}
+                </div>
+              ) : (
+                <div className="liquid-glass-well rounded-2xl p-6 text-center text-xs text-text2 border border-amber-400/15">
+                  ✨ ภาคเสริมในรอบปัจจุบันได้รับการปล่อยให้ดาวน์โหลดครบแล้ว รอติดตามรายชื่อภาคเสริมชุดถัดไปเร็ว ๆ นี้
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -721,7 +760,112 @@ export default function Sims4Showcase({ initialPacks }: Sims4ShowcaseProps) {
         </div>
       )}
 
-      {/* 6. Appreciation Note */}
+      {/* 6. Custom Thai Fonts Showcase (Coming Soon Preview) */}
+      <div id="thai-fonts" className="space-y-4 pt-2 scroll-mt-28">
+        {/* Section Header Banner */}
+        <div className="liquid-glass-panel rounded-2xl border-purple-400/35 p-4 sm:p-5 overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-purple-500/15 blur-2xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-purple-400 shadow-[0_0_12px_rgba(192,132,252,0.9)] animate-pulse" />
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-display font-black text-purple-200 text-base sm:text-lg tracking-wide flex items-center gap-2">
+                    <Type size={18} className="text-purple-400" />
+                    ฟอนต์ภาษาไทยสำหรับในเกม (Custom Thai Fonts)
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] text-xs font-bold">
+                    เร็ว ๆ นี้
+                  </span>
+                </div>
+                <p className="text-[11.5px] text-purple-200/85 mt-0.5 font-medium">
+                  เลือกเปลี่ยนรูปแบบฟอนต์ภาษาไทยในเกมตามสไตล์ที่คุณชอบ มีภาพตัวอย่างในเกมให้ดูเปรียบเทียบก่อนตัดสินใจดาวน์โหลด
+                </p>
+              </div>
+            </div>
+
+            <div className="shrink-0 flex items-center gap-2">
+              <span className="liquid-glass-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold text-purple-200 border-purple-400/35">
+                <Clock size={12} className="text-purple-300" />
+                เตรียมอัปเดตให้เลือกดาวน์โหลดเร็ว ๆ นี้
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Font Preview Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {UPCOMING_FONTS.map((font) => (
+            <div
+              key={font.id}
+              className="liquid-glass-panel rounded-2xl overflow-hidden border border-white/10 flex flex-col justify-between group"
+            >
+              <div>
+                {/* Preview Image Area with "เร็ว ๆ นี้" Overlay */}
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-bg2 border-b border-white/10">
+                  {/* Background Screenshot Image */}
+                  <img
+                    src={font.previewImage}
+                    alt={font.name}
+                    className="w-full h-full object-cover opacity-50 scale-105 transition-transform duration-700 group-hover:scale-110"
+                  />
+
+                  {/* Simulated In-Game Font Preview Box behind the overlay */}
+                  <div className="absolute inset-x-4 bottom-4 p-3 rounded-xl bg-bg0/80 border border-white/15 shadow-lg pointer-events-none">
+                    <div className={`text-xs font-bold text-emerald-300 mb-0.5 ${font.fontClass}`}>
+                      {font.sampleTitle}
+                    </div>
+                    <div className={`text-[10.5px] text-text1/90 leading-snug ${font.fontClass}`}>
+                      {font.sampleBody}
+                    </div>
+                  </div>
+
+                  {/* Frosted Overlay: "เร็ว ๆ นี้" */}
+                  <div className="absolute inset-0 bg-bg0/60 backdrop-blur-[3px] flex flex-col items-center justify-center p-4 text-center z-10">
+                    <div className="px-5 py-2 rounded-full bg-purple-500/25 border border-purple-300/50 shadow-[0_0_24px_rgba(168,85,247,0.45),inset_0_1px_0_rgba(255,255,255,0.4)] flex items-center gap-2 mb-1.5">
+                      <Sparkles size={15} className="text-purple-200 animate-pulse" />
+                      <span className="font-display text-sm sm:text-base font-black text-white tracking-wide">
+                        เร็ว ๆ นี้
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-purple-200/90 drop-shadow">
+                      กำลังจัดทำตัวอย่างฟอนต์ในเกม
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <div className="p-4 sm:p-5 space-y-2 relative z-10">
+                  <div className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/15 border border-purple-400/30 text-purple-300">
+                    {font.tag}
+                  </div>
+                  <h4 className="font-display text-base font-black text-white">
+                    {font.name}
+                  </h4>
+                  <p className="text-xs text-text2 leading-relaxed">
+                    {font.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Disabled Download Footer */}
+              <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 relative z-10">
+                <button
+                  type="button"
+                  disabled
+                  className="w-full py-2.5 px-4 rounded-xl bg-white/5 border border-white/10 text-text3 text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed opacity-75"
+                >
+                  <Clock size={13} />
+                  <span>เร็ว ๆ นี้ (รอเปิดให้ดาวน์โหลด)</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 7. Appreciation Note */}
       <div className="liquid-glass-panel rounded-2xl border-emerald-400/25 p-5 sm:p-6 text-center space-y-1.5">
         <div className="relative z-10 inline-flex items-center gap-2 text-xs font-black tracking-widest text-emerald-300 uppercase">
           <Heart size={14} className="fill-emerald-400 text-emerald-400 animate-pulse" />

@@ -172,24 +172,24 @@
     "name": "Werewolves",
     "category": "gamepack",
     "status": "wip",
-    "isReleased": false,
-    "progress": 0,
-    "version": "ภาคใหม่กำลังแปล",
-    "description": "แปลภาษาไทยสายเลือดมนุษย์หมาป่า ฝูงหมาป่า คืนจันทร์เต็มดวง และประวัติศาสตร์ Moonwood Mill (ยังไม่ปล่อยดาวน์โหลด)",
+    "isReleased": true,
+    "progress": 95,
+    "version": "v1.0",
+    "description": "แปลภาษาไทยสายเลือดมนุษย์หมาป่า ฝูงหมาป่า คืนจันทร์เต็มดวง และประวัติศาสตร์ Moonwood Mill (ความคืบหน้า 95%)",
     "coverImage": "/uploads/1791986996810-The_Sims_4_Werewolves_Cover_2.webp",
-    "badgeText": "ยังไม่ปล่อย (50%)"
+    "badgeText": "ปล่อยแล้ว (95%)"
   },
   {
     "id": "gp-vampires",
     "name": "Vampires",
     "category": "gamepack",
     "status": "wip",
-    "isReleased": false,
-    "progress": 10,
-    "version": "ภาคใหม่กำลังแปล",
-    "description": "แปลภาษาไทยพลังแวมไพร์ จุดอ่อน การดื่มพลาสมา และคฤหาสน์ Forgotten Hollow (ยังไม่ปล่อยดาวน์โหลด)",
+    "isReleased": true,
+    "progress": 95,
+    "version": "v1.0",
+    "description": "แปลภาษาไทยพลังแวมไพร์ จุดอ่อน การดื่มพลาสมา และคฤหาสน์ Forgotten Hollow (ความคืบหน้า 95%)",
     "coverImage": "/uploads/1791987002412-The_Sims_4_Vampires_Cover_2.webp",
-    "badgeText": "ยังไม่ปล่อย (50%)"
+    "badgeText": "ปล่อยแล้ว (95%)"
   },
   {
     "id": "sp-laundry-day",
