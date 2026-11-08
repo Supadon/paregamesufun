@@ -312,5 +312,33 @@
     "coverImage": "/uploads/1792350906362-10-02-26_3-42-12_PM.png",
     "downloadUrl": "https://www.patreon.com/GameSuFun/posts/underwater-mod-172734555/",
     "badgeText": ""
+  },
+  {
+    "id": "realm-of-magic",
+    "name": "Realm of Magic",
+    "category": "gamepack",
+    "status": "wip",
+    "isReleased": false,
+    "progress": 1,
+    "version": "v1.0",
+    "author": "",
+    "description": "",
+    "coverImage": "/uploads/1794107070817-The_Sims_4_Realm_of_Magic_Cover_2.webp",
+    "downloadUrl": "",
+    "badgeText": ""
+  },
+  {
+    "id": "cats-and -dogs",
+    "name": "Cats & Dogs",
+    "category": "expansion",
+    "status": "wip",
+    "isReleased": false,
+    "progress": 1,
+    "version": "v1.0",
+    "author": "",
+    "description": "",
+    "coverImage": "/uploads/1794107121866-The_Sims_4_Cats__26_Dogs_Cover_2.webp",
+    "downloadUrl": "",
+    "badgeText": ""
   }
 ]
