@@ -628,8 +628,12 @@ export async function deployToGitHub(customMessage?: string): Promise<{
       commitOutput = commitStdout.trim()
     }
 
-    // 3. Push to GitHub origin
-    const { stdout: pushStdout, stderr: pushStderr } = await execFileAsync('git', ['push', 'origin', 'HEAD'], { cwd })
+    // 3. Push to GitHub origin (use larger postBuffer + HTTP/1.1 to avoid curl 55 reset on Windows/schannel with image uploads)
+    const { stdout: pushStdout, stderr: pushStderr } = await execFileAsync(
+      'git',
+      ['-c', 'http.postBuffer=524288000', '-c', 'http.version=HTTP/1.1', 'push', 'origin', 'HEAD'],
+      { cwd, maxBuffer: 10 * 1024 * 1024 }
+    )
 
     return {
       success: true,
