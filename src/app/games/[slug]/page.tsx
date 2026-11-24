@@ -91,6 +91,72 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+type DetailBlock =
+  | { type: 'heading'; text: string }
+  | { type: 'list'; items: string[] }
+  | { type: 'paragraph'; text: string }
+
+function parseDetailBlocks(raw: string): DetailBlock[] {
+  const lines = raw.replace(/\r\n/g, '\n').split('\n')
+  const blocks: DetailBlock[] = []
+  let currentParagraph: string[] = []
+  let currentList: string[] = []
+
+  const flushParagraph = () => {
+    if (currentParagraph.length > 0) {
+      blocks.push({ type: 'paragraph', text: currentParagraph.join('\n') })
+      currentParagraph = []
+    }
+  }
+
+  const flushList = () => {
+    if (currentList.length > 0) {
+      blocks.push({ type: 'list', items: [...currentList] })
+      currentList = []
+    }
+  }
+
+  for (const rawLine of lines) {
+    const trimmed = rawLine.trim()
+    if (!trimmed) {
+      flushParagraph()
+      flushList()
+      continue
+    }
+
+    const headingMatch = trimmed.match(/^\[(.+?)\]$/)
+    if (headingMatch) {
+      flushParagraph()
+      flushList()
+      blocks.push({ type: 'heading', text: headingMatch[1].trim() })
+      continue
+    }
+
+    const bulletMatch = trimmed.match(/^(?:•|-|\*)\s+(.+)$/)
+    if (bulletMatch) {
+      flushParagraph()
+      currentList.push(bulletMatch[1].trim())
+      continue
+    }
+
+    flushList()
+    currentParagraph.push(trimmed)
+  }
+
+  flushParagraph()
+  flushList()
+  return blocks
+}
+
+function splitParagraphs(raw?: string): string[] {
+  if (!raw) return []
+  return raw
+    .replace(/\r\n/g, '\n')
+    .split(/\n\s*\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+}
+
 export const dynamicParams = true
 
 export async function generateStaticParams() {
@@ -275,17 +341,28 @@ export default async function GameDetailPage({ params }: PageProps) {
             </div>
 
             {/* Overview */}
-            <div className="liquid-glass-panel rounded-2xl p-6">
-              <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
-                เกี่ยวกับเกม (Overview)
+            {game.overview && (
+              <div className="liquid-glass-panel rounded-2xl p-6 sm:p-7">
+                <div className="relative z-10 text-[11px] font-bold text-blue3 tracking-[0.12em] uppercase mb-4 flex items-center gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
+                  เกี่ยวกับเกม (Overview)
+                </div>
+                <div className="relative z-10 space-y-4">
+                  {splitParagraphs(game.overview).map((paragraph, idx) => (
+                    <p
+                      key={idx}
+                      className="text-[15px] text-[#D4E2F8] leading-[1.9] font-normal whitespace-pre-line"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
               </div>
-              <p className="relative z-10 text-[14px] text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.overview}</p>
-            </div>
+            )}
 
             {/* Specifications */}
-            <div className="liquid-glass-panel rounded-2xl p-6">
-              <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-4 flex items-center gap-1.5">
+            <div className="liquid-glass-panel rounded-2xl p-6 sm:p-7">
+              <div className="relative z-10 text-[11px] font-bold text-blue3 tracking-[0.12em] uppercase mb-4 flex items-center gap-2">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
                 ข้อมูลทางเทคนิค (Specifications)
               </div>
@@ -318,8 +395,8 @@ export default async function GameDetailPage({ params }: PageProps) {
 
             {/* Video Section */}
             {game.videoUrl && (
-              <div className="liquid-glass-panel rounded-2xl p-6">
-                <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
+              <div className="liquid-glass-panel rounded-2xl p-6 sm:p-7">
+                <div className="relative z-10 text-[11px] font-bold text-blue3 tracking-[0.12em] uppercase mb-4 flex items-center gap-2">
                   <svg className="w-3.5 h-3.5 text-blue3" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                   </svg>
@@ -338,23 +415,85 @@ export default async function GameDetailPage({ params }: PageProps) {
             )}
 
             {/* Details */}
-            <div className="liquid-glass-panel rounded-2xl p-6">
-              <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-3 flex items-center gap-1.5">
+            <div className="liquid-glass-panel rounded-2xl p-6 sm:p-7">
+              <div className="relative z-10 text-[11px] font-bold text-blue3 tracking-[0.12em] uppercase mb-4 flex items-center gap-2">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
                 รายละเอียดการแปล
               </div>
               {game.shortDescription && (
-                <p className="relative z-10 text-sm font-semibold text-star2 leading-relaxed mb-2.5 max-w-[70ch]">
+                <p
+                  className={`relative z-10 text-[15px] sm:text-[15.5px] font-semibold text-star2 leading-[1.8] whitespace-pre-line ${
+                    game.description ? 'pb-4 mb-5 border-b border-white/[0.08]' : ''
+                  }`}
+                >
                   {game.shortDescription}
                 </p>
               )}
-              <p className="relative z-10 text-xs text-text2 leading-[1.8] font-normal max-w-[70ch]">{game.description}</p>
+              {game.description && (
+                <div className="relative z-10">
+                  {parseDetailBlocks(game.description).map((block, idx, allBlocks) => {
+                    const prev = idx > 0 ? allBlocks[idx - 1] : null
+
+                    if (block.type === 'heading') {
+                      const needsDivider = prev?.type === 'list'
+                      return (
+                        <h3
+                          key={idx}
+                          className={`flex items-center gap-2.5 text-[13.5px] font-bold text-white tracking-[0.01em] mb-3 ${
+                            idx === 0
+                              ? ''
+                              : needsDivider
+                              ? 'mt-6 pt-5 border-t border-white/[0.08]'
+                              : 'mt-5'
+                          }`}
+                        >
+                          <span className="inline-block w-[3px] h-3.5 rounded-full bg-blue3 shadow-[0_0_8px_rgba(111,160,255,0.85)]" />
+                          {block.text}
+                        </h3>
+                      )
+                    }
+
+                    if (block.type === 'list') {
+                      return (
+                        <ul
+                          key={idx}
+                          className={`space-y-2.5 ${prev && prev.type !== 'heading' ? 'mt-3.5' : ''}`}
+                        >
+                          {block.items.map((item, itemIdx) => (
+                            <li
+                              key={itemIdx}
+                              className="flex items-start gap-3 text-[14.5px] text-[#C4D6F2] leading-[1.85] font-normal"
+                            >
+                              <span
+                                className="mt-[10px] w-1.5 h-1.5 rounded-full bg-blue3/80 shadow-[0_0_6px_rgba(111,160,255,0.55)] shrink-0"
+                                aria-hidden
+                              />
+                              <span className="flex-1">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )
+                    }
+
+                    return (
+                      <p
+                        key={idx}
+                        className={`text-[14.5px] text-[#C4D6F2] leading-[1.88] font-normal whitespace-pre-line ${
+                          idx > 0 && prev?.type !== 'heading' ? 'mt-3.5' : ''
+                        }`}
+                      >
+                        {block.text}
+                      </p>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Installation Guide */}
             {game.instructions && game.instructions.length > 0 && (
-              <div className="liquid-glass-panel rounded-2xl p-6">
-                <div className="relative z-10 text-[10px] font-bold text-blue3 tracking-[1.5px] uppercase mb-5 flex items-center gap-1.5">
+              <div className="liquid-glass-panel rounded-2xl p-6 sm:p-7">
+                <div className="relative z-10 text-[11px] font-bold text-blue3 tracking-[0.12em] uppercase mb-5 flex items-center gap-2">
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue3 shadow-[0_0_8px_#6FA0FF]" />
                   วิธีการลงม็อด (Installation Guide)
                 </div>
