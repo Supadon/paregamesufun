@@ -445,5 +445,69 @@
     "instructions": [],
     "instructionsMac": [],
     "updatedAt": "2026-10-16"
+  },
+  {
+    "id": 10,
+    "slug": "the-operator",
+    "title": "The Operator",
+    "genre": "Simulation / Mystery",
+    "emoji": "🎮",
+    "status": "done",
+    "progress": {
+      "isMultiModule": false,
+      "translate": 100,
+      "proofread": 100,
+      "test": 100
+    },
+    "version": "v2.3",
+    "client": "Epic Game",
+    "translationVersion": "1.0",
+    "shortDescription": "ม็อดแปลภาษาไทยเกม The Operator ครบทั้งเกม (UI, บทสนทนา, ซับเทปเสียง, เอกสารสืบสวน และหน้าจอเทอร์มินัล) พร้อมฟอนต์ไทยแยกตามสไตล์หน้าจอ ติดตั้งง่ายในคลิกเดียวโดยไม่ทับไฟล์ต้นฉบับ",
+    "description": "ม็อดแปลภาษาไทยฉบับสมบูรณ์สำหรับเกม The Operator (รองรับตัวเกมเวอร์ชัน PC / BepInEx 5)\n\n[ จุดเด่นของแพตช์ ]\n• แปลภาษาไทยครบทุกส่วนของเกม — ทั้งเมนูหลัก, ระบบ OS ในคอมพิวเตอร์ FDI, บทสนทนาวิทยุ/แชทโต้ตอบ, ซับไตเติลเทปเสียงและรายงานชันสูตร, เอกสารคดี, ฐานข้อมูล และหน้าจอเทอร์มินัล\n• ใช้ฟอนต์ภาษาไทยถึง 10 ตระกูล เลือกจัดวางแยกตามบุคลิกของฟอนต์ต้นฉบับ (ฟอนต์หน้าจอ UI, เทอร์มินัล, เอกสารพิมพ์ดีด, ลายมือบันทึก, หน้าจอดิจิทัล และจอ HAL) พร้อมแก้สระ/วรรณยุกต์ลอยให้แสดงผลถูกต้อง\n• แปลภาพแผนผังโครงสร้างองค์กร FDI (Operator_Schema) ให้สอดคล้องกับคำศัพท์ในเกม\n• คงชื่อตัวละคร รหัส และคำสั่งเทอร์มินัลเฉพาะทางเป็นภาษาอังกฤษ เพื่อให้อ่านและเล่นไขปริศนาได้ตรงตามระบบเกม\n• แพ็คเป็นไฟล์เสริม (TheOperatorThai.dll + TheOperatorThai.pak) ไม่แตะต้องหรือแก้ไขไฟล์ต้นฉบับของตัวเกม ลบออกได้ง่ายทุกเมื่อ\n\n\n[ เครดิต ]\n- ระบบโหลดม็อด: BepInEx 5.4.23.6 / UnityDoorstop / HarmonyX\n- ฟอนต์ไทย: Google Sans, Noto Sans Thai Looped, Chakra Petch, Taviraj, Pattaya, Itim (Cadson Demak / Katatrad), PS LCD 3310 & PS Pimpdeed II New (พงศธรณ์ สระอุทัย), Sarun's ThangLuang (Sarun Noicharoen), RD CHULAJARUEK (Jakkraphan Saengsem) — รายละเอียดไลเซนส์แนบใน CREDITS.txt",
+    "overview": "The Operator เป็นเกมแนวสืบสวนไขปริศนาและจำลองการทำงานบนหน้าจอคอมพิวเตอร์ (Investigation / Simulation) จากสตูดิโอ Bureau 81\n\nคุณจะได้รับบทเป็น Evan TANNER \"โอเปอเรเตอร์\" หน้าใหม่แห่งหน่วยข่าวกรองกลาง FDI (Federal Department of Intelligence) ที่ต้องคอยให้การสนับสนุนเจ้าหน้าที่ภาคสนามแบบเรียลไทม์จากโต๊ะทำงานของคุณเอง\n\nเมื่อคดีฆาตกรรม บุคคลสูญหาย และการโจมตีทางไซเบอร์ทยอยถูกส่งเข้ามา คุณจะต้องใช้ซอฟต์แวร์เฉพาะทางของ FDI ทั้งระบบค้นหาฐานข้อมูลพลเมืองและยานพาหนะ โปรแกรมวิเคราะห์ภาพ-วิดีโอ-เสียง รวมถึงเครื่องสแกนสารเคมีและหน้าจอเทอร์มินัล เพื่อแกะรอยหลักฐาน เชื่อมโยงเบาะแส และเปิดโปงความจริงเบื้องหลังองค์กรลึกลับที่อาจใหญ่กว่าที่คิด",
+    "translationScope": [],
+    "videoUrl": "",
+    "coverImage": "/uploads/1795520307851-Screenshot_2026-11-23_035303.png",
+    "posterImage": "/uploads/1795520289056-the-operator-1pze2.png",
+    "fileSize": "7.30",
+    "team": [
+      {
+        "name": "แปลเกมสู่ฝัน",
+        "role": "ทำม็อด + แปลภาษาไทย",
+        "avatar": "/logo.jpg",
+        "link": "https://www.facebook.com/profile.php?id=61559423189253"
+      }
+    ],
+    "downloads": [
+      {
+        "label": "Download",
+        "url": "https://www.mediafire.com/file/2tdvtgrwnvwyjx3/TheOperator_%25E0%25B8%25A1%25E0%25B9%2587%25E0%25B8%25AD%25E0%25B8%2594%25E0%25B8%25A0%25E0%25B8%25B2%25E0%25B8%25A9%25E0%25B8%25B2%25E0%25B9%2584%25E0%25B8%2597%25E0%25B8%25A2_by_%25E0%25B9%2581%25E0%25B8%259B%25E0%25B8%25A5%25E0%25B9%2580%25E0%25B8%2581%25E0%25B8%25A1%25E0%25B8%25AA%25E0%25B8%25B9%25E0%25B9%2588%25E0%25B8%259D%25E0%25B8%25B1%25E0%25B8%2599.zip/file",
+        "type": "primary"
+      }
+    ],
+    "instructions": [
+      {
+        "text": "1. เปิดโฟลเดอร์ที่ติดตั้งเกม The Operator\n   (โฟลเดอร์เดียวกับที่มีไฟล์ OPERATOR.exe)\n   - Steam: คลิกขวาที่เกม > Manage > Browse local files\n   - Epic Games: คลิก ... ที่เกม > Manage > เปิดโฟลเดอร์ติดตั้ง",
+        "aspectRatio": "1:1"
+      },
+      {
+        "text": "2. แตกไฟล์ทั้งหมดจากไฟล์ .zip นี้ลงไปในโฟลเดอร์เกมโดยตรง\n   (ให้ winhttp.dll, doorstop_config.ini และโฟลเดอร์ BepInEx\n    อยู่ในระดับเดียวกับไฟล์ OPERATOR.exe)",
+        "aspectRatio": "1:1"
+      },
+      {
+        "text": "3. เปิดเล่นเกมตามปกติได้เลยครับ",
+        "aspectRatio": "1:1"
+      },
+      {
+        "text": "[ การตั้งค่าขนาดฟอนต์ (ปรับแต่งเพิ่มเติมได้) ]\nหลังติดตั้ง สามารถเปิดไฟล์:\n  BepInEx\\config\\subthai.theoperator.thai.cfg\nเพื่อปรับขนาดฟอนต์เฉพาะจุดได้ตามต้องการ:\n  - ChatLogFontScale       = 1.30  (แชทโต้ตอบด้านขวา)\n  - ChatAnswerFontScale    = 1.25  (ตัวเลือกตอบด้านขวา)\n  - AudioSubtitleFontScale = 1.35  (ซับเทปเสียง/รายงานชันสูตร)\n  - HalTerminalFontScale   = 1.15  (หน้าจอ HAL Hack)\n  - FolderIconFontScale    = 1.30  (ชื่อไฟล์/โฟลเดอร์บนหน้าจอคอมพิวเตอร์)\n* แก้ไขและบันทึกไฟล์แล้ว แล้วออกเข้าเกมใหม่",
+        "aspectRatio": "1:1"
+      },
+      {
+        "text": "[ วิธีถอนการติดตั้ง ]\nลบไฟล์ winhttp.dll, doorstop_config.ini, .doorstop_version\nและโฟลเดอร์ BepInEx ออกจากโฟลเดอร์เกม\n(ม็อดนี้ไม่ได้แก้ไขไฟล์ต้นฉบับของตัวเกม)",
+        "aspectRatio": "1:1"
+      }
+    ],
+    "instructionsMac": [],
+    "updatedAt": "2026-11-24"
   }
 ]
